@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissões de todas as janelas do Ekko",
+  "windows": ["notch", "panel", "orb", "dock", "hub", "voice", "settings", "palette", "onboarding", "alarm"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister"
+  ]
+}
