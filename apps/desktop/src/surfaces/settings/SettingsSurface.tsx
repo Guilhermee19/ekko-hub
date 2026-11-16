@@ -16,6 +16,8 @@ import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { TitleBar } from '../shared/TitleBar'
 import { SECTIONS, type SectionId } from './sections'
+import { SECTION_AVAILABILITY } from '@/lib/availability'
+import { SoonBanner, SoonTag } from '@/ui/Availability'
 
 const GROUPS: { title: string; items: { id: SectionId; label: string; icon: LucideIcon }[] }[] = [
   {
@@ -69,13 +71,18 @@ export function SettingsSurface() {
                       : 'text-muted hover:bg-surface-hover hover:text-content',
                   )}
                 >
-                  <Icon className="size-4" /> {label}
+                  <Icon className="size-4" /> <span className="flex-1 text-left">{label}</span>
+                  <SoonTag availability={SECTION_AVAILABILITY[id]} />
                 </button>
               ))}
             </div>
           ))}
         </nav>
         <main className="scroll-thin min-w-0 flex-1 overflow-y-auto p-6">
+          <SoonBanner
+            availability={SECTION_AVAILABILITY[section]}
+            className="mx-auto mb-6 max-w-3xl"
+          />
           <Section key={section} />
         </main>
       </div>

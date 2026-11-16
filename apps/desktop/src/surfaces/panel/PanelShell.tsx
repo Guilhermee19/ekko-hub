@@ -9,6 +9,8 @@ import { NAV, type PageId } from './nav'
 import { useNavBadges } from './badges'
 import { useNavigateRequests } from './navigate'
 import { PAGES } from './pages'
+import { PAGE_AVAILABILITY } from '@/lib/availability'
+import { SoonBanner, SoonTag } from '@/ui/Availability'
 
 interface PanelShellProps {
   /** wide = sidebar (notch, dock, hub); compact = icon rail (tray/orb popover). */
@@ -67,6 +69,7 @@ export function PanelShell({ layout, className }: PanelShellProps) {
             >
               <Icon className="size-4 shrink-0" />
               {wide && <span className="flex-1 text-left">{item.label}</span>}
+              {wide && <SoonTag availability={PAGE_AVAILABILITY[item.id]} />}
               {wide && badges[item.id] && (
                 <span className="font-mono text-[10px] text-muted">{badges[item.id]}</span>
               )}
@@ -125,9 +128,13 @@ export function PanelShell({ layout, className }: PanelShellProps) {
         </button>
       </nav>
       {/* key: each page starts scrolled to the top. */}
-      <main key={page} className="scroll-thin min-h-0 min-w-0 flex-1 overflow-y-auto p-4">
-        <Page compact={!wide} go={open} />
-      </main>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {/* Outside the scroller so full-height pages (chat) keep their layout. */}
+        <SoonBanner availability={PAGE_AVAILABILITY[page]} className="mx-4 mt-3 shrink-0" />
+        <main key={page} className="scroll-thin min-h-0 min-w-0 flex-1 overflow-y-auto p-4">
+          <Page compact={!wide} go={open} />
+        </main>
+      </div>
     </div>
   )
 }

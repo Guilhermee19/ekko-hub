@@ -15,16 +15,37 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Fase | Tema | Status |
 |---|---|---|
 | F0 | Fundação (repo, workspace, tema, lint, testes) | `[x]` |
-| F1 | UX/UI completa com dados mock (3 rodadas) | `[~]` |
+| F1 | UX/UI completa com dados mock (3 rodadas) | `[x]` |
+| F1.5 | Prioridade do Guilherme: aparência, timers, música, agenda, Spotify, voz | `[~]` |
 | F2 | Conversa + IA (grátis, local, paga) | `[ ]` |
-| F3 | Voz (push-to-talk, STT, TTS, wake word) | `[ ]` |
+| F3 | Voz completa (wake word, Whisper, Piper) | `[ ]` |
 | F4 | Funções fáceis (tools básicas) | `[ ]` |
 | F5 | Produtividade (tarefas, lembretes, hábitos, rotinas) | `[ ]` |
 | F6 | Controle do PC | `[ ]` |
-| F7 | Integrações (Spotify, Calendar, MCP, memória, casa) | `[ ]` |
+| F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (instalador, autostart, update) | `[ ]` |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.1.0 |
 | V2 | Servidor + app no celular | `[ ]` |
+
+## Releases
+
+| Versão | Data | O que tem |
+|---|---|---|
+| **v0.1.0** | 15/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers e Pomodoro reais com alarme, música tocando no notch (Windows), Spotify e Google Agenda (OAuth), próximo evento no notch, paleta de comandos, boas-vindas. O resto das telas é protótipo marcado como **Em breve** no app. |
+
+## O que já funciona de verdade (v0.1.0)
+
+| Área | Status no app | Detalhe |
+|---|---|---|
+| Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor |
+| Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
+| Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
+| Música tocando | Real | Qualquer player do Windows (Spotify, navegador…), no notch e com controles |
+| Spotify | Real (precisa de Client ID) | OAuth PKCE, fila e dispositivos; controlar exige Premium |
+| Google Agenda | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
+| Paleta, boas-vindas, alarme, confirmação | Real | Paleta: `Ctrl+Alt+Espaço` ou `Alt+Shift+Espaço` |
+| Conversa, Tarefas, Hábitos, Copiados, Rotinas, Meu PC, Memória | **Em breve** | Telas prontas com dados de exemplo |
+| Cérebro (IA), Voz, Funções, Avatar, Privacidade, Diagnóstico | **Em breve** | Configurações visuais, ainda sem efeito |
 
 ---
 
@@ -43,7 +64,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 
 ---
 
-## F1: UX/UI (protótipo real com dados mock)
+## F1: UX/UI (protótipo real com dados mock) ✅
 
 O frontend fala com o backend só via `lib/ipc`. Na F1 tudo vem de `lib/ipc/mock`, e cada fase seguinte troca o mock pelo real **sem mexer na UI**.
 
@@ -91,11 +112,15 @@ Cada tela fica em `features/<tela>/` com um store zustand próprio (dados mock) 
 
 Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa com IA.
 
-- [ ] Timers de verdade no backend (rodam com o painel fechado, aparecem no notch, disparam alarme)
-- [ ] Música tocando no notch via Windows (GSMTC: Spotify, navegador, qualquer player) + controles
-- [ ] Aparência personalizável: cor livre, formato/tamanho/transparência/brilho do notch, o que aparece na pílula
-- [ ] Conexões reais: Spotify (OAuth PKCE) e Google Agenda (OAuth), próximo evento no notch
-- [ ] Comandos de voz: segurar o atalho → reconhecimento de fala do Windows (pt-BR) → comando → resposta falada (voz do Windows); Whisper/Piper depois
+- [x] Timers de verdade no backend (rodam com o painel fechado, aparecem no notch, disparam alarme)
+- [x] Música tocando no notch via Windows (GSMTC: Spotify, navegador, qualquer player) + controles
+- [x] Aparência personalizável: cor livre, formato/tamanho/transparência/brilho do notch, o que aparece na pílula e prioridade
+- [x] Conexões reais: Spotify (OAuth PKCE) e Google Agenda (OAuth), próximo evento no notch e aviso 10 min antes
+- [x] Selos "Em breve" / "Em parte" no app em tudo que ainda é protótipo (`src/lib/availability.ts`)
+- [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
+- [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
+- [ ] Spotify na página Música (fila, volume, dispositivos reais quando conectado)
+- [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**
 
 ## F2: Conversa + IA

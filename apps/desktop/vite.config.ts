@@ -22,6 +22,16 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ['react', 'react-dom/client', 'react/jsx-runtime', 'zustand', 'lucide-react', 'clsx'],
   },
-  build: { target: 'es2022' },
+  build: {
+    target: 'es2022',
+    // Vite 8 / Rolldown name mangling gave two top-level bindings the same short name
+    // (the React CJS module and a react-dom marker string), so zustand got a React
+    // without a dispatcher and the release app opened blank windows. Whitespace-only
+    // minify until that is fixed upstream; scripts/e2e/smoke-release.mjs guards it.
+    minify: false,
+    rolldownOptions: {
+      output: { minify: { mangle: false, compress: false, codegen: { removeWhitespace: true } } },
+    },
+  },
   test: { environment: 'node' },
 }))

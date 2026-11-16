@@ -37,3 +37,12 @@ npm run e2e:onboarding
 
 `e2e:onboarding` percorre todas as etapas, escolhe a Bolha flutuante (cria uma janela nova) e confere que `onboarded` e o modo foram salvos.
 
+### Release
+
+```bash
+npm run tauri build          # gera target/release/bundle/nsis/Ekko_<versão>_x64-setup.exe
+npm run e2e:smoke-release    # abre o .exe de release e confere que todas as janelas montaram
+```
+
+O teste de fumaça existe porque o build de produção pode quebrar onde o modo dev não quebra (foi o caso do minificador do Vite 8, ver `apps/desktop/vite.config.ts`).
+
