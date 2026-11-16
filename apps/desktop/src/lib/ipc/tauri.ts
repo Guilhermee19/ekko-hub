@@ -4,6 +4,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import { tauriGeneral } from './generalTauri'
 import { tauriIntegrations } from './integrationsTauri'
 import { tauriProductivity } from './productivityTauri'
+import { tauriSystem } from './systemTauri'
 import type { Backend, Settings } from './types'
 import type { TimersSnapshot } from './types'
 import { MEDIA_CHANGED, VOLUME_CHANGED, type NowPlaying, type VolumeState } from './mediaTypes'
@@ -24,6 +25,7 @@ export const tauriBackend: Backend = {
   ...tauriIntegrations,
   ...tauriGeneral,
   ...tauriProductivity,
+  ...tauriSystem,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),
   setDisplayMode: (mode) => invoke('set_display_mode', { mode }),

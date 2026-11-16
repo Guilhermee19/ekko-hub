@@ -1,13 +1,16 @@
 import { Download, ScrollText } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { Badge, EmptyState } from '@/ui/data'
 import { Button } from '@/ui/primitives'
 import {
   filterAudit,
+  fromLog,
   MOCK_AUDIT,
   RESULT_LABEL,
   SOURCE_LABEL,
+  type AuditEntry,
   type AuditFilter,
   type AuditResult,
 } from './privacyModel'
@@ -34,7 +37,16 @@ export function PrivacyAudit() {
   const [filter, setFilter] = useState<AuditFilter>({ risk: 'all', result: 'all' })
   const retention = usePrefsSystem((s) => s.auditRetention)
   const setRetention = usePrefsSystem((s) => s.setAuditRetention)
-  const rows = filterAudit(MOCK_AUDIT, filter)
+  // Gallery: sample rows. App: the real log (PC-control actions so far).
+  const [entries, setEntries] = useState<AuditEntry[]>(backend.kind === 'mock' ? MOCK_AUDIT : [])
+  useEffect(() => {
+    if (backend.kind === 'mock') return
+    backend.auditRecent(200).then(
+      (log) => setEntries(log.map(fromLog)),
+      (err: unknown) => console.warn('[ekko] auditoria', err),
+    )
+  }, [])
+  const rows = filterAudit(entries, filter)
 
   return (
     <div className="flex flex-col gap-3">
@@ -74,7 +86,17 @@ export function PrivacyAudit() {
 
       <div className="overflow-hidden rounded-xl border border-border-soft">
         {rows.length === 0 ? (
-          <EmptyState icon={ScrollText} title="Nada com esses filtros" />
+          <EmptyState
+            icon={ScrollText}
+            title={
+              entries.length === 0 ? 'Nenhuma ação registrada ainda' : 'Nada com esses filtros'
+            }
+            hint={
+              entries.length === 0
+                ? 'Finalizar tarefas e limpezas do Meu PC aparecem aqui.'
+                : undefined
+            }
+          />
         ) : (
           <table className="w-full text-left text-[12px]">
             <thead className="bg-surface">

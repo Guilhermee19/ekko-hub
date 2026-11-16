@@ -49,7 +49,8 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
 | Atalhos | Real | Chamar e paleta trocáveis com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
-| Conversa, Copiados, Rotinas, Meu PC, Memória | **Em breve** | Telas prontas com dados de exemplo |
+| Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com limpeza de temporários e lixeira, log de auditoria |
+| Conversa, Copiados, Rotinas, Memória | **Em breve** | Telas prontas com dados de exemplo |
 | Cérebro (IA), Voz, Funções, Avatar, Privacidade, Diagnóstico | **Em breve** | Configurações visuais, ainda sem efeito |
 
 ---|---|---|
@@ -190,11 +191,11 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 
 - [ ] Volume, mute, teclas de mídia (portado do Jarvis)
 - [ ] Abrir apps e sites (validação do Jarvis `target.rs`)
-- [ ] Fechar apps
+- [x] Fechar apps (finalizar tarefa com confirmação e lista de protegidos, adiantado na v0.1.0)
 - [ ] Janelas: focar, minimizar, organizar, layouts de trabalho ("modo trabalho")
 - [ ] Buscar arquivos (Windows Search / Everything SDK)
 - [ ] Organizar a área de trabalho com **desfazer**
-- [ ] Status do PC (CPU, RAM, GPU, disco) + "Verificar meu PC"
+- [x] Status do PC (CPU, RAM, GPU, disco) + "Verificar meu PC" (adiantado na v0.1.0)
 - [ ] Desligar, reiniciar ou suspender agendado
 - [ ] Screenshot + visão ("o que tem na minha tela?")
 - [ ] Ditado em qualquer app (digita o que você fala)

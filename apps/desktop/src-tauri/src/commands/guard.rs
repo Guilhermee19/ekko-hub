@@ -25,6 +25,7 @@ const SOURCES: &[(&str, &str)] = &[
     ("productivity.rs", include_str!("productivity.rs")),
     ("media.rs", include_str!("media.rs")),
     ("settings.rs", include_str!("settings.rs")),
+    ("system.rs", include_str!("system.rs")),
     ("timers.rs", include_str!("timers.rs")),
     ("volume.rs", include_str!("volume.rs")),
 ];

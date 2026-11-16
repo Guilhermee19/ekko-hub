@@ -1,9 +1,11 @@
+import type { AuditLogEntry } from '@/lib/ipc'
 import type { Risk } from './toolsModel'
 
-// Audit log rows as the backend will store them (F4+). Mock rows below for F1c.
+// Audit log rows. Real ones come from `audit.log.jsonl` (PC-control actions, F6);
+// the gallery keeps the sample rows below.
 
 export type AuditResult = 'ok' | 'denied' | 'error'
-export type AuditSource = 'voice' | 'text' | 'routine'
+export type AuditSource = 'voice' | 'text' | 'routine' | 'ui'
 
 export interface AuditEntry {
   id: string
@@ -31,6 +33,28 @@ export const SOURCE_LABEL: Record<AuditSource, string> = {
   voice: 'voz',
   text: 'texto',
   routine: 'rotina',
+  ui: 'tela',
+}
+
+const TOOL_LABEL: Record<string, string> = {
+  'system.kill': 'Finalizar tarefa',
+  'system.clean_temp': 'Limpar temporários',
+  'system.empty_recycle_bin': 'Esvaziar lixeira',
+}
+
+/** Backend log line → table row. */
+export function fromLog(e: AuditLogEntry, index: number): AuditEntry {
+  const d = new Date(e.atMs)
+  const source = (['voice', 'text', 'routine'] as const).find((s) => s === e.origin) ?? 'ui'
+  return {
+    id: `${e.atMs}-${index}`,
+    time: `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+    tool: TOOL_LABEL[e.tool] ?? e.tool,
+    detail: e.detail,
+    risk: e.risk,
+    result: e.result,
+    source,
+  }
 }
 
 export function filterAudit(entries: AuditEntry[], filter: AuditFilter): AuditEntry[] {

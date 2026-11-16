@@ -6,5 +6,6 @@ pub mod integrations;
 pub mod media;
 pub mod productivity;
 pub mod shortcuts;
+pub mod system;
 pub mod timers;
 pub mod volume;

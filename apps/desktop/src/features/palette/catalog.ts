@@ -18,6 +18,7 @@ import { NAV, type PageId } from '@/surfaces/panel/nav'
 import { MODES } from '@/surfaces/settings/DisplayModePicker'
 import { useHabits } from '../habits/store'
 import { useMusic } from '../music/store'
+import { endTask } from '../mypc/actions'
 import { useMyPc } from '../mypc/store'
 import { useTimers } from '../timers/store'
 import type { Rankable } from './commands'
@@ -119,18 +120,17 @@ function actions({ onNavigate }: CatalogContext): PaletteCommand[] {
     {
       id: 'close-heavy',
       group: 'actions',
-      label: 'Fechar o Chrome (2,1 GB)',
-      keywords: ['programa pesado', 'memoria', 'encerrar'],
+      label: 'Fechar o programa mais pesado…',
+      keywords: ['programa pesado', 'memoria', 'encerrar', 'finalizar tarefa'],
       icon: XCircle,
-      risk: 'dangerous',
-      run: () =>
-        requestConfirm({
-          title: 'Fechar o Chrome (2,1 GB)',
-          detail: 'Encerra o Google Chrome e todas as abas. Abas não salvas serão perdidas.',
-          tool: 'apps.close',
-          risk: 'dangerous',
-          confirmLabel: 'Fechar',
-        }).then((ok) => ok && useMyPc.getState().closeApp('chrome')),
+      risk: 'confirm',
+      run: () => {
+        void backend.systemProcesses('memory').then((groups) => {
+          const heaviest = groups.find((g) => g.protection === 'ok')
+          if (heaviest) void endTask(heaviest)
+          else toast('Nada pesado para fechar agora')
+        })
+      },
     },
   ]
 }

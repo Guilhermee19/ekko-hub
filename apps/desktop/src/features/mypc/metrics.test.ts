@@ -1,36 +1,96 @@
 import { describe, expect, it } from 'vitest'
-import { METRIC_SPECS, metricAt, metricSeries, noise, sparkPoints, type MetricKey } from './metrics'
+import type { HistoryPoint, ProcessGroup, SystemSnapshot } from '@/lib/ipc'
+import {
+  HISTORY_LEN,
+  appendPoint,
+  filterSort,
+  formatBytes,
+  formatRate,
+  formatUptime,
+  killMessage,
+  sparkPoints,
+  toPoint,
+} from './metrics'
+import { scanProgress } from './store'
 
-const KEYS = Object.keys(METRIC_SPECS) as MetricKey[]
+const GB = 1024 ** 3
 
-describe('mock metrics', () => {
-  it('noise is deterministic and bounded', () => {
-    for (let i = 0; i < 500; i++) {
-      const n = noise(3, i)
-      expect(n).toBe(noise(3, i))
-      expect(n).toBeGreaterThanOrEqual(-1)
-      expect(n).toBeLessThanOrEqual(1)
-    }
+const group = (label: string, memory: number, cpu: number): ProcessGroup => ({
+  name: `${label.toLowerCase()}.exe`,
+  label,
+  path: null,
+  count: 1,
+  cpu,
+  memory,
+  protection: 'ok',
+  processes: [],
+})
+
+describe('mypc metrics', () => {
+  it('formats sizes, speeds and uptime in pt-BR', () => {
+    expect(formatBytes(640 * 1024 ** 2)).toBe('640 MB')
+    expect(formatBytes(1.8 * GB)).toBe('1,8 GB')
+    expect(formatBytes(490 * GB)).toBe('490 GB')
+    expect(formatRate(525_000)).toBe('4,2 Mb/s')
+    expect(formatRate(1000)).toBe('8 Kb/s')
+    expect(formatUptime(6 * 3600 + 12 * 60)).toBe('6 h 12 min')
+    expect(formatUptime(3 * 86400)).toBe('3 dias')
   })
 
-  it('values stay within each spec range', () => {
-    for (const key of KEYS) {
-      const { min, max } = METRIC_SPECS[key]
-      for (let sec = 1_700_000_000; sec < 1_700_000_600; sec++) {
-        const v = metricAt(key, sec)
-        expect(v).toBeGreaterThanOrEqual(min)
-        expect(v).toBeLessThanOrEqual(max)
-      }
+  it('builds history points and keeps the last 60', () => {
+    const snap: SystemSnapshot = {
+      atMs: 1,
+      cpu: { total: 30, cores: [], brand: '' },
+      memory: { used: 4 * GB, total: 16 * GB, swapUsed: 0, swapTotal: 0 },
+      uptimeSecs: 0,
+      disks: [{ mount: 'C:\\', label: '', total: 100, available: 25, removable: false }],
+      network: { rxPerSec: 10, txPerSec: 5 },
+      gpu: null,
+      temperature: null,
+      processCount: 0,
     }
+    const p = toPoint(snap)
+    expect(p).toMatchObject({ cpu: 30, ram: 25, disk: 75, net: 15, gpu: null })
+    let h: HistoryPoint[] = []
+    for (let i = 0; i < HISTORY_LEN + 5; i++) h = appendPoint(h, { ...p, atMs: i })
+    expect(h).toHaveLength(HISTORY_LEN)
+    expect(h[0].atMs).toBe(5)
+    expect(appendPoint(h, h[h.length - 1])).toBe(h)
   })
 
-  it('series is a sliding window over time', () => {
-    const now = 1_700_000_123_456
-    const a = metricSeries('cpu', now, 30)
-    const b = metricSeries('cpu', now + 1000, 30)
-    expect(a).toHaveLength(30)
-    expect(b.slice(0, 29)).toEqual(a.slice(1))
-    expect(metricSeries('cpu', now + 400, 30)).toEqual(a)
+  it('filters by name and sorts', () => {
+    const groups = [group('Chrome', 3 * GB, 2), group('Code', GB, 9), group('Discord', 2 * GB, 1)]
+    expect(filterSort(groups, '', 'memory').map((g) => g.label)).toEqual([
+      'Chrome',
+      'Discord',
+      'Code',
+    ])
+    expect(filterSort(groups, '', 'cpu')[0].label).toBe('Code')
+    expect(filterSort(groups, 'co', 'name').map((g) => g.label)).toEqual(['Code', 'Discord'])
+    expect(filterSort(groups, 'CHROME.EXE', 'name')).toHaveLength(1)
+  })
+
+  it('describes kill results', () => {
+    const ok = { name: 'a.exe', results: [], ended: 3, failed: 0 }
+    expect(killMessage('App', ok)).toBe('App finalizado')
+    const denied = {
+      name: 'a.exe',
+      results: [{ pid: 1, outcome: 'failed' as const, error: 'sem permissão' }],
+      ended: 0,
+      failed: 1,
+    }
+    expect(killMessage('App', denied)).toBe('Não consegui finalizar App: sem permissão')
+  })
+
+  it('scan progress counts running steps as half', () => {
+    expect(
+      scanProgress([
+        { id: 'a', label: 'A', status: 'ok' },
+        { id: 'b', label: 'B', status: 'running' },
+        { id: 'c', label: 'C', status: 'pending' },
+        { id: 'd', label: 'D', status: 'warn' },
+      ]),
+    ).toBe(0.625)
   })
 
   it('sparkPoints maps the domain to the box (y grows downward)', () => {

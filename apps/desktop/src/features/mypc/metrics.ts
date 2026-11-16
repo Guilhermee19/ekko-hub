@@ -1,55 +1,94 @@
-// Deterministic mock telemetry: every value is a pure function of time, so components can
-// derive it during render from `useNow` without storing samples. F2 swaps this for real data.
+import type { HistoryPoint, KillReport, ProcessGroup, SortBy, SystemSnapshot } from '@/lib/ipc'
 
-export type MetricKey = 'cpu' | 'ram' | 'gpu' | 'disk' | 'net' | 'temp'
+// Pure helpers for "Meu PC": formatting, history points, process filtering, scan progress.
 
-interface MetricSpec {
-  base: number
-  /** Slow sine swing around `base`. */
-  swing: number
-  /** Per-sample jitter amplitude. */
-  jitter: number
-  /** Sine period in seconds. */
-  period: number
-  min: number
-  max: number
+export const HISTORY_LEN = 60
+
+const nf = (v: number, digits: number) =>
+  v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: digits })
+
+/** pt-BR binary size like Explorer: "640 MB", "1,8 GB". */
+export function formatBytes(bytes: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let v = Math.max(0, bytes)
+  let u = 0
+  while (v >= 1024 && u < units.length - 1) {
+    v /= 1024
+    u++
+  }
+  return `${nf(v, u >= 3 && v < 100 ? 1 : 0)} ${units[u]}`
 }
 
-export const METRIC_SPECS: Record<MetricKey, MetricSpec> = {
-  cpu: { base: 34, swing: 12, jitter: 9, period: 47, min: 3, max: 100 },
-  ram: { base: 68, swing: 4, jitter: 1.5, period: 120, min: 0, max: 100 },
-  gpu: { base: 22, swing: 10, jitter: 6, period: 61, min: 0, max: 100 },
-  disk: { base: 71, swing: 0.2, jitter: 0.05, period: 600, min: 0, max: 100 },
-  net: { base: 4.2, swing: 2.8, jitter: 1.6, period: 29, min: 0.1, max: 100 },
-  temp: { base: 58, swing: 6, jitter: 1.8, period: 83, min: 30, max: 100 },
+/** Network speed in bits, the way providers sell it: "4,2 Mb/s". */
+export function formatRate(bytesPerSec: number): string {
+  const bits = bytesPerSec * 8
+  if (bits >= 1e9) return `${nf(bits / 1e9, 1)} Gb/s`
+  if (bits >= 1e6) return `${nf(bits / 1e6, 1)} Mb/s`
+  return `${nf(bits / 1e3, 0)} Kb/s`
 }
 
-const KEY_SEED: Record<MetricKey, number> = { cpu: 1, ram: 2, gpu: 3, disk: 4, net: 5, temp: 6 }
-
-/** Hash-based noise in [-1, 1], stable for the same (seed, step). */
-export function noise(seed: number, step: number): number {
-  let h = Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(step, 0xc2b2ae35)
-  h = Math.imul(h ^ (h >>> 16), 0x7feb352d)
-  h = Math.imul(h ^ (h >>> 15), 0x846ca68b)
-  h ^= h >>> 16
-  return ((h >>> 0) / 0xffffffff) * 2 - 1
+export function formatPercent(v: number): string {
+  return `${nf(v, 0)}%`
 }
 
-/** Metric value at whole second `sec` (epoch seconds), clamped to the spec range. */
-export function metricAt(key: MetricKey, sec: number): number {
-  const s = METRIC_SPECS[key]
-  const phase = KEY_SEED[key] * 1.7
-  const raw =
-    s.base +
-    s.swing * Math.sin((sec / s.period) * 2 * Math.PI + phase) +
-    s.jitter * noise(KEY_SEED[key], sec)
-  return Math.min(s.max, Math.max(s.min, raw))
+/** "6 h 12 min" / "3 dias". */
+export function formatUptime(secs: number): string {
+  const days = Math.floor(secs / 86400)
+  if (days >= 2) return `${days} dias`
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  return h > 0 ? `${h} h ${m} min` : `${m} min`
 }
 
-/** Last `count` samples (oldest first) ending at `nowMs`, one per second. */
-export function metricSeries(key: MetricKey, nowMs: number, count = 30): number[] {
-  const end = Math.floor(nowMs / 1000)
-  return Array.from({ length: count }, (_, i) => metricAt(key, end - count + 1 + i))
+export function systemDisk(s: SystemSnapshot) {
+  return (
+    s.disks.find((d) => d.mount.toUpperCase().startsWith('C:')) ?? s.disks.find((d) => !d.removable)
+  )
+}
+
+/** Same shape the backend history uses (built here for live events). */
+export function toPoint(s: SystemSnapshot): HistoryPoint {
+  const disk = systemDisk(s)
+  return {
+    atMs: s.atMs,
+    cpu: s.cpu.total,
+    ram: s.memory.total ? (s.memory.used / s.memory.total) * 100 : 0,
+    gpu: s.gpu?.usage ?? null,
+    disk: disk && disk.total ? ((disk.total - disk.available) / disk.total) * 100 : null,
+    net: s.network.rxPerSec + s.network.txPerSec,
+    temp: s.temperature,
+  }
+}
+
+/** Appends keeping the last `HISTORY_LEN` (ignores a repeated timestamp). */
+export function appendPoint(history: HistoryPoint[], p: HistoryPoint): HistoryPoint[] {
+  if (history.at(-1)?.atMs === p.atMs) return history
+  return [...history, p].slice(-HISTORY_LEN)
+}
+
+/** Search by friendly or exe name, then sort. */
+export function filterSort(groups: ProcessGroup[], query: string, by: SortBy): ProcessGroup[] {
+  const q = query.trim().toLowerCase()
+  const hits = q
+    ? groups.filter((g) => g.label.toLowerCase().includes(q) || g.name.toLowerCase().includes(q))
+    : groups
+  return [...hits].sort((a, b) =>
+    by === 'name'
+      ? a.label.localeCompare(b.label, 'pt-BR')
+      : by === 'cpu'
+        ? b.cpu - a.cpu
+        : b.memory - a.memory,
+  )
+}
+
+/** Toast text after "Finalizar tarefa". */
+export function killMessage(label: string, r: KillReport): string {
+  if (r.failed === 0) return `${label} finalizado`
+  if (r.ended === 0) {
+    const why = r.results.find((x) => x.error)?.error
+    return `Não consegui finalizar ${label}${why ? `: ${why}` : ''}`
+  }
+  return `${label}: ${r.ended} processo(s) finalizado(s), ${r.failed} não`
 }
 
 /** SVG polyline points for a series scaled into a `w`×`h` box with domain [lo, hi]. */

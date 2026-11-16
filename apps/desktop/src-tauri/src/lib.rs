@@ -30,6 +30,7 @@ pub fn run() {
             services::productivity::init(&handle);
             services::media::spawn(&handle);
             services::volume::spawn(&handle);
+            services::system::spawn(&handle);
             services::integrations::init(&handle);
             services::shortcuts::init(&handle);
             services::fullscreen::spawn(&handle);
@@ -122,6 +123,15 @@ pub fn run() {
             commands::connectors::ha_entities,
             commands::connectors::ha_toggle,
             commands::connectors::claude_code_status,
+            commands::system::system_snapshot,
+            commands::system::system_history,
+            commands::system::system_processes,
+            commands::system::system_kill,
+            commands::system::system_scan,
+            commands::system::system_clean_temp,
+            commands::system::system_empty_recycle_bin,
+            commands::system::system_open_startup_settings,
+            commands::system::audit_recent,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")

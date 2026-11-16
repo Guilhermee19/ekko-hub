@@ -10,5 +10,6 @@ pub mod media;
 pub mod notch;
 pub mod productivity;
 pub mod settings;
+pub mod system;
 pub mod timers;
 pub mod volume;

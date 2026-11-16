@@ -3,6 +3,7 @@ import { mockGeneral } from './generalMock'
 import { mockIntegrations } from './integrationsMock'
 import { mockMedia } from './mockMedia'
 import { mockProductivity } from './mockProductivity'
+import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
 import {
   DEFAULT_SETTINGS,
@@ -147,4 +148,5 @@ export const mockBackend: Backend = {
     patch,
   }),
   ...mockProductivity({ on, fire, showAlarm: (alarm) => mockBackend.showAlarm(alarm) }),
+  ...mockSystem({ on, fire }),
 }

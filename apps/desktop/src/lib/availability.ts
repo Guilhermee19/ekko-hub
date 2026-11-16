@@ -40,9 +40,8 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
     note: 'Rotinas de exemplo; os gatilhos reais chegam na F5.',
   },
   mypc: {
-    status: 'soon',
-    phase: 'F6',
-    note: 'Números simulados; o status real do PC chega na F6.',
+    status: 'live',
+    note: 'Temperatura só aparece se o PC expuser sensores ao Windows. Programas de inicialização são só listados.',
   },
   memory: {
     status: 'soon',
@@ -80,9 +79,9 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
     note: 'Fala, ditado e texto selecionado já ficam reservados; as ações chegam na F3 e F6.',
   },
   privacy: {
-    status: 'soon',
+    status: 'partial',
     phase: 'F6',
-    note: 'Log de auditoria de exemplo; a auditoria real chega com o controle do PC (F6).',
+    note: 'O log de auditoria já é real para as ações do Meu PC; exportar e retenção ainda são de exemplo.',
   },
   connections: { status: 'live' },
   diagnostics: {

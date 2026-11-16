@@ -96,6 +96,14 @@ await click('Notch no topo')
 await hover(NOTCH)
 await shot('notch-home', await desktop())
 
+// 1b. Meu PC inside the notch panel.
+await open()
+await click('Notch no topo')
+await hover(NOTCH)
+await click('Meu PC', `document.querySelector('${DESKTOP}')`)
+await sleep(1500)
+await shot('mypc', await desktop())
+
 // 2. Pill states.
 await open()
 await click('Timer')

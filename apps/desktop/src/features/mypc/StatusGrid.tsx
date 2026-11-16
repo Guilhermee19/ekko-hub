@@ -7,149 +7,165 @@ import {
   Wifi,
   type LucideIcon,
 } from 'lucide-react'
+import type { HistoryPoint, SystemSnapshot } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
-import { useNow } from '@/surfaces/shared/useNow'
-import { metricSeries, sparkPoints, type MetricKey } from './metrics'
+import { formatBytes, formatRate, formatUptime, systemDisk } from './metrics'
+import { Sparkline } from './Sparkline'
+import { useMyPc } from './store'
 
-interface CardDef {
-  key: MetricKey
+interface Card {
+  key: string
   icon: LucideIcon
   label: string
-  /** Sparkline domain; percentages use 0..100. */
+  /** null = unavailable on this PC. */
+  value: string | null
+  unit?: string
+  sub: string
+  series: number[]
   domain: [number, number]
-  value: (v: number) => string
-  unit: string
-  sub: (v: number) => string
+  hot?: boolean
 }
 
-const pt = (v: number, digits = 0) =>
-  v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })
+const pct = (v: number) => Math.round(v).toString()
 
-const CARDS: CardDef[] = [
-  {
-    key: 'cpu',
-    icon: Cpu,
-    label: 'CPU',
-    domain: [0, 100],
-    value: (v) => pt(v),
-    unit: '%',
-    sub: () => 'Ryzen 7 5800X · 8 núcleos',
-  },
-  {
-    key: 'ram',
-    icon: MemoryStick,
-    label: 'RAM',
-    domain: [0, 100],
-    value: (v) => pt(v),
-    unit: '%',
-    sub: (v) => `${pt((v / 100) * 16, 1)} de 16 GB`,
-  },
-  {
-    key: 'gpu',
-    icon: Gauge,
-    label: 'GPU',
-    domain: [0, 100],
-    value: (v) => pt(v),
-    unit: '%',
-    sub: () => 'RTX 3060 · 12 GB',
-  },
-  {
-    key: 'disk',
-    icon: HardDrive,
-    label: 'Disco (C:)',
-    domain: [0, 100],
-    value: (v) => pt(v),
-    unit: '%',
-    sub: (v) => `${pt(((100 - v) / 100) * 490)} GB livres`,
-  },
-  {
-    key: 'net',
-    icon: Wifi,
-    label: 'Rede',
-    domain: [0, 12],
-    value: (v) => pt(v, 1),
-    unit: 'Mb/s',
-    sub: () => 'Wi-Fi · Casa_5G',
-  },
-  {
-    key: 'temp',
-    icon: Thermometer,
-    label: 'Temperatura',
-    domain: [30, 90],
-    value: (v) => pt(v),
-    unit: '°C',
-    sub: (v) => (v > 70 ? 'Esquentando' : 'Normal'),
-  },
-]
+function cards(s: SystemSnapshot, h: HistoryPoint[]): Card[] {
+  const ram = s.memory.total ? (s.memory.used / s.memory.total) * 100 : 0
+  const disk = systemDisk(s)
+  const diskUsed = disk && disk.total ? ((disk.total - disk.available) / disk.total) * 100 : null
+  const net = h.map((p) => p.net)
+  const gpuSub =
+    s.gpu?.vramUsed != null && s.gpu.vramTotal
+      ? `VRAM ${formatBytes(s.gpu.vramUsed)} de ${formatBytes(s.gpu.vramTotal)}`
+      : (s.gpu?.name ?? 'Sem contadores de GPU')
+  return [
+    {
+      key: 'cpu',
+      icon: Cpu,
+      label: 'CPU',
+      value: pct(s.cpu.total),
+      unit: '%',
+      sub: `${s.cpu.cores.length} núcleos · ligado há ${formatUptime(s.uptimeSecs)}`,
+      series: h.map((p) => p.cpu),
+      domain: [0, 100],
+      hot: s.cpu.total > 85,
+    },
+    {
+      key: 'ram',
+      icon: MemoryStick,
+      label: 'Memória',
+      value: pct(ram),
+      unit: '%',
+      sub: `${formatBytes(s.memory.used)} de ${formatBytes(s.memory.total)}`,
+      series: h.map((p) => p.ram),
+      domain: [0, 100],
+      hot: ram > 85,
+    },
+    {
+      key: 'gpu',
+      icon: Gauge,
+      label: 'GPU',
+      value: s.gpu ? pct(s.gpu.usage) : null,
+      unit: '%',
+      sub: s.gpu ? gpuSub : 'Indisponível neste PC',
+      series: h.flatMap((p) => (p.gpu == null ? [] : [p.gpu])),
+      domain: [0, 100],
+      hot: (s.gpu?.usage ?? 0) > 90,
+    },
+    {
+      key: 'disk',
+      icon: HardDrive,
+      label: `Disco (${disk?.mount.replace('\\', '') ?? '?'})`,
+      value: diskUsed == null ? null : pct(diskUsed),
+      unit: '%',
+      sub: disk ? `${formatBytes(disk.available)} livres` : 'Indisponível',
+      series: h.flatMap((p) => (p.disk == null ? [] : [p.disk])),
+      domain: [0, 100],
+      hot: diskUsed != null && diskUsed > 90,
+    },
+    {
+      key: 'net',
+      icon: Wifi,
+      label: 'Rede',
+      value: formatRate(s.network.rxPerSec + s.network.txPerSec),
+      sub: `↓ ${formatRate(s.network.rxPerSec)} · ↑ ${formatRate(s.network.txPerSec)}`,
+      series: net,
+      domain: [0, Math.max(1, ...net)],
+    },
+    {
+      key: 'temp',
+      icon: Thermometer,
+      label: 'Temperatura',
+      value: s.temperature == null ? null : pct(s.temperature),
+      unit: '°C',
+      sub:
+        s.temperature == null
+          ? 'Indisponível neste PC'
+          : s.temperature > 80
+            ? 'Esquentando'
+            : 'Normal',
+      series: h.flatMap((p) => (p.temp == null ? [] : [p.temp])),
+      domain: [30, 100],
+      hot: (s.temperature ?? 0) > 80,
+    },
+  ]
+}
 
-/** Live status cards; values are derived from the clock each tick (mock telemetry). */
+/** Live status cards with ~90 s sparklines from the backend history. */
 export function StatusGrid({ compact }: { compact: boolean }) {
-  const now = useNow(true, 1000)
+  const snapshot = useMyPc((s) => s.snapshot)
+  const history = useMyPc((s) => s.history)
+  if (!snapshot) {
+    return (
+      <div className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-3')} aria-busy>
+        {Array.from({ length: 6 }, (_, i) => (
+          <div
+            key={i}
+            className="h-[112px] animate-pulse rounded-xl border border-border-soft bg-surface"
+          />
+        ))}
+      </div>
+    )
+  }
   return (
     <div className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-3')}>
-      {CARDS.map((card) => (
-        <MetricCard key={card.key} card={card} series={metricSeries(card.key, now)} />
+      {cards(snapshot, history).map((card) => (
+        <MetricCard key={card.key} card={card} />
       ))}
     </div>
   )
 }
 
-function MetricCard({ card, series }: { card: CardDef; series: number[] }) {
-  const { icon: Icon, domain } = card
-  const current = series[series.length - 1]
-  const hot = card.key === 'temp' ? current > 70 : domain[1] === 100 && current > 85
+function MetricCard({ card }: { card: Card }) {
+  const { icon: Icon } = card
   return (
     <div className="flex flex-col gap-1 overflow-hidden rounded-xl border border-border-soft bg-surface p-3">
       <span className="flex items-center gap-1.5 text-muted">
         <Icon className="size-3.5" aria-hidden />
         <span className="label-hud truncate">{card.label}</span>
       </span>
-      <span
-        className={cn('font-mono text-[20px] font-semibold tabular-nums', hot && 'text-danger')}
-      >
-        {card.value(current)}
-        <span className="ml-0.5 text-[11px] font-normal text-muted">{card.unit}</span>
-      </span>
+      {card.value == null ? (
+        <span className="text-[13px] leading-[30px] text-muted">indisponível</span>
+      ) : (
+        <span
+          className={cn(
+            'font-mono text-[20px] font-semibold tabular-nums',
+            card.hot && 'text-danger',
+          )}
+        >
+          {card.value}
+          {card.unit && (
+            <span className="ml-0.5 text-[11px] font-normal text-muted">{card.unit}</span>
+          )}
+        </span>
+      )}
       <Sparkline
-        values={series}
-        domain={domain}
-        label={`${card.label}: últimos ${series.length} segundos`}
+        values={card.series}
+        domain={card.domain}
+        label={`${card.label}: últimos ${card.series.length} registros`}
       />
-      <span className="truncate text-[11px] text-muted">{card.sub(current)}</span>
+      <span className="truncate text-[11px] text-muted" title={card.sub}>
+        {card.sub}
+      </span>
     </div>
-  )
-}
-
-const W = 100
-const H = 24
-
-function Sparkline({
-  values,
-  domain,
-  label,
-}: {
-  values: number[]
-  domain: [number, number]
-  label: string
-}) {
-  const points = sparkPoints(values, W, H, domain[0], domain[1])
-  return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      className="h-6 w-full overflow-visible text-accent"
-      role="img"
-      aria-label={label}
-    >
-      <polygon points={`0,${H} ${points} ${W},${H}`} className="fill-accent/10" />
-      <polyline
-        points={points}
-        fill="none"
-        strokeWidth={1.5}
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-        className="stroke-accent"
-      />
-    </svg>
   )
 }

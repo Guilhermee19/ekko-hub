@@ -32,6 +32,15 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 
 ![Alarme de timer na tela](docs/screenshots/alarm.webp)
 
+### De olho no seu PC
+
+![Meu PC](docs/screenshots/mypc.webp)
+
+- **Ao vivo:** CPU, memória, GPU (uso e VRAM), disco e rede, com gráfico do último minuto.
+- **O que está rodando:** cada programa numa linha só (as 40 abas do Chrome viram "Chrome"), ordenada por memória ou CPU.
+- **Finalizar tarefa:** o Ekko tenta fechar o programa direitinho e, se ele não responder, força. Sempre pede confirmação, e os processos essenciais do Windows ficam protegidos.
+- **Verificar meu PC:** analisa memória, processador, programas que abrem com o Windows, arquivos temporários, lixeira e espaço em disco. Também limpa temporários antigos e esvazia a lixeira, avisando antes quanto espaço vai liberar.
+
 ### Do jeito que você quiser
 
 O Ekko não precisa ficar no topo. Escolha entre **notch**, **bandeja** (perto do relógio), **bolha flutuante**, **dock lateral**, **central** (uma janela grande) ou **só voz**. A troca acontece na hora.
@@ -77,7 +86,7 @@ Os dois são configuráveis em *Configurações → Atalhos*. Se outro programa 
 | Comandos de voz ("Ei, Ekko, timer de 5 minutos") | próxima versão |
 | Conversa com IA (grátis, no seu PC ou com sua chave) | F2 |
 | Histórico do que você copiou e rotinas automáticas | F4–F5 |
-| Status e controle do PC | F6 |
+| Controle do PC por voz/IA (abrir apps, janelas, organizar arquivos) | F6 |
 | Memória, MCP, casa inteligente Tuya e câmeras | F7 |
 | O personagem animado do Ekko | F8 |
 
@@ -87,6 +96,7 @@ O plano completo está no [roadmap](docs/ROADMAP.md).
 
 - **Tudo fica no seu PC.** Configurações, tarefas e hábitos são salvos em `%APPDATA%\dev.guidev.ekko\`.
 - **Chaves e tokens** (Spotify, Google, Home Assistant) ficam no **Gerenciador de Credenciais do Windows**, nunca em arquivo de texto.
+- **Toda ação no PC fica registrada:** finalizar tarefas e limpezas vão para um log local que você vê em *Configurações → Privacidade*.
 - **O Ekko não envia telemetria.**
 
 ## Problemas?

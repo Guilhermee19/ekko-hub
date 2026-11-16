@@ -2,4 +2,5 @@
 
 pub mod fullscreen;
 pub mod media;
+pub mod system;
 pub mod volume;

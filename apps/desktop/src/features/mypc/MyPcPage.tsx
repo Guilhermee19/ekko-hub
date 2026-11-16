@@ -1,11 +1,15 @@
+import { useEffect } from 'react'
 import { PageHeader } from '@/ui/data'
 import type { PageProps } from '@/surfaces/panel/pages'
-import { HeavyApps } from './HeavyApps'
+import { ProcessTable } from './ProcessTable'
 import { ScanPanel } from './ScanPanel'
 import { StatusGrid } from './StatusGrid'
+import { connectSystem } from './store'
 
-/** Meu PC: live status, heavy apps and the guided check (mock data until F2). */
+/** Meu PC: live telemetry, the guided check and the running apps. */
 export function MyPcPage({ compact }: Pick<PageProps, 'compact'>) {
+  // Follow the backend's telemetry only while the page is open.
+  useEffect(() => connectSystem(), [])
   return (
     <div className="animate-rise-in flex flex-col gap-4">
       <PageHeader
@@ -20,10 +24,7 @@ export function MyPcPage({ compact }: Pick<PageProps, 'compact'>) {
       />
       <StatusGrid compact={compact} />
       <ScanPanel compact={compact} />
-      <section>
-        <h2 className="label-hud mb-2">Programas pesados agora</h2>
-        <HeavyApps />
-      </section>
+      <ProcessTable />
     </div>
   )
 }
