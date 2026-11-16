@@ -1,0 +1,64 @@
+# Publishes a GitHub Release with the Windows installer attached whenever a version tag
+# is pushed (git tag -a v0.1.0 -m "..." && git push origin v0.1.0).
+# GitHub always adds "Source code (zip/tar.gz)" on its own; what people download is the
+# Ekko_<version>_x64-setup.exe asset this job uploads.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  # Re-run for an existing tag from the Actions tab (e.g. to re-upload the installer).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag já existente (ex.: v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Conferir a tag contra a versão do app
+        shell: pwsh
+        run: |
+          $version = (Get-Content apps/desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          if ("v$version" -ne $env:TAG) { throw "A tag $env:TAG não bate com a versão $version do tauri.conf.json" }
+          if (-not (Test-Path "docs/releases/$env:TAG.md")) { throw "Faltam as notas em docs/releases/$env:TAG.md" }
+
+      - name: Checar (lint, tipos, testes)
+        run: |
+          npm run check
+          cargo test --workspace
+
+      - name: Gerar o instalador
+        run: npm run tauri build
+
+      - name: Publicar o release com o .exe
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Ekko Hub ${{ env.TAG }}
+          body_path: docs/releases/${{ env.TAG }}.md
+          files: target/release/bundle/nsis/*-setup.exe
+          fail_on_unmatched_files: true

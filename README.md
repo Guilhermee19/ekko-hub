@@ -144,6 +144,17 @@ npm run e2e:onboarding
 
 ### Release
 
+Quem publica é o GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)). Basta empurrar uma tag com a mesma versão do `tauri.conf.json` e ter as notas em `docs/releases/<tag>.md`:
+
+```bash
+git tag -a v0.1.0 -m "Ekko Hub v0.1.0"
+git push origin v0.1.0       # o Actions compila e publica o release com o Ekko_0.1.0_x64-setup.exe anexado
+```
+
+O GitHub sempre adiciona "Source code (zip/tar.gz)" sozinho. O que as pessoas baixam é o `.exe` em *Assets*.
+
+Para testar o instalador localmente antes de publicar:
+
 ```bash
 npm run tauri build          # gera target/release/bundle/nsis/Ekko_<versão>_x64-setup.exe
 npm run e2e:smoke-release    # abre o .exe de release e confere que todas as janelas montaram
