@@ -1,5 +1,4 @@
 import { Brain, Coffee, Pause, Play, RotateCcw, SkipForward } from 'lucide-react'
-import { useEffect } from 'react'
 import { cn } from '@/lib/cn'
 import { formatRemaining } from '@/lib/time'
 import { useNow } from '@/surfaces/shared/useNow'
@@ -20,13 +19,6 @@ export function PomodoroCard() {
   const left = running ? remainingMs(p.endsAt ?? 0, total, now) : (p.pausedLeft ?? total * 1000)
   const started = running || p.pausedLeft !== null
   const PhaseIcon = p.phase === 'focus' ? Brain : Coffee
-
-  // Advance to the next phase when the countdown ends (timer callback, not the effect body).
-  useEffect(() => {
-    if (p.endsAt === null) return
-    const id = window.setTimeout(pomoSkip, Math.max(0, p.endsAt - Date.now()))
-    return () => window.clearTimeout(id)
-  }, [p.endsAt, pomoSkip])
 
   return (
     <Card className="flex flex-col items-center gap-3">

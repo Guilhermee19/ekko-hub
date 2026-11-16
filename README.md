@@ -12,7 +12,7 @@ Requisitos: Node 24+, Rust estável (MSVC) e WebView2.
 ```bash
 npm install
 npm run tauri dev     # app real (notch, tray, atalho Ctrl+Shift+Espaço)
-npm run dev           # galeria no navegador: http://localhost:1420 (todos os modos com mock)
+npm run dev           # abre a galeria no navegador: http://127.0.0.1:1420 (todos os modos com mock)
 ```
 
 ## Checar
@@ -23,3 +23,17 @@ npm run rust:check    # clippy -D warnings + cargo test
 ```
 
 Os dados do usuário ficam em `%APPDATA%\dev.guidev.ekko\settings.json`.
+
+## Testes de ponta a ponta
+
+Rodam no app real, sem mexer no seu mouse ou teclado: o script conduz a janela pelo DevTools Protocol do WebView2.
+
+```bash
+# 1. Suba o app com a porta de depuração aberta
+WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333 npm run tauri dev
+# 2. Com a janela de boas-vindas aberta (primeira vez, ou Configurações → Geral → Refazer boas-vindas)
+npm run e2e:onboarding
+```
+
+`e2e:onboarding` percorre todas as etapas, escolhe a Bolha flutuante (cria uma janela nova) e confere que `onboarded` e o modo foram salvos.
+

@@ -1,6 +1,7 @@
 import {
   Bell,
   Brain,
+  CalendarDays,
   Clipboard,
   Cpu,
   Droplets,
@@ -18,6 +19,7 @@ export type PageId =
   | 'chat'
   | 'tasks'
   | 'timers'
+  | 'agenda'
   | 'habits'
   | 'music'
   | 'clipboard'
@@ -37,6 +39,7 @@ export const NAV: NavItem[] = [
   { id: 'chat', label: 'Conversa', icon: MessageSquare },
   { id: 'tasks', label: 'Tarefas', icon: ListChecks },
   { id: 'timers', label: 'Timers', icon: Timer },
+  { id: 'agenda', label: 'Agenda', icon: CalendarDays },
   { id: 'habits', label: 'Hábitos', icon: Droplets },
   { id: 'music', label: 'Música', icon: Music2 },
   { id: 'clipboard', label: 'Copiados', icon: Clipboard },

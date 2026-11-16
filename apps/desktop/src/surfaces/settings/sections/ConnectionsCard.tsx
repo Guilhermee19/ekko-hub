@@ -1,5 +1,6 @@
 import { LoaderCircle, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/cn'
 import { Badge } from '@/ui/data'
 import { Button } from '@/ui/primitives'
 import { usePrefsSystem, type ConnId } from './prefsSystem'
@@ -13,6 +14,7 @@ interface ShellProps {
   meta?: ReactNode
   action?: ReactNode
   children?: ReactNode
+  className?: string
 }
 
 /** Visual frame shared by every connection card. */
@@ -24,9 +26,15 @@ export function ConnectionsShell({
   meta,
   action,
   children,
+  className,
 }: ShellProps) {
   return (
-    <article className="flex flex-col gap-3 rounded-xl border border-border-soft bg-surface p-4">
+    <article
+      className={cn(
+        'flex flex-col gap-3 rounded-xl border border-border-soft bg-surface p-4',
+        className,
+      )}
+    >
       <div className="flex items-start gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
           <Icon className="size-[18px]" aria-hidden />
@@ -56,7 +64,8 @@ interface OAuthProps {
   account?: string
 }
 
-/** Connect / disconnect card backed by the mock store (OAuth flow in F7). */
+/** Mock connect / disconnect card for services not wired yet (Tuya, Home Assistant,
+ * câmeras). Real OAuth services use `OAuthConnectionCard`. */
 export function ConnectionsCard({ id, icon, name, description, phase, account }: OAuthProps) {
   const status = usePrefsSystem((s) => s.connections[id])
   const { connect, disconnect } = usePrefsSystem.getState()

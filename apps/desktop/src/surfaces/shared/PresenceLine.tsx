@@ -1,6 +1,7 @@
-import { Music2, Square, Timer, Volume2, X } from 'lucide-react'
+import { CalendarDays, Music2, Square, Timer, Volume2, X } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { useAssistant, type Activity } from '@/stores/assistant'
+import { type Activity } from '@/stores/assistant'
+import { usePresence } from '@/stores/liveActivity'
 import { demo } from '@/stores/demo'
 import { useSettings } from '@/stores/settings'
 import { EkkoFace } from '@/ui/EkkoFace'
@@ -13,12 +14,13 @@ import { useNow } from './useNow'
  * activity). Used by the notch pill, the dock strip header and the voice overlay.
  */
 export function PresenceLine({ compact = false }: { compact?: boolean }) {
-  const p = useAssistant()
+  const p = usePresence()
   const name = useSettings((s) => s.settings.assistantName)
+  const show = useSettings((s) => s.settings.appearance.pillShow)
 
   return (
     <div className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3">
-      <EkkoFace phase={p.phase} className="size-6 shrink-0" />
+      {show.avatar && <EkkoFace phase={p.phase} className="size-6 shrink-0" />}
       {p.phase === 'listening' && (
         <>
           <span className="size-1.5 shrink-0 rounded-full bg-danger" />
@@ -49,11 +51,25 @@ export function PresenceLine({ compact = false }: { compact?: boolean }) {
       {p.phase === 'idle' && !p.toast && p.activity && <ActivityChip activity={p.activity} />}
       {p.phase === 'idle' && !p.toast && !p.activity && (
         <>
-          <span className="animate-hud-breathe size-1.5 shrink-0 rounded-full bg-accent" />
+          {show.statusDot && (
+            <span className="animate-hud-breathe size-1.5 shrink-0 rounded-full bg-accent" />
+          )}
           {!compact && <span className="label-hud">{name}</span>}
         </>
       )}
+      {show.clock && p.phase === 'idle' && <Clock />}
     </div>
+  )
+}
+
+/** HH:MM on the right of the pill (optional in Aparência → Pílula). */
+function Clock() {
+  const now = useNow(true, 15_000)
+  const d = new Date(now)
+  return (
+    <span className="ml-auto shrink-0 font-mono text-[11px] text-muted tabular-nums">
+      {String(d.getHours()).padStart(2, '0')}:{String(d.getMinutes()).padStart(2, '0')}
+    </span>
   )
 }
 
@@ -90,7 +106,7 @@ function StopButton({ label, icon }: { label: string; icon: 'x' | 'square' }) {
 }
 
 function ActivityChip({ activity }: { activity: Activity }) {
-  const now = useNow(activity.kind === 'timer')
+  const now = useNow(activity.kind === 'timer' || activity.kind === 'event')
   const chip = 'flex min-w-0 flex-1 items-center gap-2 text-[12.5px]'
   if (activity.kind === 'timer') {
     return (
@@ -114,6 +130,17 @@ function ActivityChip({ activity }: { activity: Activity }) {
       </span>
     )
   }
+  if (activity.kind === 'event') {
+    return (
+      <span className={chip}>
+        <CalendarDays className="size-3.5 shrink-0 text-accent" />
+        <span className="truncate">{activity.title}</span>
+        <span className="ml-auto shrink-0 font-mono text-[11px] text-accent tabular-nums">
+          {eventWhen(activity.startsAt, activity.endsAt, now)}
+        </span>
+      </span>
+    )
+  }
   return (
     <span className={chip}>
       <Volume2 className="size-3.5 text-accent" />
@@ -128,4 +155,18 @@ function ActivityChip({ activity }: { activity: Activity }) {
       </span>
     </span>
   )
+}
+
+/** "em 8 min", "agora", "até 15:30" for an event chip. */
+export function eventWhen(startsAt: number, endsAt: number, now: number): string {
+  if (now >= endsAt) return 'acabou'
+  if (now >= startsAt) {
+    const end = new Date(endsAt)
+    return `até ${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`
+  }
+  const min = Math.ceil((startsAt - now) / 60_000)
+  if (min <= 1) return 'agora'
+  if (min < 60) return `em ${min} min`
+  const h = Math.floor(min / 60)
+  return `em ${h}h${String(min % 60).padStart(2, '0')}`
 }

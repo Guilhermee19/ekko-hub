@@ -1,11 +1,14 @@
 {
   "name": "ekko-hub",
   "private": true,
-  "workspaces": ["apps/desktop"],
+  "workspaces": [
+    "apps/desktop"
+  ],
   "scripts": {
     "dev": "npm run dev -w apps/desktop",
     "tauri": "npm run tauri -w apps/desktop --",
     "check": "npm run check -w apps/desktop",
-    "rust:check": "cargo clippy --workspace -- -D warnings && cargo test --workspace"
+    "rust:check": "cargo clippy --workspace -- -D warnings && cargo test --workspace",
+    "e2e:onboarding": "node scripts/e2e/onboarding.mjs"
   }
 }

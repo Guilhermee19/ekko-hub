@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::appearance::AppearanceSettings;
+use crate::integrations::IntegrationsSettings;
 use crate::notch::NotchSettings;
 
 /// How Ekko shows up on the user's screen.
@@ -93,8 +95,12 @@ pub struct Settings {
     pub monitor: usize,
     pub orb_position: Option<(i32, i32)>,
     pub notch: NotchSettings,
+    /// Accent override, notch look, pill content, panel scale (on top of the persona).
+    pub appearance: AppearanceSettings,
     /// False until the welcome flow is finished (shown on first run).
     pub onboarded: bool,
+    /// Developer app IDs for Spotify / Google (secrets live in the keyring).
+    pub integrations: IntegrationsSettings,
 }
 
 impl Settings {
@@ -113,7 +119,9 @@ impl Default for Settings {
             monitor: 0,
             orb_position: None,
             notch: NotchSettings::default(),
+            appearance: AppearanceSettings::default(),
             onboarded: false,
+            integrations: IntegrationsSettings::default(),
         }
     }
 }

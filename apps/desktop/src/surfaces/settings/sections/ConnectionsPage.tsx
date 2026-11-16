@@ -1,8 +1,10 @@
-import { CalendarDays, Cctv, Code, House, Lamp, Music, Smartphone } from 'lucide-react'
+import { Cctv, Code, House, Lamp, Smartphone } from 'lucide-react'
 import { Badge } from '@/ui/data'
 import { Button } from '@/ui/primitives'
 import { ConnectionsCard, ConnectionsShell } from './ConnectionsCard'
 import { ConnectionsMcp } from './ConnectionsMcp'
+import { OAuthConnectionCard } from './ConnectionsOAuth'
+import { GOOGLE_GUIDE, SPOTIFY_GUIDE } from './oauthGuides'
 import { toast, usePrefsSystem } from './prefsSystem'
 import { PageTitle } from './systemUi'
 
@@ -12,22 +14,8 @@ export function ConnectionsPage() {
       <PageTitle title="Conexões" subtitle="Serviços e aparelhos que o Ekko pode usar por você." />
 
       <div className="grid grid-cols-2 gap-3">
-        <ConnectionsCard
-          id="spotify"
-          icon={Music}
-          name="Spotify"
-          description="Tocar, pausar, fila e tocar em outro aparelho."
-          phase="F7"
-          account="ekko.demo · Premium"
-        />
-        <ConnectionsCard
-          id="calendar"
-          icon={CalendarDays}
-          name="Google Calendar"
-          description="Agenda no briefing da manhã e eventos por voz."
-          phase="F7"
-          account="conta Google conectada"
-        />
+        <OAuthConnectionCard guide={SPOTIFY_GUIDE} />
+        <OAuthConnectionCard guide={GOOGLE_GUIDE} />
         <ClaudeCodeCard />
         <ConnectionsCard
           id="homeassistant"

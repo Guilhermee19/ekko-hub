@@ -15,6 +15,7 @@ import { PaletteSurface } from '@/surfaces/palette/PaletteSurface'
 import { PanelSurface } from '@/surfaces/panel/PanelSurface'
 import { SettingsSurface } from '@/surfaces/settings/SettingsSurface'
 import { VoiceSurface } from '@/surfaces/voice/VoiceSurface'
+import { applyAppearance } from './theme/applyAppearance'
 import './theme/tokens.css'
 
 const SURFACES: Record<SurfaceId, ComponentType> = {
@@ -36,6 +37,8 @@ const OPAQUE: SurfaceId[] = ['gallery', 'hub', 'settings', 'onboarding']
 
 const surface = resolveSurface()
 document.body.dataset.opaque = String(OPAQUE.includes(surface))
+// tokens.css scopes the interface scale to the full windows by this attribute.
+document.body.dataset.surface = surface
 
 function App() {
   const persona = useSettings((s) => s.settings.persona)
@@ -47,6 +50,9 @@ function App() {
   useEffect(() => {
     document.documentElement.dataset.persona = persona
   }, [persona])
+  // Custom accent, tones and notch look are CSS variables layered over the persona.
+  const appearance = useSettings((s) => s.settings.appearance)
+  useEffect(() => applyAppearance(persona, appearance), [persona, appearance])
 
   const Surface = SURFACES[surface]
   return (

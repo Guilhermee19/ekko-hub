@@ -56,13 +56,7 @@ fn menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
         app,
         &[
             &MenuItem::with_id(app, OPEN, "Chamar o Ekko", true, None::<&str>)?,
-            &MenuItem::with_id(
-                app,
-                PALETTE,
-                "Paleta de comandos",
-                true,
-                None::<&str>,
-            )?,
+            &MenuItem::with_id(app, PALETTE, "Paleta de comandos", true, None::<&str>)?,
             &Submenu::with_items(app, "Modo de exibição", true, &mode_refs)?,
             &MenuItem::with_id(app, SETTINGS, "Configurações", true, None::<&str>)?,
             &PredefinedMenuItem::separator(app)?,

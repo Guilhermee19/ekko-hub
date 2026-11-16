@@ -4,6 +4,7 @@ import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { useLatest } from '@/surfaces/shared/useOverlay'
 import { HudFrame, Button, Kbd } from '@/ui/primitives'
+import { advance, isBlocked } from './flow'
 import { useOnboarding } from './store'
 import { BrainStep, NamesStep, WelcomeStep, useNames } from './StepsIntro'
 import { AppearanceStep, DoneStep, VoiceStep } from './StepsSetup'
@@ -30,15 +31,16 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const last = index === STEPS.length - 1
   const names = useNames()
   const mic = useOnboarding((s) => s.mic)
-  const blocked = step.id === 'names' && !names.userName.trim()
+  const blocked = isBlocked(step.id, names.userName)
 
   const back = () => setIndex((i) => Math.max(0, i - 1))
   const next = () => {
-    if (blocked) return
+    const a = advance(index, STEPS.length, blocked)
+    if (a.kind === 'stay') return
     if (step.id === 'names')
       void backend.setNames(names.userName.trim(), names.assistantName.trim() || 'Ekko')
-    if (last) return onDone()
-    setIndex(index + 1)
+    if (a.kind === 'finish') return onDone()
+    setIndex(a.index)
   }
   const skipVoice = () => {
     if (mic !== 'ok') useOnboarding.getState().skipMic()

@@ -1,14 +1,16 @@
 import { create } from 'zustand'
-import { useAssistant } from '@/stores/assistant'
+import { backend, type NowPlaying } from '@/lib/ipc'
 import { DEVICES, TRACKS } from './mock'
+import { positionAt, toTrack } from './nowPlaying'
 
 export interface Track {
   id: string
   title: string
   artist: string
   album: string
+  /** 0 for live streams / players that report no length. */
   durationSec: number
-  /** CSS gradient used as the cover background (stand-in for album art). */
+  /** CSS background value: the album art (`url(...)`) or a gradient stand-in. */
   cover: string
 }
 
@@ -21,23 +23,27 @@ export interface Device {
 export type Repeat = 'off' | 'all' | 'one'
 
 interface MusicState {
-  track: Track
+  /** What the PC is playing (Windows media overlay); null when nothing is. */
+  track: Track | null
+  /** Friendly player name ("Spotify", "Chrome"...), null when nothing plays. */
+  source: string | null
   playing: boolean
   positionSec: number
-  /** 0..1 */
-  volume: number
-  queue: Track[]
-  /** Tracks already played, most recent last (for "prev"). */
-  history: Track[]
-  device: Device
-  shuffle: boolean
-  repeat: Repeat
-  /** Prototype switch: Spotify account linked or not. */
-  connected: boolean
   toggle: () => void
   next: () => void
   prev: () => void
+  /** Local only for now: GSMTC seek isn't exposed yet. */
   seek: (sec: number) => void
+
+  // Spotify-only extras, still mock until the Spotify integration lands.
+  /** 0..1 */
+  volume: number
+  queue: Track[]
+  device: Device
+  shuffle: boolean
+  repeat: Repeat
+  /** Spotify account linked (prototype switch). */
+  connected: boolean
   setVolume: (v: number) => void
   setDevice: (id: string) => void
   playFromQueue: (id: string) => void
@@ -48,105 +54,90 @@ interface MusicState {
 
 const REPEAT_CYCLE: Record<Repeat, Repeat> = { off: 'all', all: 'one', one: 'off' }
 
-// The clock lives in the store (not a component) so Home and the notch see the same
-// position, and nothing calls setState inside a React effect.
-let ticker: number | undefined
+// Last backend snapshot and when it arrived: the local clock extrapolates from it, so
+// Home, Música and the notch all show the same position between events.
+let snapshot: NowPlaying | null = null
+let receivedAt = 0
+let ticker: ReturnType<typeof setInterval> | undefined
+
+function apply(now: NowPlaying | null) {
+  snapshot = now
+  receivedAt = Date.now()
+  useMusic.setState(
+    now
+      ? {
+          track: toTrack(now),
+          source: now.source,
+          playing: now.playing,
+          positionSec: positionAt(now, 0),
+        }
+      : { track: null, source: null, playing: false, positionSec: 0 },
+  )
+  syncClock(now?.playing ?? false)
+}
 
 function syncClock(playing: boolean) {
-  if (playing && ticker === undefined)
-    ticker = globalThis.setInterval(tick, 1000) as unknown as number
+  if (playing && ticker === undefined) ticker = setInterval(tick, 1000)
   if (!playing && ticker !== undefined) {
-    globalThis.clearInterval(ticker)
+    clearInterval(ticker)
     ticker = undefined
   }
 }
 
 function tick() {
-  const s = useMusic.getState()
-  if (!s.playing) return
-  if (s.positionSec + 1 < s.track.durationSec)
-    return useMusic.setState({ positionSec: s.positionSec + 1 })
-  if (s.repeat === 'one') return useMusic.setState({ positionSec: 0 })
-  if (s.queue.length > 0 || s.repeat === 'all') return s.next()
-  useMusic.setState({ playing: false, positionSec: s.track.durationSec })
-  afterChange()
+  if (snapshot?.playing)
+    useMusic.setState({ positionSec: positionAt(snapshot, Date.now() - receivedAt) })
 }
 
-/** Mirrors the player into the notch pill and keeps the clock in step. */
-function afterChange() {
-  const { track, playing } = useMusic.getState()
-  syncClock(playing)
-  useAssistant.getState().set({
-    activity: { kind: 'music', title: track.title, artist: track.artist, playing },
-  })
+/** Optimistic play/pause: flip now, the backend event confirms ~1 s later. */
+function flipLocally() {
+  if (!snapshot) return
+  const positionMs = Math.round(positionAt(snapshot, Date.now() - receivedAt) * 1000)
+  apply({ ...snapshot, playing: !snapshot.playing, positionMs })
 }
+
+const report = (err: unknown) => console.warn('[ekko] controle de mídia falhou', err)
 
 export const useMusic = create<MusicState>((set, get) => ({
-  track: TRACKS[0],
+  track: null,
+  source: null,
   playing: false,
-  positionSec: 83,
+  positionSec: 0,
+  toggle: () => {
+    flipLocally()
+    backend.mediaPlayPause().catch(report)
+  },
+  next: () => {
+    backend.mediaNext().catch(report)
+  },
+  prev: () => {
+    backend.mediaPrevious().catch(report)
+  },
+  seek: (sec) => {
+    const max = get().track?.durationSec || Infinity
+    set({ positionSec: Math.min(max, Math.max(0, sec)) })
+  },
+
   volume: 0.6,
   queue: TRACKS.slice(1),
-  history: [],
   device: DEVICES[0],
   shuffle: false,
   repeat: 'off',
-  connected: true,
-
-  toggle: () => {
-    const { playing, positionSec, track } = get()
-    // Restart a finished track instead of "playing" at its end.
-    set({ playing: !playing, positionSec: positionSec >= track.durationSec ? 0 : positionSec })
-    afterChange()
-  },
-  next: () => {
-    const { queue, track, history, shuffle, repeat } = get()
-    let rest = repeat === 'all' ? [...queue, track] : queue
-    if (rest.length === 0) {
-      set({ positionSec: 0, playing: false })
-      return afterChange()
-    }
-    const i = shuffle ? Math.floor(Math.random() * rest.length) : 0
-    const nextTrack = rest[i]
-    rest = rest.filter((_, k) => k !== i)
-    set({ track: nextTrack, queue: rest, history: [...history, track], positionSec: 0 })
-    afterChange()
-  },
-  prev: () => {
-    const { positionSec, history, track, queue } = get()
-    if (positionSec > 3 || history.length === 0) return set({ positionSec: 0 })
-    const previous = history[history.length - 1]
-    set({
-      track: previous,
-      history: history.slice(0, -1),
-      queue: [track, ...queue],
-      positionSec: 0,
-    })
-    afterChange()
-  },
-  seek: (sec) => set({ positionSec: Math.min(get().track.durationSec, Math.max(0, sec)) }),
+  connected: false,
   setVolume: (v) => set({ volume: Math.min(1, Math.max(0, v)) }),
   setDevice: (id) => set({ device: DEVICES.find((d) => d.id === id) ?? get().device }),
   playFromQueue: (id) => {
-    const { queue, track, history } = get()
+    const { queue } = get()
     const i = queue.findIndex((t) => t.id === id)
     if (i < 0) return
-    set({
-      track: queue[i],
-      queue: queue.slice(i + 1),
-      history: [...history, track, ...queue.slice(0, i)],
-      positionSec: 0,
-      playing: true,
-    })
-    afterChange()
+    set({ queue: queue.slice(i + 1) })
+    backend.mediaNext().catch(report)
   },
   toggleShuffle: () => set({ shuffle: !get().shuffle }),
   cycleRepeat: () => set({ repeat: REPEAT_CYCLE[get().repeat] }),
-  setConnected: (v) => {
-    if (!v && get().playing) {
-      set({ playing: false })
-      afterChange()
-    }
-    set({ connected: v })
-  },
+  setConnected: (v) => set({ connected: v }),
 }))
+
+// Follow the backend from the first import; every window gets its own copy.
+backend.onMediaChanged(apply).catch(report)
+backend.mediaNow().then(apply, report)

@@ -6,17 +6,17 @@ use crate::display::{self, windows};
 use crate::state::AppState;
 
 #[tauri::command]
-pub fn toggle_palette(app: AppHandle) -> Result<(), String> {
+pub async fn toggle_palette(app: AppHandle) -> Result<(), String> {
     display::flows::toggle_palette(&app).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn open_onboarding(app: AppHandle) -> Result<(), String> {
+pub async fn open_onboarding(app: AppHandle) -> Result<(), String> {
     display::flows::show_onboarding(&app).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn finish_onboarding(app: AppHandle) -> Result<(), String> {
+pub async fn finish_onboarding(app: AppHandle) -> Result<(), String> {
     let settings = app.state::<AppState>().update(|s| s.onboarded = true);
     broadcast(&app, &settings);
     if let Some(w) = app.get_webview_window(windows::ONBOARDING) {
@@ -26,7 +26,7 @@ pub fn finish_onboarding(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn show_alarm(app: AppHandle, alarm: Value) -> Result<(), String> {
+pub async fn show_alarm(app: AppHandle, alarm: Value) -> Result<(), String> {
     display::flows::show_alarm(&app, alarm).map_err(|e| e.to_string())
 }
 

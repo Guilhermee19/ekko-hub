@@ -15,7 +15,7 @@ pub fn change_mode(app: &AppHandle, mode: DisplayMode) -> tauri::Result<()> {
 }
 
 #[tauri::command]
-pub fn set_display_mode(app: AppHandle, mode: DisplayMode) -> Result<(), String> {
+pub async fn set_display_mode(app: AppHandle, mode: DisplayMode) -> Result<(), String> {
     change_mode(&app, mode).map_err(|e| e.to_string())
 }
 
@@ -26,11 +26,11 @@ pub fn set_hit_rect(window: tauri::WebviewWindow, state: State<'_, AppState>, re
 }
 
 #[tauri::command]
-pub fn summon(app: AppHandle) -> Result<(), String> {
+pub async fn summon(app: AppHandle) -> Result<(), String> {
     display::summon::summon(&app, None).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn show_panel_beside_orb(app: AppHandle) -> Result<(), String> {
+pub async fn show_panel_beside_orb(app: AppHandle) -> Result<(), String> {
     display::show_panel_beside_orb(&app).map_err(|e| e.to_string())
 }

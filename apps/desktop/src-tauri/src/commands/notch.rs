@@ -60,7 +60,7 @@ pub fn list_monitors(app: AppHandle) -> Result<Vec<MonitorInfo>, String> {
 }
 
 #[tauri::command]
-pub fn set_monitor(app: AppHandle, index: usize) -> Result<(), String> {
+pub async fn set_monitor(app: AppHandle, index: usize) -> Result<(), String> {
     let settings = app.state::<AppState>().update(|s| s.monitor = index);
     broadcast(&app, &settings);
     display::apply(&app, settings.display_mode).map_err(|e| e.to_string())

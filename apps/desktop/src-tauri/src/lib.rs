@@ -2,6 +2,7 @@
 
 mod commands;
 mod display;
+mod services;
 mod state;
 mod tray;
 
@@ -22,6 +23,9 @@ pub fn run() {
             let handle = app.handle().clone();
             tray::build(&handle)?;
             display::hit::spawn(handle.clone());
+            services::timers::spawn(handle.clone());
+            services::media::spawn(&handle);
+            services::integrations::init(&handle);
             register_hotkeys(&handle);
 
             let settings = app.state::<AppState>().settings();
@@ -34,6 +38,7 @@ pub fn run() {
         .on_window_event(on_window_event)
         .invoke_handler(tauri::generate_handler![
             commands::settings::get_settings,
+            commands::appearance::set_appearance,
             commands::settings::set_persona,
             commands::settings::set_dock_side,
             commands::settings::set_names,
@@ -54,6 +59,29 @@ pub fn run() {
             commands::flows::finish_onboarding,
             commands::flows::show_alarm,
             commands::flows::take_alarm,
+            commands::timers::list_timers,
+            commands::timers::timer_add,
+            commands::timers::timer_pause,
+            commands::timers::timer_resume,
+            commands::timers::timer_cancel,
+            commands::timers::timer_extend,
+            commands::timers::pomodoro,
+            commands::media::media_now,
+            commands::media::media_play_pause,
+            commands::media::media_next,
+            commands::media::media_previous,
+            commands::integrations::integration_status,
+            commands::integrations::set_integration_client,
+            commands::integrations::connect_spotify,
+            commands::integrations::connect_google,
+            commands::integrations::disconnect_integration,
+            commands::integrations::calendar_upcoming,
+            commands::integrations::spotify_state,
+            commands::integrations::spotify_devices,
+            commands::integrations::spotify_queue,
+            commands::integrations::spotify_transfer,
+            commands::integrations::spotify_control,
+            commands::integrations::open_external,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")

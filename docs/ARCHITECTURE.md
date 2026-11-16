@@ -72,3 +72,8 @@ Nomes no formato `ekko://<domínio>/<evento>`, por exemplo `ekko://assistant/sta
 ## Decisões (ADRs)
 
 Decisões relevantes ficam em `docs/adr/NNNN-titulo.md` (contexto → decisão → consequências).
+
+## Regra: comandos que criam janelas são `async`
+
+No Windows, criar uma janela WebView2 dentro de um comando Tauri **síncrono** trava o app (o comando bloqueia o loop de eventos de que o WebView2 precisa). Foi o que travou as boas-vindas ao escolher o modo de exibição. Todo `#[tauri::command]` que chama `display::apply`, `display::flows::*`, `display::summon::*`, `open_settings_window` ou `windows::ensure` deve ser `async fn`. O teste `commands::guard::window_commands_are_async` falha se alguém esquecer.
+

@@ -1,0 +1,83 @@
+//! Shared plumbing for Spotify / Google: keyring store, HTTP client and sessions.
+//! All `ekko-integrations` calls block, so commands run them on `spawn_blocking`.
+
+use std::sync::{Arc, OnceLock};
+
+use ekko_core::IntegrationsSettings;
+use ekko_integrations::http::{ReqwestTransport, Transport};
+use ekko_integrations::tokens::{GOOGLE_CLIENT_SECRET, KeyringStore, SecretStore};
+use ekko_integrations::{Error, Provider, Result, Session, google_calendar, spotify};
+use tauri::{AppHandle, Manager};
+
+use crate::state::AppState;
+
+pub struct Integrations {
+    store: Arc<dyn SecretStore>,
+    http: OnceLock<Arc<ReqwestTransport>>,
+}
+
+/// Registers the shared state and starts the calendar poller.
+pub fn init(app: &AppHandle) {
+    app.manage(Integrations {
+        store: Arc::new(KeyringStore),
+        http: OnceLock::new(),
+    });
+    super::calendar::spawn(app);
+}
+
+impl Integrations {
+    pub fn store(&self) -> &dyn SecretStore {
+        self.store.as_ref()
+    }
+
+    /// Built lazily on a blocking thread (reqwest::blocking must not start on tokio).
+    fn http(&self) -> Result<Arc<dyn Transport>> {
+        if let Some(http) = self.http.get() {
+            return Ok(http.clone());
+        }
+        let http = Arc::new(ReqwestTransport::new()?);
+        Ok(self.http.get_or_init(|| http).clone())
+    }
+
+    pub fn session(&self, provider: Provider, ids: &IntegrationsSettings) -> Result<Session> {
+        let oauth = match provider {
+            Provider::Spotify => spotify::oauth(client_id(&ids.spotify_client_id, provider)?),
+            Provider::Google => google_calendar::oauth(
+                client_id(&ids.google_client_id, provider)?,
+                self.store.get(GOOGLE_CLIENT_SECRET)?,
+            ),
+        };
+        Ok(Session::new(
+            provider,
+            oauth,
+            self.store.clone(),
+            self.http()?,
+        ))
+    }
+}
+
+fn client_id(id: &Option<String>, provider: Provider) -> Result<&str> {
+    id.as_deref()
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .ok_or(Error::NotConfigured(provider.label()))
+}
+
+/// Session for `provider` using the client IDs saved in settings.
+pub fn session(app: &AppHandle, provider: Provider) -> Result<Session> {
+    let ids = app.state::<AppState>().settings().integrations;
+    app.state::<Integrations>().session(provider, &ids)
+}
+
+/// Opens an http(s) URL in the default browser. `rundll32` hands the URL straight to
+/// the shell, so `&` in query strings is never parsed by cmd.exe.
+pub fn open_browser(url: &str) -> Result<()> {
+    if !(url.starts_with("https://") || url.starts_with("http://")) {
+        return Err(Error::OAuth("só abro links http(s)".into()));
+    }
+    std::process::Command::new("rundll32")
+        .args(["url.dll,FileProtocolHandler", url])
+        .spawn()
+        .map(|_| ())
+        .map_err(Error::Io)
+}

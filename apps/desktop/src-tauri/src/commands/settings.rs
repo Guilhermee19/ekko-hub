@@ -30,7 +30,7 @@ pub fn set_persona(app: AppHandle, persona: Persona) {
 }
 
 #[tauri::command]
-pub fn set_dock_side(app: AppHandle, side: DockSide) -> Result<(), String> {
+pub async fn set_dock_side(app: AppHandle, side: DockSide) -> Result<(), String> {
     let settings = app.state::<AppState>().update(|s| s.dock_side = side);
     broadcast(&app, &settings);
     display::apply(&app, settings.display_mode).map_err(|e| e.to_string())
@@ -46,6 +46,6 @@ pub fn set_names(app: AppHandle, user_name: String, assistant_name: String) {
 }
 
 #[tauri::command]
-pub fn open_settings(app: AppHandle) -> Result<(), String> {
+pub async fn open_settings(app: AppHandle) -> Result<(), String> {
     open_settings_window(&app).map_err(|e| e.to_string())
 }

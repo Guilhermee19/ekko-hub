@@ -1,4 +1,7 @@
 import { canvas, placeNotch } from '../notchGeometry'
+import { mockIntegrations } from './integrationsMock'
+import { mockMedia } from './mockMedia'
+import { mockTimers } from './mockTimers'
 import {
   DEFAULT_SETTINGS,
   type Backend,
@@ -57,6 +60,7 @@ const MONITORS: MonitorInfo[] = [
 
 export const mockBackend: Backend = {
   kind: 'mock',
+  ...mockIntegrations,
   getSettings: () => Promise.resolve(settings),
   onSettingsChanged: (cb) => on('settings', (s) => cb(s as Settings)),
   setDisplayMode: (displayMode) => patch({ displayMode }),
@@ -82,6 +86,7 @@ export const mockBackend: Backend = {
   },
   listen: (event, cb) => on(event, (p) => cb(p as never)),
   setNotch: (notch) => patch({ notch }),
+  setAppearance: (appearance) => patch({ appearance }),
   listMonitors: () => Promise.resolve(MONITORS),
   setMonitor: (monitor) => patch({ monitor }),
   notchDrag: (phase, dx) => {
@@ -132,4 +137,6 @@ export const mockBackend: Backend = {
     return Promise.resolve()
   },
   startDragging: noop,
+  ...mockTimers({ on, fire, showAlarm: (alarm) => mockBackend.showAlarm(alarm) }),
+  ...mockMedia({ on, fire }),
 }

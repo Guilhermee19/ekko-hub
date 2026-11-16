@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { backend } from '@/lib/ipc'
 import { useAssistant } from '@/stores/assistant'
 
 // Mock notification center (F1c). From F4 on the backend pushes items with this shape.
@@ -96,3 +97,6 @@ export const useNotifications = create<NotificationsState>((set) => ({
 /** Unread count for badges (nav item, notch dot). */
 export const selectUnread = (s: { items: Notification[] }) =>
   s.items.reduce((n, x) => n + (x.read ? 0 : 1), 0)
+
+// Backend-fired entries (timers ending, later reminders): every window adds its copy.
+void backend.listen<NewNotification>('ekko://notify', (n) => useNotifications.getState().notify(n))

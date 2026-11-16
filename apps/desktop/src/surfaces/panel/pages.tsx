@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { ChatPage } from '@/features/chat/ChatPage'
 import { TasksPage } from '@/features/tasks/TasksPage'
 import { TimersPage } from '@/features/timers/TimersPage'
+import { AgendaPage } from '@/features/calendar/AgendaPage'
 import { HabitsPage } from '@/features/habits/HabitsPage'
 import { MusicPage } from '@/features/music/MusicPage'
 import { ClipboardPage } from '@/features/clipboard/ClipboardPage'
@@ -25,6 +26,7 @@ export const PAGES: Record<PageId, ComponentType<PageProps>> = {
   chat: ChatPage,
   tasks: TasksPage,
   timers: TimersPage,
+  agenda: AgendaPage,
   habits: HabitsPage,
   music: MusicPage,
   clipboard: ClipboardPage,

@@ -21,6 +21,8 @@ export function pillWidth(p: Presence): number {
   switch (p.activity?.kind) {
     case 'music':
       return 320
+    case 'event':
+      return 300
     case 'timer':
       return 220
     case 'volume':
@@ -48,18 +50,30 @@ export function notchLook(expanded: boolean, idle: NotchIdle, p: Presence): Notc
  * Notch box inside the canvas, centered on `anchor` (pill center sent by the backend;
  * canvas center by default) but never cut by the canvas edge. Also the mouse hit area.
  */
-export function notchBox(look: NotchLook, size: NotchSize, p: Presence, anchor?: number): Box {
+export function notchBox(
+  look: NotchLook,
+  size: NotchSize,
+  p: Presence,
+  anchor?: number,
+  /** Pill size multiplier from the appearance settings (pill only). */
+  pillScale = 1,
+  /** Extra pill width for optional bits (the clock). */
+  extraW = 0,
+): Box {
   const { w: cw } = canvas(size)
   const [w, h] =
     look === 'panel'
       ? [PANELS[size].w, PANELS[size].h]
       : look === 'line'
         ? [MINIMAL.w, MINIMAL.h]
-        : [pillWidth(p), PILL_H]
+        : [Math.round((pillWidth(p) + extraW) * pillScale), Math.round(PILL_H * pillScale)]
   const center = anchor ?? cw / 2
   const x = Math.min(cw - w, Math.max(0, Math.round(center - w / 2)))
   return { x, y: 0, w, h }
 }
+
+/** Room the optional HH:MM clock needs in the pill. */
+export const CLOCK_W = 48
 
 // Kept here for older imports; lives in lib/time.
 export { formatRemaining } from '@/lib/time'

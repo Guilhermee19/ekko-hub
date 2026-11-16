@@ -14,11 +14,10 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '@/lib/cn'
 import type { Phase } from '@/stores/assistant'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { Segmented } from '@/ui/primitives'
-import type { AvatarColor } from './prefsAssistant'
+import type { AvatarColor, AvatarStyle } from '@/lib/ipc'
 
 // Avatar catalog: cosmetic until F8 picks the real technique (SVG, Lottie or Rive).
 
@@ -38,7 +37,7 @@ export const EXPRESSIONS = [
   { id: 'focused', label: 'Concentrado' },
 ]
 
-export const EYES = [
+export const EYES: { id: AvatarStyle; label: string }[] = [
   { id: 'pill', label: 'Pílula' },
   { id: 'round', label: 'Redondos' },
   { id: 'line', label: 'Linha' },
@@ -62,17 +61,10 @@ export const ACCESSORIES: { id: string; label: string; icon: LucideIcon }[] = [
 ]
 
 export const COLORS: { id: AvatarColor; label: string; swatch: string }[] = [
-  { id: 'theme', label: 'Seguir tema', swatch: 'bg-accent' },
+  { id: 'accent', label: 'Seguir tema', swatch: 'bg-accent' },
   { id: 'strong', label: 'Tom forte', swatch: 'bg-accent-strong' },
   { id: 'neutral', label: 'Neutro', swatch: 'bg-content' },
 ]
-
-// EkkoFace paints itself with text-accent; a descendant selector wins over it.
-const FACE_COLOR: Record<AvatarColor, string> = {
-  theme: '',
-  strong: '[&_svg]:text-accent-strong',
-  neutral: '[&_svg]:text-content',
-}
 
 const PHASES: { value: Phase; label: string }[] = [
   { value: 'idle', label: 'Repouso' },
@@ -84,18 +76,17 @@ const PHASES: { value: Phase; label: string }[] = [
 interface AvatarPreviewProps {
   name: string
   expression: string
-  color: AvatarColor
   accessories: string[]
 }
 
 /** Big face preview with a local phase picker (does not touch the global presence). */
-export function AvatarPreview({ name, expression, color, accessories }: AvatarPreviewProps) {
+export function AvatarPreview({ name, expression, accessories }: AvatarPreviewProps) {
   const [phase, setPhase] = useState<Phase>('idle')
   const mood = EXPRESSIONS.find((e) => e.id === expression)?.label ?? ''
   const worn = ACCESSORIES.filter((a) => accessories.includes(a.id))
   return (
     <div className="hud-grid flex items-center gap-6 rounded-xl border border-border-soft bg-surface p-5">
-      <div className={cn('relative grid size-36 shrink-0 place-items-center', FACE_COLOR[color])}>
+      <div className="relative grid size-36 shrink-0 place-items-center">
         <EkkoFace phase={phase} className="size-32" />
         {phase === 'idle' && (
           <span className="animate-hud-breathe absolute inset-0 rounded-full border border-accent/20" />

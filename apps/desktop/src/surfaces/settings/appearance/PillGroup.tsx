@@ -1,0 +1,106 @@
+import { ArrowDown, ArrowUp, GripVertical } from 'lucide-react'
+import { useState } from 'react'
+import type { PillItem, PillShow } from '@/lib/ipc'
+import { cn } from '@/lib/cn'
+import { dropPillItem, movePillItem } from '@/lib/pillPriority'
+import { Card, IconButton } from '@/ui/primitives'
+import { Field } from '../Field'
+import { Group, setAppearance, ToggleRow, useAppearance } from './controls'
+
+const PARTS: { id: keyof PillShow; label: string; hint: string }[] = [
+  { id: 'avatar', label: 'Avatar', hint: 'O rostinho do assistente à esquerda.' },
+  { id: 'statusDot', label: 'Ponto de status', hint: 'Pontinho respirando quando está quieto.' },
+  { id: 'clock', label: 'Relógio', hint: 'Hora atual no canto direito.' },
+  { id: 'timer', label: 'Timers', hint: 'Contagem regressiva ao vivo.' },
+  { id: 'music', label: 'Música', hint: 'O que está tocando agora.' },
+  { id: 'event', label: 'Próximo evento', hint: 'Compromisso que está chegando.' },
+]
+
+const ITEM_LABEL: Record<PillItem, string> = {
+  timer: 'Timer',
+  event: 'Evento',
+  music: 'Música',
+}
+
+/** What the collapsed pill may show and which activity wins when several happen. */
+export function PillGroup() {
+  const look = useAppearance()
+  const setShow = (patch: Partial<PillShow>) =>
+    setAppearance({ pillShow: { ...look.pillShow, ...patch } })
+
+  return (
+    <Group title="Pílula" hint="O que aparece no notch fechado.">
+      <Field title="O que mostrar" hint="Desligado aqui, nunca aparece na pílula.">
+        <Card className="max-w-xl divide-y divide-border-soft px-4 py-0.5">
+          {PARTS.map((p) => (
+            <ToggleRow
+              key={p.id}
+              label={p.label}
+              hint={p.hint}
+              checked={look.pillShow[p.id]}
+              onChange={(v) => setShow({ [p.id]: v })}
+            />
+          ))}
+        </Card>
+      </Field>
+
+      <Field
+        title="Prioridade"
+        hint="Quando várias coisas acontecem juntas, a de cima ganha. Arraste ou use as setas."
+      >
+        <PriorityList priority={look.pillPriority} />
+      </Field>
+    </Group>
+  )
+}
+
+function PriorityList({ priority }: { priority: PillItem[] }) {
+  const [dragging, setDragging] = useState<PillItem | null>(null)
+  const save = (pillPriority: PillItem[]) => setAppearance({ pillPriority })
+
+  return (
+    <ol className="flex max-w-sm flex-col gap-1.5" aria-label="Prioridade da pílula">
+      {priority.map((item, i) => (
+        <li
+          key={item}
+          draggable
+          onDragStart={(e) => {
+            setDragging(item)
+            e.dataTransfer.effectAllowed = 'move'
+          }}
+          onDragEnd={() => setDragging(null)}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault()
+            if (dragging && dragging !== item) save(dropPillItem(priority, dragging, item))
+            setDragging(null)
+          }}
+          className={cn(
+            'flex cursor-grab items-center gap-2 rounded-lg border bg-surface px-2 py-1.5',
+            dragging === item ? 'border-accent/50 opacity-60' : 'border-border-soft',
+          )}
+        >
+          <GripVertical className="size-4 text-muted" aria-hidden />
+          <span className="w-5 font-mono text-[12px] text-accent">{i + 1}</span>
+          <span className="flex-1 text-[13px]">{ITEM_LABEL[item]}</span>
+          <IconButton
+            label={`Subir ${ITEM_LABEL[item]}`}
+            disabled={i === 0}
+            onClick={() => save(movePillItem(priority, item, -1))}
+            className="size-7"
+          >
+            <ArrowUp className="size-3.5" />
+          </IconButton>
+          <IconButton
+            label={`Descer ${ITEM_LABEL[item]}`}
+            disabled={i === priority.length - 1}
+            onClick={() => save(movePillItem(priority, item, 1))}
+            className="size-7"
+          >
+            <ArrowDown className="size-3.5" />
+          </IconButton>
+        </li>
+      ))}
+    </ol>
+  )
+}

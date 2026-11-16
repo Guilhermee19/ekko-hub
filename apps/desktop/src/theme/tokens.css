@@ -50,6 +50,31 @@ body,
   height: 100%;
 }
 
+/* Appearance (Configurações > Aparência). theme/applyAppearance.ts overrides these on
+   <html>; the values below are the defaults, so nothing depends on JS having run. */
+:root {
+  --notch-radius: 18px;
+  --notch-opacity: 1;
+  --notch-glow: 0.25;
+  --notch-scale: 1;
+  --notch-bg: var(--color-base);
+  --notch-border: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  --notch-shadow: 0 0 6px color-mix(in srgb, var(--color-accent) 11%, transparent);
+  --font-scale: 1;
+}
+
+/* Collapsed notch pill: radius, translucency and accent glow come from the settings.
+   In the components layer so state utilities (border-danger while listening) still win. */
+@layer components {
+  .notch-pill {
+    border-bottom-left-radius: var(--notch-radius);
+    border-bottom-right-radius: var(--notch-radius);
+    border-color: var(--notch-border);
+    background-color: var(--notch-bg);
+    box-shadow: var(--notch-shadow);
+  }
+}
+
 body {
   margin: 0;
   color: var(--color-content);
@@ -61,6 +86,14 @@ body {
 /* Janelas opacas (hub, settings, galeria) pintam o fundo; as overlays ficam transparentes. */
 body[data-opaque='true'] {
   background-color: var(--color-base);
+}
+
+/* Interface scale for the full windows: zoom the root and shrink its box back so the
+   page still fills the window (text, spacing and icons grow together). */
+body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel']) #root {
+  zoom: var(--font-scale);
+  width: calc(100% / var(--font-scale));
+  height: calc(100% / var(--font-scale));
 }
 
 .no-select {
@@ -222,21 +255,39 @@ body[data-opaque='true'] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-hud-slow,
-  .animate-hud-medium,
-  .animate-hud-fast,
-  .animate-hud-breathe,
-  .animate-fade-in,
-  .animate-rise-in,
-  .animate-wave,
-  .animate-bounce-dot,
-  .animate-spin,
-  .animate-pulse {
+  :root:not([data-reduce-motion='off']) .animate-hud-slow,
+  :root:not([data-reduce-motion='off']) .animate-hud-medium,
+  :root:not([data-reduce-motion='off']) .animate-hud-fast,
+  :root:not([data-reduce-motion='off']) .animate-hud-breathe,
+  :root:not([data-reduce-motion='off']) .animate-fade-in,
+  :root:not([data-reduce-motion='off']) .animate-rise-in,
+  :root:not([data-reduce-motion='off']) .animate-wave,
+  :root:not([data-reduce-motion='off']) .animate-bounce-dot,
+  :root:not([data-reduce-motion='off']) .animate-spin,
+  :root:not([data-reduce-motion='off']) .animate-pulse {
     animation: none;
   }
   /* Exceção consciente: o brilho do núcleo é sinal de estado, não movimento. */
-  .hud-core-live {
+  :root:not([data-reduce-motion='off']) .hud-core-live {
     transform: none;
     transition: filter 75ms linear;
   }
+}
+
+/* Same, forced on from Configurações > Aparência regardless of the Windows setting. */
+:root[data-reduce-motion='on'] .animate-hud-slow,
+:root[data-reduce-motion='on'] .animate-hud-medium,
+:root[data-reduce-motion='on'] .animate-hud-fast,
+:root[data-reduce-motion='on'] .animate-hud-breathe,
+:root[data-reduce-motion='on'] .animate-fade-in,
+:root[data-reduce-motion='on'] .animate-rise-in,
+:root[data-reduce-motion='on'] .animate-wave,
+:root[data-reduce-motion='on'] .animate-bounce-dot,
+:root[data-reduce-motion='on'] .animate-spin,
+:root[data-reduce-motion='on'] .animate-pulse {
+  animation: none;
+}
+:root[data-reduce-motion='on'] .hud-core-live {
+  transform: none;
+  transition: filter 75ms linear;
 }

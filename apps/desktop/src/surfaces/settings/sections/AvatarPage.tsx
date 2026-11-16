@@ -1,4 +1,6 @@
+import { backend, type AppearanceSettings } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
+import { useSettings } from '@/stores/settings'
 import { Badge } from '@/ui/data'
 import { Input, Toggle } from '@/ui/forms'
 import { Card } from '@/ui/primitives'
@@ -17,6 +19,9 @@ export function AvatarPage() {
   const avatar = usePrefs((s) => s.avatar)
   const patch = usePrefs((s) => s.patch)
   const set = (v: Partial<typeof avatar>) => patch('avatar', v)
+  // Eyes and color are real settings: every EkkoFace (notch, orb, chat) follows them.
+  const look = useSettings((s) => s.settings.appearance)
+  const setLook = (v: Partial<AppearanceSettings>) => void backend.setAppearance({ ...look, ...v })
   const toggleAccessory = (id: string) =>
     set({
       accessories: avatar.accessories.includes(id)
@@ -33,7 +38,6 @@ export function AvatarPage() {
       <AvatarPreview
         name={avatar.name}
         expression={avatar.expression}
-        color={avatar.color}
         accessories={avatar.accessories}
       />
 
@@ -55,7 +59,11 @@ export function AvatarPage() {
       <Field title="Cor" hint="Por padrão segue o accent da persona escolhida em Aparência.">
         <div className="flex flex-wrap gap-2">
           {COLORS.map((c) => (
-            <Chip key={c.id} active={avatar.color === c.id} onClick={() => set({ color: c.id })}>
+            <Chip
+              key={c.id}
+              active={look.avatarColor === c.id}
+              onClick={() => setLook({ avatarColor: c.id })}
+            >
               <span className={cn('size-3 rounded-full', c.swatch)} aria-hidden /> {c.label}
             </Chip>
           ))}
@@ -65,7 +73,11 @@ export function AvatarPage() {
       <Field title="Olhos" hint="Formato dos olhos.">
         <div className="flex flex-wrap gap-2">
           {EYES.map((e) => (
-            <Chip key={e.id} active={avatar.eyes === e.id} onClick={() => set({ eyes: e.id })}>
+            <Chip
+              key={e.id}
+              active={look.avatarStyle === e.id}
+              onClick={() => setLook({ avatarStyle: e.id })}
+            >
               {e.label}
             </Chip>
           ))}

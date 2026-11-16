@@ -1,7 +1,8 @@
 import { create } from 'zustand'
-import { useAssistant } from '@/stores/assistant'
+import { backend, type TimersSnapshot } from '@/lib/ipc'
 
-// Feature-local mock store (F1b). The backend replaces it later with the same shape.
+// Timers and pomodoro live in the backend (Rust in Tauri, `mockTimers` in the gallery);
+// this store mirrors its snapshot in every window. The stopwatch is a local UI tool.
 
 export interface Timer {
   id: string
@@ -31,7 +32,7 @@ export interface Pomodoro {
   endsAt: number | null
   /** Ms left when paused. */
   pausedLeft: number | null
-  /** Finished focus blocks today. */
+  /** Finished focus blocks. */
   cycles: number
   focusMin: number
   breakMin: number
@@ -45,13 +46,14 @@ interface TimersState {
   pauseTimer: (id: string) => void
   resumeTimer: (id: string) => void
   cancelTimer: (id: string) => void
+  extendTimer: (id: string, seconds: number) => void
   swStart: () => void
   swPause: () => void
   swLap: () => void
   swReset: () => void
   pomoStart: () => void
   pomoPause: () => void
-  /** Ends the current phase now (also called when the countdown reaches zero). */
+  /** Ends the current phase now (the backend also advances it when it reaches zero). */
   pomoSkip: () => void
   pomoReset: () => void
 }
@@ -59,81 +61,52 @@ interface TimersState {
 export const phaseSeconds = (p: Pomodoro) => (p.phase === 'focus' ? p.focusMin : p.breakMin) * 60
 export const POMO_LABEL: Record<PomodoroPhase, string> = { focus: 'Foco', break: 'Pausa' }
 
-/** Mirror a running countdown in the notch pill. */
-function showInNotch(label: string, endsAt: number, total: number) {
-  useAssistant.getState().set({ activity: { kind: 'timer', label, endsAt, total } })
+/** Backend snapshot → the shape the UI (Home, badges, notch) already uses. */
+export function fromSnapshot(s: TimersSnapshot): Pick<TimersState, 'timers' | 'pomodoro'> {
+  return {
+    timers: s.timers.map((t) => ({
+      id: t.id,
+      label: t.label,
+      endsAt: t.endsAtMs,
+      total: Math.round(t.totalMs / 1000),
+      ...(t.pausedLeftMs !== null && { pausedLeft: t.pausedLeftMs }),
+    })),
+    pomodoro: {
+      phase: s.pomodoro.phase,
+      endsAt: s.pomodoro.endsAtMs,
+      pausedLeft: s.pomodoro.pausedLeftMs,
+      cycles: s.pomodoro.cycles,
+      focusMin: s.pomodoro.focusMin,
+      breakMin: s.pomodoro.breakMin,
+    },
+  }
 }
-
-/** Clear the notch only if it is still showing this countdown. */
-function clearNotch(label: string) {
-  const { activity, set } = useAssistant.getState()
-  if (activity?.kind === 'timer' && activity.label === label) set({ activity: null })
-}
-
-let seq = 0
-const uid = () => `tm-${Date.now().toString(36)}-${(seq++).toString(36)}`
-
-const now = Date.now()
-
-const MOCK_TIMERS: Timer[] = [
-  { id: 'tm1', label: 'Café passando', endsAt: now + 3 * 60_000 + 20_000, total: 5 * 60 },
-  { id: 'tm2', label: 'Pão de queijo no forno', endsAt: now + 17 * 60_000, total: 25 * 60 },
-  {
-    id: 'tm3',
-    label: 'Ligar para o cliente',
-    endsAt: now,
-    total: 10 * 60,
-    pausedLeft: 7 * 60_000 + 45_000,
-  },
-]
 
 const IDLE_STOPWATCH: Stopwatch = { startedAt: null, elapsed: 0, laps: [] }
 
-export const useTimers = create<TimersState>((set, get) => {
-  const patchTimer = (id: string, fn: (t: Timer) => Timer) =>
-    set((s) => ({ timers: s.timers.map((t) => (t.id === id ? fn(t) : t)) }))
+export const useTimers = create<TimersState>((set) => {
+  const apply = (s: TimersSnapshot) => set(fromSnapshot(s))
+  const run = (call: Promise<TimersSnapshot>) =>
+    void call.then(apply, (err: unknown) => console.error('[ekko] timers:', err))
   const swNow = (sw: Stopwatch) => sw.elapsed + (sw.startedAt ? Date.now() - sw.startedAt : 0)
 
   return {
-    timers: MOCK_TIMERS,
+    timers: [],
     stopwatch: IDLE_STOPWATCH,
     pomodoro: {
       phase: 'focus',
       endsAt: null,
       pausedLeft: null,
-      cycles: 2,
+      cycles: 0,
       focusMin: 25,
       breakMin: 5,
     },
 
-    addTimer: (label, seconds) => {
-      const timer = {
-        id: uid(),
-        label: label.trim() || 'Timer',
-        endsAt: Date.now() + seconds * 1000,
-        total: seconds,
-      }
-      set((s) => ({ timers: [timer, ...s.timers] }))
-      showInNotch(timer.label, timer.endsAt, timer.total)
-    },
-    pauseTimer: (id) => {
-      const t = get().timers.find((x) => x.id === id)
-      if (!t || t.pausedLeft !== undefined) return
-      patchTimer(id, (x) => ({ ...x, pausedLeft: Math.max(0, x.endsAt - Date.now()) }))
-      clearNotch(t.label)
-    },
-    resumeTimer: (id) => {
-      const t = get().timers.find((x) => x.id === id)
-      if (!t || t.pausedLeft === undefined) return
-      const endsAt = Date.now() + t.pausedLeft
-      patchTimer(id, (x) => ({ ...x, endsAt, pausedLeft: undefined }))
-      showInNotch(t.label, endsAt, t.total)
-    },
-    cancelTimer: (id) => {
-      const t = get().timers.find((x) => x.id === id)
-      set((s) => ({ timers: s.timers.filter((x) => x.id !== id) }))
-      if (t) clearNotch(t.label)
-    },
+    addTimer: (label, seconds) => run(backend.timerAdd(label, seconds)),
+    pauseTimer: (id) => run(backend.timerPause(id)),
+    resumeTimer: (id) => run(backend.timerResume(id)),
+    cancelTimer: (id) => run(backend.timerCancel(id)),
+    extendTimer: (id, seconds) => run(backend.timerExtend(id, seconds)),
 
     swStart: () =>
       set((s) =>
@@ -147,37 +120,16 @@ export const useTimers = create<TimersState>((set, get) => {
       })),
     swReset: () => set({ stopwatch: IDLE_STOPWATCH }),
 
-    pomoStart: () => {
-      const p = get().pomodoro
-      if (p.endsAt) return
-      const endsAt = Date.now() + (p.pausedLeft ?? phaseSeconds(p) * 1000)
-      set({ pomodoro: { ...p, endsAt, pausedLeft: null } })
-      showInNotch(POMO_LABEL[p.phase], endsAt, phaseSeconds(p))
-    },
-    pomoPause: () => {
-      const p = get().pomodoro
-      if (!p.endsAt) return
-      set({ pomodoro: { ...p, endsAt: null, pausedLeft: Math.max(0, p.endsAt - Date.now()) } })
-      clearNotch(POMO_LABEL[p.phase])
-    },
-    pomoSkip: () => {
-      const p = get().pomodoro
-      clearNotch(POMO_LABEL[p.phase])
-      const finishedFocus = p.phase === 'focus'
-      set({
-        pomodoro: {
-          ...p,
-          phase: finishedFocus ? 'break' : 'focus',
-          cycles: finishedFocus ? p.cycles + 1 : p.cycles,
-          endsAt: null,
-          pausedLeft: null,
-        },
-      })
-    },
-    pomoReset: () => {
-      const p = get().pomodoro
-      clearNotch(POMO_LABEL[p.phase])
-      set({ pomodoro: { ...p, phase: 'focus', endsAt: null, pausedLeft: null } })
-    },
+    pomoStart: () => run(backend.pomodoro('start')),
+    pomoPause: () => run(backend.pomodoro('pause')),
+    pomoSkip: () => run(backend.pomodoro('skip')),
+    pomoReset: () => run(backend.pomodoro('reset')),
   }
 })
+
+// Sync with the backend once per window: initial snapshot, then every change.
+void backend
+  .listTimers()
+  .then((s) => useTimers.setState(fromSnapshot(s)))
+  .catch((err: unknown) => console.error('[ekko] timers:', err))
+void backend.onTimersChanged((s) => useTimers.setState(fromSnapshot(s)))

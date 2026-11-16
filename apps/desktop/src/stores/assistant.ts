@@ -10,6 +10,7 @@ export type Activity =
   | { kind: 'timer'; label: string; endsAt: number; total: number }
   | { kind: 'music'; title: string; artist: string; playing: boolean }
   | { kind: 'volume'; level: number }
+  | { kind: 'event'; title: string; startsAt: number; endsAt: number; meetLink?: string }
 
 export interface Presence {
   phase: Phase

@@ -1,4 +1,4 @@
-import { MessageSquare, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { MessageSquare, Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { useChat } from '@/features/chat/store'
 import { useMusic } from '@/features/music/store'
 import { cn } from '@/lib/cn'
@@ -7,7 +7,25 @@ import { IconButton } from '@/ui/primitives'
 
 /** Mini player (Kobi home): cover, title, controls; opens Música. */
 export function NowPlaying({ go, compact }: PageProps) {
-  const { track, playing, toggle, next, prev, device } = useMusic()
+  const { track, playing, toggle, next, prev, source } = useMusic()
+  if (!track) {
+    return (
+      <button
+        type="button"
+        onClick={() => go('music')}
+        className="flex min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5 text-left"
+      >
+        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-accent/10 text-muted">
+          <Music2 className="size-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-medium">Nada tocando agora</span>
+          <span className="block truncate text-[11px] text-muted">Dê play em qualquer player</span>
+        </span>
+      </button>
+    )
+  }
+  const details = [track.artist, source].filter(Boolean).join(' · ')
   return (
     <div className="flex min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5">
       <button
@@ -19,9 +37,7 @@ export function NowPlaying({ go, compact }: PageProps) {
       />
       <button type="button" onClick={() => go('music')} className="min-w-0 flex-1 text-left">
         <div className="truncate text-[13px] font-medium">{track.title}</div>
-        <div className="truncate text-[11px] text-muted">
-          {track.artist} · {device.name}
-        </div>
+        <div className="truncate text-[11px] text-muted">{details}</div>
       </button>
       {!compact && (
         <IconButton label="Anterior" onClick={prev}>

@@ -83,9 +83,20 @@ Cada tela fica em `features/<tela>/` com um store zustand próprio (dados mock) 
 - [x] Diálogo de confirmação de ação arriscada (perigosa exige 3 s; "Desfazer" por 6 s)
 - [x] Notificações (central no painel + toast no notch) e alarme em tela (janela própria, adiar 5 min)
 - [x] Regra de permissão (autonomia × risco × exceção por função) em `toolsModel.ts`, base do loop da F4
-- [ ] **Aprovação 1c** ← aguardando
+- [x] **Aprovação 1c**
 
 ---
+
+## F1.5: Prioridade do Guilherme (antes da IA)
+
+Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa com IA.
+
+- [ ] Timers de verdade no backend (rodam com o painel fechado, aparecem no notch, disparam alarme)
+- [ ] Música tocando no notch via Windows (GSMTC: Spotify, navegador, qualquer player) + controles
+- [ ] Aparência personalizável: cor livre, formato/tamanho/transparência/brilho do notch, o que aparece na pílula
+- [ ] Conexões reais: Spotify (OAuth PKCE) e Google Agenda (OAuth), próximo evento no notch
+- [ ] Comandos de voz: segurar o atalho → reconhecimento de fala do Windows (pt-BR) → comando → resposta falada (voz do Windows); Whisper/Piper depois
+- [ ] **Aprovação F1.5**
 
 ## F2: Conversa + IA
 

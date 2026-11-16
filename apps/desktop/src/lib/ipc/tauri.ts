@@ -1,7 +1,12 @@
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
+import { tauriIntegrations } from './integrationsTauri'
 import type { Backend, Settings } from './types'
+import type { TimersSnapshot } from './types'
+import { MEDIA_CHANGED, type NowPlaying } from './mediaTypes'
+
+const TIMERS_CHANGED = 'ekko://timers/changed'
 
 const EVENTS = {
   settingsChanged: 'ekko://settings/changed',
@@ -14,6 +19,7 @@ const EVENTS = {
 
 export const tauriBackend: Backend = {
   kind: 'tauri',
+  ...tauriIntegrations,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),
   setDisplayMode: (mode) => invoke('set_display_mode', { mode }),
@@ -29,6 +35,7 @@ export const tauriBackend: Backend = {
   broadcast: (event, payload) => emit(event, payload),
   listen: (event, cb) => listen(event, (e) => cb(e.payload as never)),
   setNotch: (notch) => invoke('set_notch', { notch }),
+  setAppearance: (appearance) => invoke('set_appearance', { appearance }),
   listMonitors: () => invoke('list_monitors'),
   setMonitor: (index) => invoke('set_monitor', { index }),
   notchDrag: (phase) => invoke(`notch_drag_${phase}`),
@@ -45,6 +52,19 @@ export const tauriBackend: Backend = {
   onAlarm: (cb) => listen(EVENTS.alarm, (e) => cb(e.payload as never)),
   hideSelf: () => getCurrentWindow().hide(),
   startDragging: () => getCurrentWindow().startDragging(),
+  listTimers: () => invoke('list_timers'),
+  onTimersChanged: (cb) => listen<TimersSnapshot>(TIMERS_CHANGED, (e) => cb(e.payload)),
+  timerAdd: (label, seconds) => invoke('timer_add', { label, seconds }),
+  timerPause: (id) => invoke('timer_pause', { id }),
+  timerResume: (id) => invoke('timer_resume', { id }),
+  timerCancel: (id) => invoke('timer_cancel', { id }),
+  timerExtend: (id, seconds) => invoke('timer_extend', { id, seconds }),
+  pomodoro: (action) => invoke('pomodoro', { action }),
+  mediaNow: () => invoke<NowPlaying | null>('media_now'),
+  onMediaChanged: (cb) => listen<NowPlaying | null>(MEDIA_CHANGED, (e) => cb(e.payload)),
+  mediaPlayPause: () => invoke('media_play_pause'),
+  mediaNext: () => invoke('media_next'),
+  mediaPrevious: () => invoke('media_previous'),
 }
 
 export function currentWindowLabel(): string {

@@ -28,6 +28,8 @@ pub struct AppState {
     /// Pill center inside the notch window, logical px (see `display::notch`).
     notch_anchor: Mutex<f64>,
     pending_alarm: Mutex<Option<serde_json::Value>>,
+    /// Single source of truth for timers/pomodoro (see `services::timers`).
+    timers: Mutex<ekko_core::timers::Timers>,
 }
 
 impl AppState {
@@ -43,6 +45,7 @@ impl AppState {
             drag: Mutex::new(None),
             notch_anchor: Mutex::new(0.0),
             pending_alarm: Mutex::new(None),
+            timers: Mutex::default(),
         }
     }
 
@@ -107,5 +110,10 @@ impl AppState {
 
     pub fn take_pending_alarm(&self) -> Option<serde_json::Value> {
         self.pending_alarm.lock().expect("alarm lock").take()
+    }
+
+    /// Keep the guard short: never show a window while holding it.
+    pub fn timers(&self) -> std::sync::MutexGuard<'_, ekko_core::timers::Timers> {
+        self.timers.lock().expect("timers lock")
     }
 }

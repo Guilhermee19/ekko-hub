@@ -25,11 +25,8 @@ export function AlarmSurface() {
         onDismiss={close}
         onSnooze={() => {
           close()
-          // The window's JS keeps running while hidden; F5 moves this to the backend.
-          window.setTimeout(
-            () => void backend.showAlarm({ ...alarm, firedAt: Date.now() }),
-            snoozeMs,
-          )
+          // A real backend timer: it fires the alarm again even with this window gone.
+          void backend.timerAdd(alarm.title, Math.round(snoozeMs / 1000))
         }}
       />
     </div>

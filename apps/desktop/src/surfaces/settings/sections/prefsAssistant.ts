@@ -4,11 +4,11 @@ import { DEFAULT_SHORTCUTS, type ShortcutId } from './shortcutsCombo'
 
 // Mock preferences for General, Avatar, Brain, Voice and Shortcuts (F1c). They move to the
 // real `Settings` (Rust, persisted) as each phase lands: F2 Brain, F3 Voice, F8 Avatar.
+// Avatar eyes and color already live in `Settings.appearance`.
 
 export type BrainMode = 'auto' | 'pick' | 'local'
 export type ProviderId = 'anthropic' | 'openai' | 'gemini' | 'groq'
 export type Personality = 'fun' | 'cute' | 'pro' | 'sarcastic' | 'zen'
-export type AvatarColor = 'theme' | 'strong' | 'neutral'
 export type NotifySound = 'chime' | 'ping' | 'soft' | 'none'
 export type TtsEngine = 'piper' | 'kokoro'
 
@@ -21,8 +21,6 @@ export interface AssistantPrefs {
   }
   avatar: {
     expression: string
-    eyes: string
-    color: AvatarColor
     accessories: string[]
     name: string
     behaviors: { walk: boolean; flies: boolean; sleep: boolean }
@@ -68,8 +66,6 @@ export const DEFAULT_PREFS: AssistantPrefs = {
   },
   avatar: {
     expression: 'happy',
-    eyes: 'pill',
-    color: 'theme',
     accessories: [],
     name: 'Ekko',
     behaviors: { walk: false, flies: true, sleep: true },
