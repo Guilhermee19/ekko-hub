@@ -21,6 +21,8 @@ pub enum MediaCommand {
     PlayPause,
     Next,
     Previous,
+    /// Jump to a position (ms); players without seek support reject it.
+    Seek(u64),
 }
 
 /// Managed state: the latest value plus a line to the polling thread.
@@ -90,5 +92,6 @@ fn execute(source: &mut dyn MediaSource, command: MediaCommand) -> media::Result
         MediaCommand::PlayPause => source.play_pause(),
         MediaCommand::Next => source.next(),
         MediaCommand::Previous => source.previous(),
+        MediaCommand::Seek(position_ms) => source.seek(position_ms),
     }
 }

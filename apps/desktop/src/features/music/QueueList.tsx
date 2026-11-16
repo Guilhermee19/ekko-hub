@@ -1,32 +1,36 @@
 import { ListMusic } from 'lucide-react'
+import { useSpotify } from '@/features/spotify/store'
+import type { SpotifyTrack } from '@/lib/ipc'
 import { EmptyState } from '@/ui/data'
-import { useMusic } from './store'
+import { coverOf } from './covers'
 import { formatTime } from './time'
 
-/** "A seguir": clicking a row jumps straight to that track. */
+const NONE: SpotifyTrack[] = []
+
+/** Spotify's "A seguir": clicking a row skips ahead to that track. */
 export function QueueList({ limit }: { limit?: number }) {
-  const queue = useMusic((s) => s.queue)
-  const playFromQueue = useMusic((s) => s.playFromQueue)
+  const queue = useSpotify((s) => s.queue?.queue ?? NONE)
+  const skipTo = useSpotify((s) => s.skipTo)
   const items = limit ? queue.slice(0, limit) : queue
   return (
     <section>
       <div className="mb-2 flex items-baseline justify-between">
-        <span className="label-hud">A seguir</span>
+        <span className="label-hud">A seguir no Spotify</span>
         <span className="font-mono text-[10px] text-muted tabular-nums">{queue.length} faixas</span>
       </div>
       {items.length === 0 ? (
         <EmptyState
           icon={ListMusic}
           title="Fila vazia"
-          hint="Peça uma música ou playlist ao assistente."
+          hint="Toque uma playlist ou álbum no Spotify para ver o que vem depois."
         />
       ) : (
         <ol className="flex flex-col gap-0.5">
           {items.map((t, i) => (
-            <li key={t.id}>
+            <li key={`${t.id}-${i}`}>
               <button
                 type="button"
-                onClick={() => playFromQueue(t.id)}
+                onClick={() => void skipTo(i)}
                 aria-label={`Tocar ${t.title}, de ${t.artist}`}
                 className="flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-surface-hover"
               >
@@ -36,14 +40,14 @@ export function QueueList({ limit }: { limit?: number }) {
                 <span
                   aria-hidden
                   className="size-8 shrink-0 rounded-md"
-                  style={{ background: t.cover }}
+                  style={{ background: coverOf(t.coverUrl, t.id) }}
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13px]">{t.title}</span>
                   <span className="block truncate text-[11px] text-muted">{t.artist}</span>
                 </span>
                 <span className="font-mono text-[11px] text-muted tabular-nums">
-                  {formatTime(t.durationSec)}
+                  {formatTime(Math.round(t.durationMs / 1000))}
                 </span>
               </button>
             </li>

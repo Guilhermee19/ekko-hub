@@ -1,10 +1,10 @@
 import { create } from 'zustand'
-import { dayAt, endOfDay } from './due'
+import { backend, type Priority, type Repeat, type TasksSnapshot } from '@/lib/ipc'
 
-// Feature-local mock store (F1b). The backend replaces it later with the same shape.
+// Tasks and reminders live in the backend (Rust in Tauri, `mockProductivity` in the
+// gallery); this store mirrors its snapshot in every window.
 
-export type Priority = 'low' | 'normal' | 'high'
-export type Repeat = 'daily' | 'weekly' | 'monthly'
+export type { Priority, Repeat }
 
 export interface Subtask {
   id: string
@@ -37,153 +37,55 @@ export interface NewTask {
   list?: string
   priority?: Priority
   due?: number
+  repeat?: Repeat
 }
 
 interface TasksState {
   tasks: Task[]
   reminders: Reminder[]
-  add: (task: NewTask) => void
-  toggle: (id: string) => void
-  remove: (id: string) => void
-  setPriority: (id: string, priority: Priority) => void
-  toggleSubtask: (taskId: string, subId: string) => void
-  addSubtask: (taskId: string, title: string) => void
-  addReminder: (text: string, at: number) => void
-  removeReminder: (id: string) => void
+  add: (task: NewTask) => Promise<void>
+  /** Completing a repeating task moves it to its next occurrence. */
+  toggle: (id: string) => Promise<void>
+  remove: (id: string) => Promise<void>
+  setPriority: (id: string, priority: Priority) => Promise<void>
+  toggleSubtask: (taskId: string, subId: string) => Promise<void>
+  addSubtask: (taskId: string, title: string) => Promise<void>
+  addReminder: (text: string, at: number, repeat?: Repeat) => Promise<void>
+  removeReminder: (id: string) => Promise<void>
 }
 
-let seq = 0
-const uid = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${(seq++).toString(36)}`
+/** Backend snapshot → the shape the UI (Home, badges) already uses. */
+export function fromSnapshot(s: TasksSnapshot): Pick<TasksState, 'tasks' | 'reminders'> {
+  return {
+    tasks: s.tasks.map(({ dueMs, ...t }) => ({ ...t, ...(dueMs !== undefined && { due: dueMs }) })),
+    reminders: s.reminders.map(({ atMs, ...r }) => ({ ...r, at: atMs })),
+  }
+}
 
-const now = Date.now()
-const MIN = 60_000
+export const useTasks = create<TasksState>((set) => {
+  const run = (call: Promise<TasksSnapshot>) =>
+    call.then(
+      (s) => set(fromSnapshot(s)),
+      (err: unknown) => console.error('[ekko] tarefas:', err),
+    )
 
-const MOCK_TASKS: Task[] = [
-  {
-    id: 't1',
-    title: 'Enviar relatório trimestral',
-    done: false,
-    priority: 'high',
-    due: now - 45 * MIN,
-    list: 'Trabalho',
-    subtasks: [
-      { id: 's1', title: 'Revisar números de vendas', done: true },
-      { id: 's2', title: 'Montar os gráficos', done: true },
-      { id: 's3', title: 'Enviar para a diretoria', done: false },
-    ],
-  },
-  {
-    id: 't2',
-    title: 'Reunião de alinhamento com o time',
-    done: false,
-    priority: 'normal',
-    due: now + 120 * MIN,
-    list: 'Trabalho',
-    repeat: 'weekly',
-    subtasks: [],
-  },
-  {
-    id: 't3',
-    title: 'Comprar ração do gato',
-    done: false,
-    priority: 'normal',
-    due: endOfDay(now),
-    list: 'Casa',
-    subtasks: [],
-  },
-  {
-    id: 't4',
-    title: 'Tomar vitamina D',
-    done: false,
-    priority: 'low',
-    due: endOfDay(now),
-    list: 'Pessoal',
-    repeat: 'daily',
-    subtasks: [],
-  },
-  {
-    id: 't5',
-    title: 'Faxina da semana',
-    done: false,
-    priority: 'low',
-    due: dayAt(now, 10, 0, 1),
-    list: 'Casa',
-    repeat: 'weekly',
-    subtasks: [
-      { id: 's4', title: 'Lavar roupa', done: false },
-      { id: 's5', title: 'Trocar roupa de cama', done: false },
-    ],
-  },
-  {
-    id: 't6',
-    title: 'Pagar conta de luz',
-    done: false,
-    priority: 'high',
-    due: dayAt(now, 18, 0, 3),
-    list: 'Casa',
-    repeat: 'monthly',
-    subtasks: [],
-  },
-  {
-    id: 't7',
-    title: 'Responder e-mails do cliente',
-    done: true,
-    priority: 'normal',
-    list: 'Trabalho',
-    subtasks: [],
-  },
-  {
-    id: 't8',
-    title: 'Agendar dentista',
-    done: true,
-    priority: 'low',
-    list: 'Pessoal',
-    subtasks: [],
-  },
-]
+  return {
+    tasks: [],
+    reminders: [],
+    add: ({ due, ...task }) => run(backend.taskAdd({ ...task, dueMs: due })),
+    toggle: (id) => run(backend.taskToggle(id)),
+    remove: (id) => run(backend.taskRemove(id)),
+    setPriority: (id, priority) => run(backend.taskSetPriority(id, priority)),
+    toggleSubtask: (taskId, subId) => run(backend.subtaskToggle(taskId, subId)),
+    addSubtask: (taskId, title) => run(backend.subtaskAdd(taskId, title)),
+    addReminder: (text, at, repeat) => run(backend.reminderAdd(text, at, repeat)),
+    removeReminder: (id) => run(backend.reminderRemove(id)),
+  }
+})
 
-const MOCK_REMINDERS: Reminder[] = [
-  { id: 'r1', at: now + 30 * MIN, text: 'Ligar para a mãe' },
-  { id: 'r2', at: dayAt(now, 21, 0), text: 'Tirar o lixo reciclável', repeat: 'weekly' },
-  { id: 'r3', at: dayAt(now, 8, 0, 1), text: 'Levar o notebook para a assistência' },
-]
-
-const mapTask = (tasks: Task[], id: string, fn: (t: Task) => Task) =>
-  tasks.map((t) => (t.id === id ? fn(t) : t))
-
-export const useTasks = create<TasksState>((set) => ({
-  tasks: MOCK_TASKS,
-  reminders: MOCK_REMINDERS.sort((a, b) => a.at - b.at),
-  add: ({ title, list = 'Pessoal', priority = 'normal', due }) =>
-    set((s) => ({
-      tasks: [
-        { id: uid('t'), title: title.trim(), done: false, priority, due, list, subtasks: [] },
-        ...s.tasks,
-      ],
-    })),
-  toggle: (id) => set((s) => ({ tasks: mapTask(s.tasks, id, (t) => ({ ...t, done: !t.done })) })),
-  remove: (id) => set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
-  setPriority: (id, priority) =>
-    set((s) => ({ tasks: mapTask(s.tasks, id, (t) => ({ ...t, priority })) })),
-  toggleSubtask: (taskId, subId) =>
-    set((s) => ({
-      tasks: mapTask(s.tasks, taskId, (t) => ({
-        ...t,
-        subtasks: t.subtasks.map((st) => (st.id === subId ? { ...st, done: !st.done } : st)),
-      })),
-    })),
-  addSubtask: (taskId, title) =>
-    set((s) => ({
-      tasks: mapTask(s.tasks, taskId, (t) => ({
-        ...t,
-        subtasks: [...t.subtasks, { id: uid('s'), title: title.trim(), done: false }],
-      })),
-    })),
-  addReminder: (text, at) =>
-    set((s) => ({
-      reminders: [...s.reminders, { id: uid('r'), at, text: text.trim() }].sort(
-        (a, b) => a.at - b.at,
-      ),
-    })),
-  removeReminder: (id) => set((s) => ({ reminders: s.reminders.filter((r) => r.id !== id) })),
-}))
+// Sync with the backend once per window: initial snapshot, then every change.
+void backend
+  .listTasks()
+  .then((s) => useTasks.setState(fromSnapshot(s)))
+  .catch((err: unknown) => console.error('[ekko] tarefas:', err))
+void backend.onTasksChanged((s) => useTasks.setState(fromSnapshot(s)))

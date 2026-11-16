@@ -1,12 +1,9 @@
 import { Music2 } from 'lucide-react'
+import { backend } from '@/lib/ipc'
 import { Button } from '@/ui/primitives'
-import { useSettings } from '@/stores/settings'
-import { useMusic } from './store'
 
-/** Shown while no Spotify account is linked (prototype: header switch). */
+/** Shown while no Spotify account is linked; the login lives in Configurações → Conexões. */
 export function ConnectBanner() {
-  const setConnected = useMusic((s) => s.setConnected)
-  const name = useSettings((s) => s.settings.assistantName)
   return (
     <div className="animate-rise-in relative overflow-hidden rounded-xl border border-accent/30 bg-surface p-4">
       <div
@@ -20,16 +17,17 @@ export function ConnectBanner() {
         <div>
           <div className="text-[15px] font-semibold">Conecte sua conta do Spotify</div>
           <p className="mt-0.5 text-[12px] text-muted">
-            Controle a música por voz, veja o que está tocando no notch e troque de dispositivo sem
-            sair do que está fazendo. Requer Spotify Premium.
+            Em Configurações → Conexões. Com ela, você vê a fila, troca de dispositivo e usa
+            aleatório e repetir. Sem conta, os controles e o volume do Windows já funcionam com
+            qualquer player. O controle remoto requer Spotify Premium.
           </p>
         </div>
-        <ul className="flex flex-col gap-1 text-[12px] text-muted">
-          <li>“Ei, {name}, toca lo-fi”</li>
-          <li>“Pula essa” · “Volume em 30%”</li>
-        </ul>
-        <Button variant="primary" className="self-start" onClick={() => setConnected(true)}>
-          Conectar Spotify
+        <Button
+          variant="primary"
+          className="self-start"
+          onClick={() => void backend.openSettings()}
+        >
+          Abrir Conexões
         </Button>
       </div>
     </div>

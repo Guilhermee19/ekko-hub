@@ -79,9 +79,13 @@ function actions({ onNavigate }: CatalogContext): PaletteCommand[] {
       keywords: ['copo', 'habito', 'hidratar'],
       icon: Droplets,
       run: () => {
-        useHabits.getState().addWater(1)
-        const { count, goal } = useHabits.getState().water
-        toast(`Água: ${count} de ${goal} copos`)
+        void useHabits
+          .getState()
+          .addWater(1)
+          .then(() => {
+            const { count, goal } = useHabits.getState().water
+            toast(`Água: ${count} de ${goal} copos`)
+          })
       },
     },
     {

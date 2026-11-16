@@ -51,7 +51,10 @@ fn matches(lower: &str, key: &str) -> bool {
 /// `Company.App_hash!Entry` / `C:\..\player.exe` -> "Player".
 fn fallback(app_id: &str) -> String {
     let last = app_id.rsplit(['!', '\\', '/']).next().unwrap_or(app_id);
-    let last = last.strip_suffix(".exe").or_else(|| last.strip_suffix(".EXE")).unwrap_or(last);
+    let last = last
+        .strip_suffix(".exe")
+        .or_else(|| last.strip_suffix(".EXE"))
+        .unwrap_or(last);
     let last = last.rsplit('.').next().unwrap_or(last);
     let mut chars = last.chars();
     match chars.next() {

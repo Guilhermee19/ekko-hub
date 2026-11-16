@@ -81,7 +81,7 @@ export function OAuthConnectionCard({ guide }: { guide: OAuthGuide }) {
   )
 }
 
-function Step({ index, step }: { index: number; step: GuideStep }) {
+export function Step({ index, step }: { index: number; step: GuideStep }) {
   const copy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value)

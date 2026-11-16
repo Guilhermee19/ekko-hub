@@ -93,3 +93,16 @@ export const GOOGLE_GUIDE: OAuthGuide = {
   ],
   note: 'O Ekko só lê a agenda (calendar.readonly). O secret fica no Gerenciador de Credenciais do Windows. Com o app em “Teste”, o Google pede login de novo a cada 7 dias.',
 }
+
+/** Home Assistant uses a long-lived access token instead of OAuth. */
+export const HOME_ASSISTANT_STEPS: GuideStep[] = [
+  {
+    text: 'Abra o Home Assistant no navegador e clique no seu nome (Perfil), no canto inferior esquerdo.',
+  },
+  {
+    text: 'Na aba “Segurança”, desça até “Tokens de acesso de longa duração” e clique em “Criar token”.',
+  },
+  {
+    text: 'Dê um nome (ex.: Ekko), copie o token (ele só aparece uma vez) e cole abaixo junto com o endereço do Home Assistant.',
+  },
+]

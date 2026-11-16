@@ -5,8 +5,10 @@ import type {
   IntegrationStatus,
   IntegrationsBackend,
   SpotifyDevice,
+  SpotifyRepeat,
   SpotifyTrack,
 } from './integrations'
+import { mockConnectors } from './connectorsMock'
 
 // Gallery stand-in: fake login after a short delay, agenda with events around "now".
 
@@ -90,6 +92,12 @@ const QUEUE = [
   track('q3', 'Garota de Ipanema', 'Tom Jobim', 'Getz/Gilberto'),
 ]
 
+const player = { shuffle: false, repeat: 'off' as SpotifyRepeat, progressMs: 42_000 }
+
+const setActiveVolume = (percent: number) => {
+  devices = devices.map((d) => (d.active ? { ...d, volume: Math.round(percent) } : d))
+}
+
 function requireConnected(provider: IntegrationProvider) {
   if (!status[provider].connected) throw new Error(`${provider} não está conectado`)
 }
@@ -103,6 +111,7 @@ async function connect(provider: IntegrationProvider): Promise<IntegrationStatus
 }
 
 export const mockIntegrations: IntegrationsBackend = {
+  ...mockConnectors,
   integrationStatus: () => Promise.resolve(snapshot()),
   setIntegrationClient: (provider, clientId, clientSecret) => {
     const id = clientId.trim() || null
@@ -135,9 +144,7 @@ export const mockIntegrations: IntegrationsBackend = {
     const active = devices.find((d) => d.active) ?? null
     return {
       playing: true,
-      progressMs: 42_000,
-      shuffle: false,
-      repeat: 'off',
+      ...player,
       track: QUEUE[0] ?? null,
       device: active,
     }
@@ -155,6 +162,22 @@ export const mockIntegrations: IntegrationsBackend = {
     devices = devices.map((d) => ({ ...d, active: d.id === deviceId }))
   },
   spotifyControl: async () => requireConnected('spotify'),
+  spotifyShuffle: async (on) => {
+    requireConnected('spotify')
+    player.shuffle = on
+  },
+  spotifyRepeat: async (mode) => {
+    requireConnected('spotify')
+    player.repeat = mode
+  },
+  spotifySeek: async (positionMs) => {
+    requireConnected('spotify')
+    player.progressMs = positionMs
+  },
+  spotifyVolume: async (percent) => {
+    requireConnected('spotify')
+    setActiveVolume(percent)
+  },
   openExternal: (url) => {
     window.open(url, '_blank', 'noopener')
     return Promise.resolve()

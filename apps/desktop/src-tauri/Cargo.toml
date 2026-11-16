@@ -19,6 +19,8 @@ serde_json.workspace = true
 ekko-core.workspace = true
 ekko-os.workspace = true
 ekko-integrations.workspace = true
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+tauri-plugin-autostart = "2"
 
 [lints]
 workspace = true

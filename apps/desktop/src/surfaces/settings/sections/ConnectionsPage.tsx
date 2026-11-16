@@ -1,11 +1,11 @@
-import { Cctv, Code, House, Lamp, Smartphone } from 'lucide-react'
+import { Cctv, Lamp, Smartphone } from 'lucide-react'
 import { Badge } from '@/ui/data'
-import { Button } from '@/ui/primitives'
-import { ConnectionsCard, ConnectionsShell } from './ConnectionsCard'
+import { ConnectionsClaudeCard } from './ConnectionsClaude'
+import { ConnectionsShell, SoonConnectionCard } from './ConnectionsCard'
+import { HomeAssistantCard } from './ConnectionsHomeAssistant'
 import { ConnectionsMcp } from './ConnectionsMcp'
 import { OAuthConnectionCard } from './ConnectionsOAuth'
 import { GOOGLE_GUIDE, SPOTIFY_GUIDE } from './oauthGuides'
-import { toast, usePrefsSystem } from './prefsSystem'
 import { PageTitle } from './systemUi'
 
 export function ConnectionsPage() {
@@ -13,61 +13,26 @@ export function ConnectionsPage() {
     <div className="animate-rise-in mx-auto flex max-w-3xl flex-col gap-8">
       <PageTitle title="Conexões" subtitle="Serviços e aparelhos que o Ekko pode usar por você." />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-flow-dense grid-cols-2 gap-3">
         <OAuthConnectionCard guide={SPOTIFY_GUIDE} />
         <OAuthConnectionCard guide={GOOGLE_GUIDE} />
-        <ClaudeCodeCard />
-        <ConnectionsCard
-          id="homeassistant"
-          icon={House}
-          name="Home Assistant"
-          description="Controle tudo que o seu Home Assistant controla."
-          phase="F7"
-          account="http://homeassistant.local:8123"
-        />
-        <ConnectionsCard
-          id="tuya"
+        <ConnectionsClaudeCard />
+        <HomeAssistantCard />
+        <SoonConnectionCard
           icon={Lamp}
           name="Casa inteligente Tuya"
           description="Luzes, tomadas e sensores Tuya / Smart Life."
-          phase="F7"
-          account="6 dispositivos"
         />
-        <ConnectionsCard
-          id="cameras"
+        <SoonConnectionCard
           icon={Cctv}
           name="Câmeras"
           description="Ver e vigiar câmeras IP (RTSP) da casa."
-          phase="F7"
-          account="2 câmeras"
         />
       </div>
 
       <ConnectionsMcp />
       <PhoneCard />
     </div>
-  )
-}
-
-function ClaudeCodeCard() {
-  const found = usePrefsSystem((s) => s.connections.claude === 'connected')
-  return (
-    <ConnectionsShell
-      icon={Code}
-      name="Claude Code"
-      description="Mandar tarefas pesadas de código para o Claude Code."
-      badge={found ? <Badge tone="accent">Encontrado</Badge> : <Badge>Não encontrado</Badge>}
-      meta={
-        found
-          ? 'C:\\Users\\…\\AppData\\Roaming\\npm\\claude.cmd'
-          : 'Instale com: npm i -g @anthropic-ai/claude-code'
-      }
-      action={
-        <Button size="sm" variant="ghost" onClick={() => toast('Claude Code v2.1 encontrado')}>
-          Procurar
-        </Button>
-      }
-    />
   )
 }
 

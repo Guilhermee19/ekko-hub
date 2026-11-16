@@ -1,9 +1,9 @@
-import { LoaderCircle, type LucideIcon } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
-import { Badge } from '@/ui/data'
+import type { Availability } from '@/lib/availability'
+import { SoonTag } from '@/ui/Availability'
 import { Button } from '@/ui/primitives'
-import { usePrefsSystem, type ConnId } from './prefsSystem'
 
 interface ShellProps {
   icon: LucideIcon
@@ -54,55 +54,33 @@ export function ConnectionsShell({
   )
 }
 
-interface OAuthProps {
-  id: ConnId
+/** Not wired yet: lands with the F7 connectors. */
+export const F7_SOON: Availability = { status: 'soon', phase: 'F7' }
+
+/** Clearly-marked placeholder for services that arrive in F7 (Tuya, câmeras). */
+export function SoonConnectionCard({
+  icon,
+  name,
+  description,
+}: {
   icon: LucideIcon
   name: string
   description: string
-  phase: string
-  /** Shown while connected (account e-mail, user…). */
-  account?: string
-}
-
-/** Mock connect / disconnect card for services not wired yet (Tuya, Home Assistant,
- * câmeras). Real OAuth services use `OAuthConnectionCard`. */
-export function ConnectionsCard({ id, icon, name, description, phase, account }: OAuthProps) {
-  const status = usePrefsSystem((s) => s.connections[id])
-  const { connect, disconnect } = usePrefsSystem.getState()
-  const connected = status === 'connected'
-
+}) {
   return (
     <ConnectionsShell
       icon={icon}
       name={name}
       description={description}
-      meta={connected ? account : undefined}
-      badge={
-        connected ? (
-          <Badge tone="accent">Conectado</Badge>
-        ) : (
-          <Badge>{status === 'connecting' ? 'Conectando…' : `Chega na ${phase}`}</Badge>
-        )
-      }
+      badge={<SoonTag availability={F7_SOON} />}
       action={
-        connected ? (
-          <Button size="sm" variant="ghost" onClick={() => disconnect(id)}>
-            Desconectar
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={status === 'connecting'}
-            onClick={() => connect(id)}
-          >
-            {status === 'connecting' && (
-              <LoaderCircle className="size-3.5 animate-spin" aria-hidden />
-            )}
-            Conectar
-          </Button>
-        )
+        <Button size="sm" variant="ghost" disabled>
+          Conectar
+        </Button>
       }
-    />
+      className="opacity-70"
+    >
+      <p className="text-[12px] text-muted">Chega na F7.</p>
+    </ConnectionsShell>
   )
 }

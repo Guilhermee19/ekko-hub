@@ -3,7 +3,9 @@
 
 use std::time::Duration;
 
-use ekko_integrations::spotify::{self, Control, SpotifyDevice, SpotifyPlayback, SpotifyQueue};
+use ekko_integrations::spotify::{
+    self, Control, Repeat, SpotifyDevice, SpotifyPlayback, SpotifyQueue,
+};
 use ekko_integrations::tokens::{self, GOOGLE_CLIENT_SECRET};
 use ekko_integrations::{CalendarEvent, Error, Provider, google_calendar};
 use serde::Serialize;
@@ -34,7 +36,7 @@ pub struct IntegrationStatus {
 }
 
 /// Runs blocking integration work off the async runtime; errors become UI strings.
-async fn blocking<T: Send + 'static>(
+pub(super) async fn blocking<T: Send + 'static>(
     app: &AppHandle,
     job: impl FnOnce(&AppHandle) -> Result<T, Error> + Send + 'static,
 ) -> Result<T, String> {
@@ -197,6 +199,40 @@ pub async fn spotify_control(app: AppHandle, action: String) -> Result<(), Strin
     };
     blocking(&app, move |app| {
         spotify::control(&session(app, Provider::Spotify)?, action)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn spotify_shuffle(app: AppHandle, on: bool) -> Result<(), String> {
+    blocking(&app, move |app| {
+        spotify::set_shuffle(&session(app, Provider::Spotify)?, on)
+    })
+    .await
+}
+
+/// `mode`: "off" | "track" | "context".
+#[tauri::command]
+pub async fn spotify_repeat(app: AppHandle, mode: Repeat) -> Result<(), String> {
+    blocking(&app, move |app| {
+        spotify::set_repeat(&session(app, Provider::Spotify)?, mode)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn spotify_seek(app: AppHandle, position_ms: u64) -> Result<(), String> {
+    blocking(&app, move |app| {
+        spotify::seek(&session(app, Provider::Spotify)?, position_ms)
+    })
+    .await
+}
+
+/// `percent`: 0..100 on the active Spotify device.
+#[tauri::command]
+pub async fn spotify_volume(app: AppHandle, percent: u8) -> Result<(), String> {
+    blocking(&app, move |app| {
+        spotify::set_volume(&session(app, Provider::Spotify)?, percent)
     })
     .await
 }

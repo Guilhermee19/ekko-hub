@@ -1,6 +1,8 @@
 import { canvas, placeNotch } from '../notchGeometry'
+import { mockGeneral } from './generalMock'
 import { mockIntegrations } from './integrationsMock'
 import { mockMedia } from './mockMedia'
+import { mockProductivity } from './mockProductivity'
 import { mockTimers } from './mockTimers'
 import {
   DEFAULT_SETTINGS,
@@ -139,4 +141,10 @@ export const mockBackend: Backend = {
   startDragging: noop,
   ...mockTimers({ on, fire, showAlarm: (alarm) => mockBackend.showAlarm(alarm) }),
   ...mockMedia({ on, fire }),
+  ...mockGeneral({
+    general: () => settings.general,
+    shortcuts: () => settings.shortcuts,
+    patch,
+  }),
+  ...mockProductivity({ on, fire, showAlarm: (alarm) => mockBackend.showAlarm(alarm) }),
 }

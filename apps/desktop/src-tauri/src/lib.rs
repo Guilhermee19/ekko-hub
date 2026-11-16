@@ -8,7 +8,6 @@ mod tray;
 
 use ekko_core::store::SettingsStore;
 use tauri::{Manager, RunEvent, Window, WindowEvent};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 use display::windows::{HUB, ONBOARDING, ORB, PALETTE, PANEL, SETTINGS};
 use state::AppState;
@@ -16,6 +15,10 @@ use state::AppState;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            None,
+        ))
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             app.manage(AppState::new(SettingsStore::new(&dir)));
@@ -24,9 +27,13 @@ pub fn run() {
             tray::build(&handle)?;
             display::hit::spawn(handle.clone());
             services::timers::spawn(handle.clone());
+            services::productivity::init(&handle);
             services::media::spawn(&handle);
+            services::volume::spawn(&handle);
             services::integrations::init(&handle);
-            register_hotkeys(&handle);
+            services::shortcuts::init(&handle);
+            services::fullscreen::spawn(&handle);
+            commands::general::sync_autostart(&handle);
 
             let settings = app.state::<AppState>().settings();
             display::apply(&handle, settings.display_mode)?;
@@ -38,6 +45,10 @@ pub fn run() {
         .on_window_event(on_window_event)
         .invoke_handler(tauri::generate_handler![
             commands::settings::get_settings,
+            commands::general::set_autostart,
+            commands::general::set_general,
+            commands::general::set_shortcuts,
+            commands::general::shortcut_status,
             commands::appearance::set_appearance,
             commands::settings::set_persona,
             commands::settings::set_dock_side,
@@ -66,10 +77,29 @@ pub fn run() {
             commands::timers::timer_cancel,
             commands::timers::timer_extend,
             commands::timers::pomodoro,
+            commands::productivity::list_tasks,
+            commands::productivity::task_add,
+            commands::productivity::task_toggle,
+            commands::productivity::task_remove,
+            commands::productivity::task_set_priority,
+            commands::productivity::subtask_add,
+            commands::productivity::subtask_toggle,
+            commands::productivity::reminder_add,
+            commands::productivity::reminder_remove,
+            commands::productivity::list_habits,
+            commands::productivity::water_add,
+            commands::productivity::water_set,
+            commands::productivity::habit_check_in,
+            commands::productivity::habit_undo,
             commands::media::media_now,
             commands::media::media_play_pause,
             commands::media::media_next,
             commands::media::media_previous,
+            commands::media::media_seek,
+            commands::volume::volume_get,
+            commands::volume::volume_set,
+            commands::volume::volume_step,
+            commands::volume::volume_mute,
             commands::integrations::integration_status,
             commands::integrations::set_integration_client,
             commands::integrations::connect_spotify,
@@ -81,7 +111,17 @@ pub fn run() {
             commands::integrations::spotify_queue,
             commands::integrations::spotify_transfer,
             commands::integrations::spotify_control,
+            commands::integrations::spotify_shuffle,
+            commands::integrations::spotify_repeat,
+            commands::integrations::spotify_seek,
+            commands::integrations::spotify_volume,
             commands::integrations::open_external,
+            commands::connectors::ha_status,
+            commands::connectors::ha_set,
+            commands::connectors::ha_disconnect,
+            commands::connectors::ha_entities,
+            commands::connectors::ha_toggle,
+            commands::connectors::claude_code_status,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")
@@ -116,55 +156,4 @@ fn on_window_event(window: &Window, event: &WindowEvent) {
         }
         _ => {}
     }
-}
-
-/// Global hotkeys (configurable later in Atalhos). Another app may own a combo, so each
-/// action tries its fallbacks in order and a missing hotkey never stops Ekko.
-fn register_hotkeys(app: &tauri::AppHandle) {
-    let ctrl_shift = Modifiers::CONTROL | Modifiers::SHIFT;
-    let ctrl_alt = Modifiers::CONTROL | Modifiers::ALT;
-    let alt_shift = Modifiers::ALT | Modifiers::SHIFT;
-    register_first(
-        app,
-        "chamar o Ekko",
-        &[
-            Shortcut::new(Some(ctrl_shift), Code::Space),
-            Shortcut::new(Some(alt_shift), Code::KeyE),
-        ],
-        |app| {
-            let _ = display::summon::summon(app, None);
-        },
-    );
-    register_first(
-        app,
-        "paleta de comandos",
-        &[
-            Shortcut::new(Some(ctrl_alt), Code::Space),
-            Shortcut::new(Some(alt_shift), Code::Space),
-        ],
-        |app| {
-            let _ = display::flows::toggle_palette(app);
-        },
-    );
-}
-
-fn register_first(
-    app: &tauri::AppHandle,
-    what: &str,
-    candidates: &[Shortcut],
-    action: fn(&tauri::AppHandle),
-) {
-    let shortcuts = app.global_shortcut();
-    for shortcut in candidates {
-        let result = shortcuts.on_shortcut(*shortcut, move |app, _, event| {
-            if event.state == ShortcutState::Pressed {
-                action(app);
-            }
-        });
-        match result {
-            Ok(()) => return,
-            Err(err) => eprintln!("[ekko] atalho de {what} ocupado ({shortcut:?}): {err}"),
-        }
-    }
-    eprintln!("[ekko] nenhum atalho livre para {what}; use o menu da bandeja");
 }

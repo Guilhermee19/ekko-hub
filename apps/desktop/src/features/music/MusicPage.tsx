@@ -1,8 +1,8 @@
 import { Music2 } from 'lucide-react'
+import { useSpotify, useSpotifyLive } from '@/features/spotify/store'
 import { cn } from '@/lib/cn'
 import type { PageProps } from '@/surfaces/panel/pages'
 import { EmptyState, PageHeader } from '@/ui/data'
-import { Toggle } from '@/ui/forms'
 import { ConnectBanner } from './ConnectBanner'
 import { Cover } from './Cover'
 import { DevicePicker } from './DevicePicker'
@@ -12,36 +12,32 @@ import { QueueList } from './QueueList'
 import { type Track, useMusic } from './store'
 
 export function MusicPage({ compact }: PageProps) {
+  useSpotifyLive()
   const track = useMusic((s) => s.track)
   const source = useMusic((s) => s.source)
   const playing = useMusic((s) => s.playing)
-  const connected = useMusic((s) => s.connected)
-  const setConnected = useMusic((s) => s.setConnected)
+  const connected = useSpotify((s) => s.connected)
+  const error = useSpotify((s) => s.error)
   const hint = source ? `${playing ? 'Tocando' : 'Pausado'} no ${source}` : 'Nada tocando agora'
   return (
     <div className="animate-rise-in flex flex-col gap-4">
-      <PageHeader
-        title="Música"
-        hint={hint}
-        actions={
-          <label className="flex items-center gap-2 text-[11px] text-muted">
-            <span className={cn(compact && 'sr-only')}>Protótipo: Spotify</span>
-            <Toggle checked={connected} label="Simular Spotify conectado" onChange={setConnected} />
-          </label>
-        }
-      />
+      <PageHeader title="Música" hint={hint} />
       {track ? (
         <Player track={track} compact={compact} />
       ) : (
-        <EmptyState
-          icon={Music2}
-          title="Nada tocando agora"
-          hint="Dê play em qualquer player: Spotify, YouTube no navegador..."
-        />
+        <>
+          <EmptyState
+            icon={Music2}
+            title="Nada tocando agora"
+            hint="Dê play em qualquer player: Spotify, YouTube no navegador..."
+          />
+          <VolumeControl />
+        </>
       )}
       {connected ? (
         <>
           <DevicePicker />
+          {error && <p className="text-[11px] text-danger">Spotify: {error}</p>}
           <QueueList limit={compact ? 3 : undefined} />
         </>
       ) : (
@@ -55,6 +51,7 @@ function Player({ track, compact }: { track: Track; compact: boolean }) {
   const playing = useMusic((s) => s.playing)
   const positionSec = useMusic((s) => s.positionSec)
   const source = useMusic((s) => s.source)
+  const canSeek = useMusic((s) => s.canSeek)
   const seek = useMusic((s) => s.seek)
   const details = [track.artist, track.album].filter(Boolean).join(' · ')
   return (
@@ -70,7 +67,11 @@ function Player({ track, compact }: { track: Track; compact: boolean }) {
           {details && <p className="truncate text-[12px] text-muted">{details}</p>}
         </div>
         {track.durationSec > 0 && (
-          <ProgressBar position={positionSec} duration={track.durationSec} onSeek={seek} />
+          <ProgressBar
+            position={positionSec}
+            duration={track.durationSec}
+            onSeek={canSeek ? seek : undefined}
+          />
         )}
         <TransportControls />
         <VolumeControl />

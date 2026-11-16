@@ -31,7 +31,7 @@ impl Integrations {
     }
 
     /// Built lazily on a blocking thread (reqwest::blocking must not start on tokio).
-    fn http(&self) -> Result<Arc<dyn Transport>> {
+    pub fn http(&self) -> Result<Arc<dyn Transport>> {
         if let Some(http) = self.http.get() {
             return Ok(http.clone());
         }

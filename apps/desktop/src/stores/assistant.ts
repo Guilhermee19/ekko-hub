@@ -26,6 +26,8 @@ interface AssistantState extends Presence {
 }
 
 const EVENT = 'ekko://assistant/presence'
+/** Plain-text toast fired by the backend (e.g. a shortcut whose action comes later). */
+const BACKEND_TOAST = 'ekko://toast'
 
 let connected = false
 let toastTimer: number | undefined
@@ -53,6 +55,13 @@ export const useAssistant = create<AssistantState>((set, get) => ({
     if (connected) return
     connected = true
     await backend.listen<Presence>(EVENT, (p) => set(p))
+    // Backend toasts reach every window already: show locally, no re-broadcast.
+    await backend.listen<string>(BACKEND_TOAST, (toast) => {
+      set({ toast })
+      window.setTimeout(() => {
+        if (get().toast === toast) set({ toast: null })
+      }, TOAST_MS)
+    })
   },
 }))
 

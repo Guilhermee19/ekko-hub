@@ -7,7 +7,15 @@ fn main() {
             let thumb = np.thumbnail.as_ref().map_or(0, String::len);
             println!(
                 "title={:?} artist={:?} album={:?} app={:?} source={:?} playing={} pos={}ms dur={}ms thumb={}B",
-                np.title, np.artist, np.album, np.app_id, np.source, np.playing, np.position_ms, np.duration_ms, thumb
+                np.title,
+                np.artist,
+                np.album,
+                np.app_id,
+                np.source,
+                np.playing,
+                np.position_ms,
+                np.duration_ms,
+                thumb
             );
         }
         None => println!("nothing playing"),

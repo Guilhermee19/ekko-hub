@@ -18,11 +18,15 @@ const SOURCES: &[(&str, &str)] = &[
     ("appearance.rs", include_str!("appearance.rs")),
     ("display.rs", include_str!("display.rs")),
     ("flows.rs", include_str!("flows.rs")),
+    ("general.rs", include_str!("general.rs")),
+    ("connectors.rs", include_str!("connectors.rs")),
     ("integrations.rs", include_str!("integrations.rs")),
     ("notch.rs", include_str!("notch.rs")),
+    ("productivity.rs", include_str!("productivity.rs")),
     ("media.rs", include_str!("media.rs")),
     ("settings.rs", include_str!("settings.rs")),
     ("timers.rs", include_str!("timers.rs")),
+    ("volume.rs", include_str!("volume.rs")),
 ];
 
 /// Names of `#[tauri::command]` fns that touch windows but are not `async`.

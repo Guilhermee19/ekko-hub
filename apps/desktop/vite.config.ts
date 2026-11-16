@@ -3,10 +3,21 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
+// Windows: when the build starts from a lowercase-drive cwd (`c:\...`, as Tauri/VS Code
+// sometimes do), Vite resolved node_modules/react under two ids (c: and C:) and bundled
+// React twice — zustand then ran with a null dispatcher and the release app opened blank
+// windows. Pin the root with an uppercase drive letter and dedupe React.
+const upperDrive = (p: string) => p.replace(/^[a-z]:/, (d) => d.toUpperCase())
+const ROOT = upperDrive(fileURLToPath(new URL('.', import.meta.url)))
+
 // Tauri expects a fixed port and must not clear its console output.
 export default defineConfig(({ mode }) => ({
+  root: ROOT,
   plugins: [react(), tailwindcss()],
-  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  resolve: {
+    alias: { '@': upperDrive(fileURLToPath(new URL('./src', import.meta.url))) },
+    dedupe: ['react', 'react-dom'],
+  },
   clearScreen: false,
   server: {
     // IPv4 explicitly: Node resolves `localhost` to ::1 only on Windows, so
@@ -24,14 +35,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'es2022',
-    // Vite 8 / Rolldown name mangling gave two top-level bindings the same short name
-    // (the React CJS module and a react-dom marker string), so zustand got a React
-    // without a dispatcher and the release app opened blank windows. Whitespace-only
-    // minify until that is fixed upstream; scripts/e2e/smoke-release.mjs guards it.
-    minify: false,
-    rolldownOptions: {
-      output: { minify: { mangle: false, compress: false, codegen: { removeWhitespace: true } } },
-    },
   },
   test: { environment: 'node' },
 }))

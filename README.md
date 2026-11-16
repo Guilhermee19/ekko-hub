@@ -44,5 +44,5 @@ npm run tauri build          # gera target/release/bundle/nsis/Ekko_<versão>_x6
 npm run e2e:smoke-release    # abre o .exe de release e confere que todas as janelas montaram
 ```
 
-O teste de fumaça existe porque o build de produção pode quebrar onde o modo dev não quebra (foi o caso do minificador do Vite 8, ver `apps/desktop/vite.config.ts`).
+O teste de fumaça existe porque o build de produção pode quebrar onde o modo dev não quebra: um build disparado de `c:\` minúsculo empacotava o React duas vezes e abria janelas vazias (ver `apps/desktop/vite.config.ts`).
 

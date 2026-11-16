@@ -15,31 +15,18 @@ export interface Availability {
 }
 
 export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
-  home: {
-    status: 'partial',
-    phase: 'F5',
-    note: 'Timers, música e agenda são reais; tarefas, água e avisos ainda são exemplo.',
-  },
+  home: { status: 'live' },
   chat: {
     status: 'soon',
     phase: 'F2',
     note: 'As respostas ainda são simuladas; a conversa com IA chega na F2.',
   },
-  tasks: {
-    status: 'soon',
-    phase: 'F5',
-    note: 'Lista de exemplo; tarefas e lembretes salvos chegam na F5.',
-  },
+  tasks: { status: 'live', note: 'Tarefas e lembretes ficam salvos neste PC.' },
   timers: { status: 'live', note: 'Cronômetro ainda é local a esta janela.' },
-  habits: {
-    status: 'soon',
-    phase: 'F5',
-    note: 'Hábitos de exemplo; o acompanhamento real chega na F5.',
-  },
+  habits: { status: 'live', note: 'Água e hábitos zeram à meia-noite.' },
   music: {
-    status: 'partial',
-    phase: 'F7',
-    note: 'O que está tocando e os controles são reais; fila, volume e dispositivos dependem do Spotify conectado.',
+    status: 'live',
+    note: 'Controles e volume do Windows funcionam com qualquer player; conecte o Spotify em Configurações → Conexões para fila, dispositivos, aleatório e repetir.',
   },
   agenda: { status: 'live', note: 'Conecte o Google Agenda em Configurações → Conexões.' },
   clipboard: {
@@ -62,19 +49,11 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
     phase: 'F7',
     note: 'Fatos de exemplo; a memória de longo prazo chega na F7.',
   },
-  notifications: {
-    status: 'partial',
-    phase: 'F5',
-    note: 'Avisos de timers são reais; lembretes chegam na F5.',
-  },
+  notifications: { status: 'live', note: 'A lista de avisos ainda zera ao fechar o Ekko.' },
 }
 
 export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
-  general: {
-    status: 'partial',
-    phase: 'F9',
-    note: 'Iniciar com o Windows, não perturbe e sons chegam na F9; "Refazer boas-vindas" já funciona.',
-  },
+  general: { status: 'live', note: 'Idioma e tema claro ainda não estão disponíveis.' },
   appearance: { status: 'live' },
   avatar: {
     status: 'soon',
@@ -97,20 +76,15 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
     note: 'Catálogo e autonomia ainda não controlam nada; o motor de funções chega na F4.',
   },
   shortcuts: {
-    status: 'partial',
-    phase: 'F9',
-    note: 'Os atalhos globais funcionam com os padrões; trocar por aqui chega na F9.',
+    status: 'live',
+    note: 'Fala, ditado e texto selecionado já ficam reservados; as ações chegam na F3 e F6.',
   },
   privacy: {
     status: 'soon',
     phase: 'F6',
     note: 'Log de auditoria de exemplo; a auditoria real chega com o controle do PC (F6).',
   },
-  connections: {
-    status: 'partial',
-    phase: 'F7',
-    note: 'Spotify e Google Agenda são reais; os outros serviços chegam na F7.',
-  },
+  connections: { status: 'live' },
   diagnostics: {
     status: 'soon',
     phase: 'F9',

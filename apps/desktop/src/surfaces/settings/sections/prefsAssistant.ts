@@ -1,24 +1,17 @@
 import { create } from 'zustand'
 import { useAssistant } from '@/stores/assistant'
-import { DEFAULT_SHORTCUTS, type ShortcutId } from './shortcutsCombo'
 
-// Mock preferences for General, Avatar, Brain, Voice and Shortcuts (F1c). They move to the
+// Mock preferences for Avatar, Brain and Voice (F1c). They move to the
 // real `Settings` (Rust, persisted) as each phase lands: F2 Brain, F3 Voice, F8 Avatar.
-// Avatar eyes and color already live in `Settings.appearance`.
+// Avatar eyes and color already live in `Settings.appearance`; General and Shortcuts
+// live in `Settings.general` / `Settings.shortcuts`.
 
 export type BrainMode = 'auto' | 'pick' | 'local'
 export type ProviderId = 'anthropic' | 'openai' | 'gemini' | 'groq'
 export type Personality = 'fun' | 'cute' | 'pro' | 'sarcastic' | 'zen'
-export type NotifySound = 'chime' | 'ping' | 'soft' | 'none'
 export type TtsEngine = 'piper' | 'kokoro'
 
 export interface AssistantPrefs {
-  general: {
-    autostart: boolean
-    hideFullscreen: boolean
-    dnd: { enabled: boolean; from: string; to: string }
-    sound: NotifySound
-  }
   avatar: {
     expression: string
     accessories: string[]
@@ -46,7 +39,6 @@ export interface AssistantPrefs {
     ttsVoice: string
     speed: number
   }
-  shortcuts: Record<ShortcutId, string>
   /** Mock model downloads; progress is derived from elapsed time (see downloadProgress). */
   downloads: Record<string, Download>
 }
@@ -58,12 +50,6 @@ export interface Download {
 }
 
 export const DEFAULT_PREFS: AssistantPrefs = {
-  general: {
-    autostart: true,
-    hideFullscreen: true,
-    dnd: { enabled: false, from: '22:00', to: '07:00' },
-    sound: 'chime',
-  },
   avatar: {
     expression: 'happy',
     accessories: [],
@@ -95,15 +81,13 @@ export const DEFAULT_PREFS: AssistantPrefs = {
     ttsVoice: 'faber',
     speed: 1,
   },
-  shortcuts: DEFAULT_SHORTCUTS,
   downloads: {},
 }
 
-type Section = Exclude<keyof AssistantPrefs, 'shortcuts' | 'downloads'>
+type Section = Exclude<keyof AssistantPrefs, 'downloads'>
 
 interface PrefsState extends AssistantPrefs {
   patch: <K extends Section>(section: K, value: Partial<AssistantPrefs[K]>) => void
-  setShortcut: (id: ShortcutId, combo: string) => void
   /** Starts a fake download that completes after `ms`. */
   startDownload: (id: string, ms: number) => void
   reset: () => void
@@ -112,7 +96,6 @@ interface PrefsState extends AssistantPrefs {
 export const usePrefs = create<PrefsState>((set, get) => ({
   ...DEFAULT_PREFS,
   patch: (section, value) => set((s) => ({ [section]: { ...s[section], ...value } })),
-  setShortcut: (id, combo) => set((s) => ({ shortcuts: { ...s.shortcuts, [id]: combo } })),
   startDownload: (id, ms) => {
     const startedAt = Date.now()
     set((s) => ({ downloads: { ...s.downloads, [id]: { startedAt, ms, done: false } } }))

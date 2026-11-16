@@ -10,6 +10,7 @@ fn track(title: &str) -> NowPlaying {
         playing: true,
         position_ms: 10_000,
         duration_ms: 272_000,
+        can_seek: true,
         thumbnail: None,
     }
 }
@@ -26,9 +27,15 @@ fn appearing_and_disappearing_are_changes() {
 fn track_and_state_changes_are_detected() {
     let a = track("Do I Wanna Know?");
     assert!(changed(Some(&a), Some(&track("R U Mine?")), 1_000));
-    let paused = NowPlaying { playing: false, ..a.clone() };
+    let paused = NowPlaying {
+        playing: false,
+        ..a.clone()
+    };
     assert!(changed(Some(&a), Some(&paused), 1_000));
-    let art = NowPlaying { thumbnail: Some("data:x".into()), ..a.clone() };
+    let art = NowPlaying {
+        thumbnail: Some("data:x".into()),
+        ..a.clone()
+    };
     assert!(changed(Some(&a), Some(&art), 1_000));
 }
 
@@ -36,14 +43,26 @@ fn track_and_state_changes_are_detected() {
 fn position_only_counts_when_it_jumps() {
     let a = track("Do I Wanna Know?");
     // Playing: 5 s later the position moved ~5 s, as the UI clock expects.
-    let later = NowPlaying { position_ms: 15_300, ..a.clone() };
+    let later = NowPlaying {
+        position_ms: 15_300,
+        ..a.clone()
+    };
     assert!(!changed(Some(&a), Some(&later), 5_000));
     // A seek forward.
-    let seeked = NowPlaying { position_ms: 120_000, ..a.clone() };
+    let seeked = NowPlaying {
+        position_ms: 120_000,
+        ..a.clone()
+    };
     assert!(changed(Some(&a), Some(&seeked), 5_000));
     // Paused: the position must stay put.
-    let paused = NowPlaying { playing: false, ..a.clone() };
-    let moved = NowPlaying { position_ms: 14_000, ..paused.clone() };
+    let paused = NowPlaying {
+        playing: false,
+        ..a.clone()
+    };
+    let moved = NowPlaying {
+        position_ms: 14_000,
+        ..paused.clone()
+    };
     assert!(changed(Some(&paused), Some(&moved), 5_000));
     assert!(!changed(Some(&paused), Some(&paused.clone()), 5_000));
 }
@@ -67,8 +86,14 @@ fn friendly_names() {
         ("msedge.exe", "Edge"),
         ("firefox.exe", "Firefox"),
         ("308046B0AF4A39CB", "Firefox"),
-        ("Chrome._crx_cinhimbnkkaeohfgghhklpknlkffjgod", "YouTube Music"),
-        ("Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic", "Media Player"),
+        (
+            "Chrome._crx_cinhimbnkkaeohfgghhklpknlkffjgod",
+            "YouTube Music",
+        ),
+        (
+            "Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic",
+            "Media Player",
+        ),
         ("Arc.exe", "Arc"),
         ("C:\\Tools\\coolplayer.exe", "Coolplayer"),
         ("Contoso.Player_abc!App", "App"),
@@ -83,10 +108,22 @@ fn friendly_names() {
 #[test]
 fn data_url_sniffs_the_mime() {
     let jpeg = [0xFF, 0xD8, 0xFF, 0xE0, 1, 2];
-    assert!(data_url(&jpeg, "").unwrap().starts_with("data:image/jpeg;base64,"));
+    assert!(
+        data_url(&jpeg, "")
+            .unwrap()
+            .starts_with("data:image/jpeg;base64,")
+    );
     let png = [0x89, b'P', b'N', b'G', 0, 0];
-    assert!(data_url(&png, "image/jpeg").unwrap().starts_with("data:image/png;"));
-    assert!(data_url(&[1, 2, 3], "image/webp").unwrap().starts_with("data:image/webp;"));
+    assert!(
+        data_url(&png, "image/jpeg")
+            .unwrap()
+            .starts_with("data:image/png;")
+    );
+    assert!(
+        data_url(&[1, 2, 3], "image/webp")
+            .unwrap()
+            .starts_with("data:image/webp;")
+    );
     assert!(data_url(&[], "image/png").is_none());
     assert!(data_url(&vec![0; thumb::MAX_THUMB_BYTES + 1], "").is_none());
 }
@@ -120,7 +157,10 @@ fn stale_or_missing_art_is_retried_a_few_times() {
     // Missing art is retried, then a late arrival is picked up.
     let mut cache = ThumbCache::default();
     assert_eq!(cache.get_or_load("c", || None), None);
-    assert_eq!(cache.get_or_load("c", || Some("art-c".into())), Some("art-c".into()));
+    assert_eq!(
+        cache.get_or_load("c", || Some("art-c".into())),
+        Some("art-c".into())
+    );
     assert_eq!(cache.get_or_load("c", || None), Some("art-c".into()));
 }
 

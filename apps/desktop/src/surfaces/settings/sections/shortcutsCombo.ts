@@ -1,20 +1,18 @@
 // Pure key-combo helpers for the shortcut editor. Combos are stored canonical
 // ("Ctrl+Shift+Space") and only translated to pt-BR for display.
 
-export type ShortcutId = 'summon' | 'palette' | 'ptt' | 'selection' | 'dictation' | 'interrupt'
+import { DEFAULT_SHORTCUT_SETTINGS, type ShortcutAction } from '@/lib/ipc/generalTypes'
 
-export const DEFAULT_SHORTCUTS: Record<ShortcutId, string> = {
-  summon: 'Ctrl+Shift+Space',
-  palette: 'Alt+Shift+Space',
-  ptt: 'Ctrl+Alt+V',
-  selection: 'Ctrl+Shift+E',
-  dictation: 'Ctrl+Shift+D',
-  interrupt: 'Esc',
-}
+export type ShortcutId = ShortcutAction
+
+/** Same defaults as `ShortcutSettings::default()` (ekko-core). */
+export const DEFAULT_SHORTCUTS: Record<ShortcutId, string> = DEFAULT_SHORTCUT_SETTINGS
 
 /** The subset of KeyboardEvent the helpers need (easy to fake in tests). */
 export interface KeyLike {
   key: string
+  /** Physical key; keeps Shift+1 as "1" instead of "!". */
+  code?: string
   ctrlKey: boolean
   altKey: boolean
   shiftKey: boolean
@@ -35,7 +33,8 @@ const KEY_NAMES: Record<string, string> = {
 /** Canonical combo for a key press, or null while only modifiers are held. */
 export function comboFromKey(e: KeyLike): string | null {
   if (MODIFIER_KEYS.has(e.key)) return null
-  const key = KEY_NAMES[e.key] ?? (e.key.length === 1 ? e.key.toUpperCase() : e.key)
+  const physical = /^(?:Key|Digit)([A-Z0-9])$/.exec(e.code ?? '')?.[1]
+  const key = physical ?? KEY_NAMES[e.key] ?? (e.key.length === 1 ? e.key.toUpperCase() : e.key)
   const parts: string[] = []
   if (e.ctrlKey) parts.push('Ctrl')
   if (e.altKey) parts.push('Alt')

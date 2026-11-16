@@ -19,6 +19,9 @@ describe('shortcut combos', () => {
     expect(comboFromKey(press('e', { metaKey: true, altKey: true }))).toBe('Alt+Win+E')
     expect(comboFromKey(press('F8'))).toBe('F8')
     expect(comboFromKey(press('Escape'))).toBe('Esc')
+    expect(comboFromKey({ ...press('!', { ctrlKey: true, shiftKey: true }), code: 'Digit1' })).toBe(
+      'Ctrl+Shift+1',
+    )
   })
 
   it('waits while only modifiers are held', () => {

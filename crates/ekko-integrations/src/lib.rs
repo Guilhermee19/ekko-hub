@@ -4,7 +4,9 @@
 //! wrap calls in `spawn_blocking`. Users bring their own developer app IDs; tokens and
 //! client secrets go to the Windows Credential Manager via [`tokens`].
 
+pub mod claude_code;
 pub mod google_calendar;
+pub mod home_assistant;
 pub mod http;
 pub mod loopback;
 pub mod oauth;
@@ -63,6 +65,8 @@ pub enum Error {
     Secrets(String),
     #[error("resposta inesperada: {0}")]
     Parse(String),
+    #[error("{0}")]
+    Invalid(String),
     #[error("E/S: {0}")]
     Io(#[from] std::io::Error),
 }

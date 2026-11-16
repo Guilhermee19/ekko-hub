@@ -1,108 +1,39 @@
 import { create } from 'zustand'
+import { backend, type HabitInfo, type HabitsSnapshot, type WaterInfo } from '@/lib/ipc'
 
-// Feature-local mock store (F1b). The backend replaces it later with the same shape.
+// Water and habits live in the backend (Rust in Tauri, `mockProductivity` in the
+// gallery), which also rolls them over at local midnight. This store mirrors it.
 
-export type HabitIcon = 'book' | 'dumbbell' | 'eye' | 'stretch'
-
-export interface Habit {
-  id: string
-  label: string
-  icon: HabitIcon
-  /** Unit for target/progress: minutes or repetitions. */
-  unit: 'min' | 'x'
-  /** Daily goal. */
-  target: number
-  /** Today's progress, same unit as target. */
-  progress: number
-  /** Added per check-in. */
-  step: number
-  /** Last 7 days, oldest first; the last entry is today. */
-  week: boolean[]
-}
-
-export interface Water {
-  count: number
-  goal: number
-}
+export type { HabitIcon } from '@/lib/ipc'
+export type Habit = HabitInfo
+export type Water = WaterInfo
 
 interface HabitsState {
   water: Water
   habits: Habit[]
-  /** +1 / -1 cup, clamped to [0, goal * 2]. */
-  addWater: (delta: number) => void
-  setWater: (count: number) => void
-  checkIn: (id: string) => void
-  undo: (id: string) => void
+  /** +1 / -1 cup, clamped to [0, goal * 2] by the backend. */
+  addWater: (delta: number) => Promise<void>
+  setWater: (count: number) => Promise<void>
+  checkIn: (id: string) => Promise<void>
+  undo: (id: string) => Promise<void>
 }
 
-const MOCK_HABITS: Habit[] = [
-  {
-    id: 'reading',
-    label: 'Leitura',
-    icon: 'book',
-    unit: 'min',
-    target: 20,
-    progress: 10,
-    step: 10,
-    week: [true, true, false, true, true, true, false],
-  },
-  {
-    id: 'exercise',
-    label: 'Exercício',
-    icon: 'dumbbell',
-    unit: 'min',
-    target: 30,
-    progress: 0,
-    step: 15,
-    week: [true, false, true, false, true, false, false],
-  },
-  {
-    id: 'eyes',
-    label: 'Pausas para os olhos',
-    icon: 'eye',
-    unit: 'x',
-    target: 6,
-    progress: 4,
-    step: 1,
-    week: [true, true, true, true, false, true, false],
-  },
-  {
-    id: 'stretch',
-    label: 'Alongar',
-    icon: 'stretch',
-    unit: 'x',
-    target: 3,
-    progress: 3,
-    step: 1,
-    week: [false, true, true, true, true, true, true],
-  },
-]
+export const useHabits = create<HabitsState>((set) => {
+  const run = (call: Promise<HabitsSnapshot>) =>
+    call.then(
+      (s) => set(s),
+      (err: unknown) => console.error('[ekko] hábitos:', err),
+    )
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
-
-/** Update today's progress and keep the last streak entry in sync. */
-function withProgress(h: Habit, progress: number): Habit {
-  const p = clamp(progress, 0, h.target)
-  return { ...h, progress: p, week: [...h.week.slice(0, -1), p >= h.target] }
-}
-
-const patch = (habits: Habit[], id: string, fn: (h: Habit) => Habit) =>
-  habits.map((h) => (h.id === id ? fn(h) : h))
-
-export const useHabits = create<HabitsState>((set) => ({
-  water: { count: 5, goal: 8 },
-  habits: MOCK_HABITS,
-  addWater: (delta) =>
-    set((s) => ({
-      water: { ...s.water, count: clamp(s.water.count + delta, 0, s.water.goal * 2) },
-    })),
-  setWater: (count) =>
-    set((s) => ({ water: { ...s.water, count: clamp(count, 0, s.water.goal * 2) } })),
-  checkIn: (id) =>
-    set((s) => ({ habits: patch(s.habits, id, (h) => withProgress(h, h.progress + h.step)) })),
-  undo: (id) =>
-    set((s) => ({ habits: patch(s.habits, id, (h) => withProgress(h, h.progress - h.step)) })),
-}))
+  return {
+    water: { count: 0, goal: 8 },
+    habits: [],
+    addWater: (delta) => run(backend.waterAdd(delta)),
+    setWater: (count) => run(backend.waterSet(count)),
+    checkIn: (id) => run(backend.habitCheckIn(id)),
+    undo: (id) => run(backend.habitUndo(id)),
+  }
+})
 
 /** Consecutive done days ending today (or yesterday, if today is still open). */
 export function streakOf(week: boolean[]): number {
@@ -115,3 +46,10 @@ export function streakOf(week: boolean[]): number {
   }
   return n
 }
+
+// Sync with the backend once per window: initial snapshot, then every change.
+void backend
+  .listHabits()
+  .then((s) => useHabits.setState(s))
+  .catch((err: unknown) => console.error('[ekko] hábitos:', err))
+void backend.onHabitsChanged((s) => useHabits.setState(s))

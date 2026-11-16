@@ -5,6 +5,7 @@ import { Field } from '../Field'
 import { Chip, PageFrame, Row } from './GeneralControls'
 import { usePrefs } from './prefsAssistant'
 import { ComboCapture } from './ShortcutsCapture'
+import { useShortcuts } from './shortcutsStore'
 import { STT_MODELS } from './voiceCatalog'
 import { VoiceMicMeter } from './VoiceMicMeter'
 import { VoiceModels } from './VoiceModels'
@@ -16,9 +17,9 @@ const sensitivityLabel = (v: number) => (v < 0.35 ? 'Baixa' : v > 0.65 ? 'Alta' 
 export function VoicePage() {
   const name = useSettings((s) => s.settings.assistantName)
   const voice = usePrefs((s) => s.voice)
-  const ptt = usePrefs((s) => s.shortcuts.ptt)
+  const ptt = useSettings((s) => s.settings.shortcuts.ptt)
   const patch = usePrefs((s) => s.patch)
-  const setShortcut = usePrefs((s) => s.setShortcut)
+  const setShortcut = useShortcuts((s) => s.setShortcut)
   const set = (v: Partial<typeof voice>) => patch('voice', v)
 
   return (
@@ -33,7 +34,7 @@ export function VoicePage() {
             <ComboCapture
               label="apertar para falar"
               combo={ptt}
-              onChange={(c) => setShortcut('ptt', c)}
+              onChange={(c) => void setShortcut('ptt', c)}
             />
           </Row>
           <Row

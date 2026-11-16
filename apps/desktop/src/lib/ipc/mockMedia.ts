@@ -1,11 +1,21 @@
-import { MEDIA_CHANGED, type NowPlaying } from './mediaTypes'
+import { MEDIA_CHANGED, VOLUME_CHANGED, type NowPlaying, type VolumeState } from './mediaTypes'
 import type { Backend, Unlisten } from './types'
 
 // Fake "now playing" for the browser gallery: a few tracks across sources.
 
 type MediaMethods = Pick<
   Backend,
-  'mediaNow' | 'onMediaChanged' | 'mediaPlayPause' | 'mediaNext' | 'mediaPrevious'
+  | 'mediaNow'
+  | 'onMediaChanged'
+  | 'mediaPlayPause'
+  | 'mediaNext'
+  | 'mediaPrevious'
+  | 'mediaSeek'
+  | 'volumeGet'
+  | 'volumeSet'
+  | 'volumeStep'
+  | 'volumeMute'
+  | 'onVolumeChanged'
 >
 
 interface Deps {
@@ -21,6 +31,7 @@ const FAKE: Omit<NowPlaying, 'playing' | 'positionMs'>[] = [
     appId: 'Spotify.exe',
     source: 'Spotify',
     durationMs: 272_000,
+    canSeek: true,
     thumbnail: null,
   },
   {
@@ -30,6 +41,7 @@ const FAKE: Omit<NowPlaying, 'playing' | 'positionMs'>[] = [
     appId: 'chrome',
     source: 'Chrome',
     durationMs: 0,
+    canSeek: false,
     thumbnail: null,
   },
   {
@@ -39,6 +51,7 @@ const FAKE: Omit<NowPlaying, 'playing' | 'positionMs'>[] = [
     appId: 'Chrome._crx_cinhimbnkkaeohfgghhklpknlkffjgod',
     source: 'YouTube Music',
     durationMs: 301_000,
+    canSeek: true,
     thumbnail: null,
   },
 ]
@@ -49,6 +62,7 @@ export function mockMedia({ on, fire }: Deps): MediaMethods {
   // Position is stored as "where it was at `since`" so no ticker is needed here.
   let base = 83_000
   let since = Date.now()
+  let volume: VolumeState = { level: 0.6, muted: false }
 
   const now = (): NowPlaying => {
     const raw = base + (playing ? Date.now() - since : 0)
@@ -67,6 +81,12 @@ export function mockMedia({ on, fire }: Deps): MediaMethods {
     return changed()
   }
 
+  const setVolume = (next: VolumeState) => {
+    volume = { ...next, level: Math.min(1, Math.max(0, next.level)) }
+    fire(VOLUME_CHANGED, volume)
+    return Promise.resolve(volume)
+  }
+
   return {
     mediaNow: () => Promise.resolve(now()),
     onMediaChanged: (cb) => on(MEDIA_CHANGED, (p) => cb(p as NowPlaying | null)),
@@ -78,5 +98,16 @@ export function mockMedia({ on, fire }: Deps): MediaMethods {
     },
     mediaNext: () => jump(1),
     mediaPrevious: () => jump(-1),
+    mediaSeek: (positionMs) => {
+      base = positionMs
+      since = Date.now()
+      return changed()
+    },
+    volumeGet: () => Promise.resolve(volume),
+    volumeSet: (level) => setVolume({ level, muted: level > 0 ? false : volume.muted }),
+    volumeStep: (delta) =>
+      setVolume({ level: Math.round((volume.level + delta) * 100) / 100, muted: false }),
+    volumeMute: (on) => setVolume({ ...volume, muted: on }),
+    onVolumeChanged: (cb) => on(VOLUME_CHANGED, (p) => cb(p as VolumeState)),
   }
 }

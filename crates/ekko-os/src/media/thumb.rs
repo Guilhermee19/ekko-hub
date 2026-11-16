@@ -20,7 +20,11 @@ pub struct ThumbCache {
 }
 
 impl ThumbCache {
-    pub fn get_or_load(&mut self, key: &str, load: impl FnOnce() -> Option<String>) -> Option<String> {
+    pub fn get_or_load(
+        &mut self,
+        key: &str,
+        load: impl FnOnce() -> Option<String>,
+    ) -> Option<String> {
         if key != self.key {
             self.previous = self.value.take().or(self.previous.take());
             self.key = key.to_owned();
@@ -53,7 +57,21 @@ fn sniff(bytes: &[u8]) -> Option<&'static str> {
         [0xFF, 0xD8, 0xFF, ..] => Some("image/jpeg"),
         [0x89, b'P', b'N', b'G', ..] => Some("image/png"),
         [b'G', b'I', b'F', b'8', ..] => Some("image/gif"),
-        [b'R', b'I', b'F', b'F', _, _, _, _, b'W', b'E', b'B', b'P', ..] => Some("image/webp"),
+        [
+            b'R',
+            b'I',
+            b'F',
+            b'F',
+            _,
+            _,
+            _,
+            _,
+            b'W',
+            b'E',
+            b'B',
+            b'P',
+            ..,
+        ] => Some("image/webp"),
         [b'B', b'M', ..] => Some("image/bmp"),
         _ => None,
     }

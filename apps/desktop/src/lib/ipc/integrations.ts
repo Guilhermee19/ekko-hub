@@ -1,4 +1,7 @@
 // Mirrors crates/ekko-integrations + commands/integrations.rs (Spotify, Google Calendar).
+import type { ConnectorsBackend } from './connectors'
+
+export type * from './connectors'
 
 export type IntegrationProvider = 'spotify' | 'google'
 
@@ -70,11 +73,12 @@ export interface SpotifyQueue {
 }
 
 export type SpotifyAction = 'play' | 'pause' | 'next' | 'previous'
+export type SpotifyRepeat = SpotifyPlayback['repeat']
 
 type Unlisten = () => void
 
 /** Integration part of `Backend` (spread into the tauri and mock backends). */
-export interface IntegrationsBackend {
+export interface IntegrationsBackend extends ConnectorsBackend {
   integrationStatus(): Promise<IntegrationStatus>
   /** Client ID goes to settings; the Google secret goes to the Credential Manager. */
   setIntegrationClient(
@@ -94,6 +98,11 @@ export interface IntegrationsBackend {
   spotifyQueue(): Promise<SpotifyQueue>
   spotifyTransfer(deviceId: string): Promise<void>
   spotifyControl(action: SpotifyAction): Promise<void>
+  spotifyShuffle(on: boolean): Promise<void>
+  spotifyRepeat(mode: SpotifyRepeat): Promise<void>
+  spotifySeek(positionMs: number): Promise<void>
+  /** Volume of the active Spotify device, 0..100. */
+  spotifyVolume(percent: number): Promise<void>
   /** Opens an http(s) link in the system browser. */
   openExternal(url: string): Promise<void>
 }

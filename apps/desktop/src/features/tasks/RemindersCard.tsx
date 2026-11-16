@@ -1,10 +1,11 @@
 import { Bell, Repeat as RepeatIcon, X } from 'lucide-react'
 import { Card } from '@/ui/primitives'
+import { AddReminder } from './AddReminder'
 import { formatClock, formatWhen } from './due'
 import { useTasks } from './store'
 import { REPEAT_LABEL } from './TaskRow'
 
-/** Upcoming reminders: time + text. */
+/** Upcoming reminders: time + text, plus a quick add. */
 export function RemindersCard({ now }: { now: number }) {
   const reminders = useTasks((s) => s.reminders)
   const remove = useTasks((s) => s.removeReminder)
@@ -16,10 +17,9 @@ export function RemindersCard({ now }: { now: number }) {
         <span className="label-hud">Lembretes</span>
         <span className="ml-auto font-mono text-[10px] tabular-nums">{reminders.length}</span>
       </div>
+      <AddReminder now={now} />
       {reminders.length === 0 ? (
-        <p className="py-3 text-center text-[12px] text-muted">
-          Nenhum lembrete. Peça “me lembra de…”.
-        </p>
+        <p className="py-3 text-center text-[12px] text-muted">Nenhum lembrete. Crie um acima.</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {reminders.map((r) => {
@@ -47,7 +47,7 @@ export function RemindersCard({ now }: { now: number }) {
                   type="button"
                   aria-label={`Remover lembrete ${r.text}`}
                   title="Remover"
-                  onClick={() => remove(r.id)}
+                  onClick={() => void remove(r.id)}
                   className="grid size-6 place-items-center rounded-md text-muted opacity-0 group-hover:opacity-100 hover:text-danger focus-visible:opacity-100"
                 >
                   <X className="size-3.5" />

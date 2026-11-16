@@ -44,7 +44,9 @@ impl GsmtcSource {
             }
         };
         // A null session (nothing playing) surfaces as an error in windows-rs.
-        manager.GetCurrentSession().map_err(|_| MediaError::NoSession)
+        manager
+            .GetCurrentSession()
+            .map_err(|_| MediaError::NoSession)
     }
 
     fn read(&mut self) -> Result<Option<NowPlaying>> {
@@ -56,7 +58,12 @@ impl GsmtcSource {
         }
         let artist = props.Artist()?.to_string_lossy();
         let app_id = session.SourceAppUserModelId()?.to_string_lossy();
-        let playing = session.GetPlaybackInfo()?.PlaybackStatus()? == Status::Playing;
+        let info = session.GetPlaybackInfo()?;
+        let playing = info.PlaybackStatus()? == Status::Playing;
+        let can_seek = info
+            .Controls()?
+            .IsPlaybackPositionEnabled()
+            .unwrap_or(false);
 
         let timeline = session.GetTimelineProperties()?;
         let start = timeline.StartTime()?.Duration;
@@ -64,7 +71,11 @@ impl GsmtcSource {
         let position_ms = ticks_to_ms(timeline.Position()?.Duration - start);
         let updated = timeline.LastUpdatedTime()?.UniversalTime;
         // Unknown update time (0) -> trust the raw position.
-        let since_ms = if updated > 0 { ticks_to_ms(now_ticks() - updated) } else { 0 };
+        let since_ms = if updated > 0 {
+            ticks_to_ms(now_ticks() - updated)
+        } else {
+            0
+        };
 
         let key = format!("{app_id}\u{1}{title}\u{1}{artist}");
         let thumbnail = self.thumbs.get_or_load(&key, || read_thumbnail(&props));
@@ -77,13 +88,18 @@ impl GsmtcSource {
             app_id,
             playing,
             duration_ms,
+            can_seek,
             thumbnail,
         }))
     }
 
     fn control(&mut self, run: impl FnOnce(&Session) -> windows::core::Result<bool>) -> Result<()> {
         let session = self.session()?;
-        if run(&session)? { Ok(()) } else { Err(MediaError::Rejected) }
+        if run(&session)? {
+            Ok(())
+        } else {
+            Err(MediaError::Rejected)
+        }
     }
 }
 
@@ -126,10 +142,20 @@ fn read_thumbnail(props: &Properties) -> Option<String> {
     }
     let len = u32::try_from(size).ok()?;
     let buffer = Buffer::Create(len).ok()?;
-    let filled = stream.ReadAsync(&buffer, len, InputStreamOptions::None).ok()?.join().ok()?;
+    let filled = stream
+        .ReadAsync(&buffer, len, InputStreamOptions::None)
+        .ok()?
+        .join()
+        .ok()?;
     let mut bytes = vec![0u8; usize::try_from(filled.Length().ok()?).ok()?];
-    DataReader::FromBuffer(&filled).ok()?.ReadBytes(&mut bytes).ok()?;
-    let content_type = stream.ContentType().map(|h| h.to_string_lossy()).unwrap_or_default();
+    DataReader::FromBuffer(&filled)
+        .ok()?
+        .ReadBytes(&mut bytes)
+        .ok()?;
+    let content_type = stream
+        .ContentType()
+        .map(|h| h.to_string_lossy())
+        .unwrap_or_default();
     data_url(&bytes, &content_type)
 }
 
@@ -138,6 +164,8 @@ fn ticks_to_ms(ticks: i64) -> u64 {
 }
 
 fn now_ticks() -> i64 {
-    let since_unix = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default();
+    let since_unix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default();
     i64::try_from(since_unix.as_nanos() / 100).unwrap_or(0) + EPOCH_DIFF_TICKS
 }

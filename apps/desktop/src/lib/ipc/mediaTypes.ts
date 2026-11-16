@@ -12,8 +12,28 @@ export interface NowPlaying {
   playing: boolean
   positionMs: number
   durationMs: number
+  /** The player accepts seeking (Windows reports it per session). */
+  canSeek: boolean
   /** `data:image/...;base64,...` album art, when the player provides one. */
   thumbnail: string | null
 }
 
 export const MEDIA_CHANGED = 'ekko://media/changed'
+
+/** Windows master volume (default playback device). Mirrors ekko-os volume.rs. */
+export interface VolumeState {
+  /** 0..1 */
+  level: number
+  muted: boolean
+}
+
+export const VOLUME_CHANGED = 'ekko://volume/changed'
+
+/** Windows volume part of `Backend`: every call returns the new state. */
+export interface VolumeBackend {
+  volumeGet(): Promise<VolumeState>
+  volumeSet(level: number): Promise<VolumeState>
+  volumeStep(delta: number): Promise<VolumeState>
+  volumeMute(on: boolean): Promise<VolumeState>
+  onVolumeChanged(cb: (state: VolumeState) => void): Promise<() => void>
+}

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import { backend, type NowPlaying } from '@/lib/ipc'
-import { DEVICES, TRACKS } from './mock'
-import { positionAt, toTrack } from './nowPlaying'
+import { backend, type NowPlaying, type SpotifyAction, type SpotifyPlayback } from '@/lib/ipc'
+import { useSpotify } from '@/features/spotify/store'
+import { fromSpotify, isSpotify, positionAt, toTrack } from './nowPlaying'
 
 export interface Track {
   id: string
@@ -14,66 +14,67 @@ export interface Track {
   cover: string
 }
 
-export interface Device {
-  id: string
-  name: string
-  kind: 'desktop' | 'phone' | 'speaker'
-}
-
-export type Repeat = 'off' | 'all' | 'one'
-
 interface MusicState {
-  /** What the PC is playing (Windows media overlay); null when nothing is. */
+  /** What is playing (Windows media overlay, else Spotify on another device). */
   track: Track | null
   /** Friendly player name ("Spotify", "Chrome"...), null when nothing plays. */
   source: string | null
   playing: boolean
   positionSec: number
+  /** The progress bar may seek (Spotify API, or a Windows player that allows it). */
+  canSeek: boolean
+  /** Spotify is the player and is connected: controls go through its Web API. */
+  viaSpotify: boolean
   toggle: () => void
   next: () => void
   prev: () => void
-  /** Local only for now: GSMTC seek isn't exposed yet. */
   seek: (sec: number) => void
-
-  // Spotify-only extras, still mock until the Spotify integration lands.
-  /** 0..1 */
-  volume: number
-  queue: Track[]
-  device: Device
-  shuffle: boolean
-  repeat: Repeat
-  /** Spotify account linked (prototype switch). */
-  connected: boolean
-  setVolume: (v: number) => void
-  setDevice: (id: string) => void
-  playFromQueue: (id: string) => void
-  toggleShuffle: () => void
-  cycleRepeat: () => void
-  setConnected: (v: boolean) => void
 }
 
-const REPEAT_CYCLE: Record<Repeat, Repeat> = { off: 'all', all: 'one', one: 'off' }
-
-// Last backend snapshot and when it arrived: the local clock extrapolates from it, so
-// Home, Música and the notch all show the same position between events.
+// `os` is the last Windows value; `snapshot` is what is shown (os, or Spotify remote)
+// and when it arrived: the local clock extrapolates from it, so Home, Música and the
+// notch all show the same position between events.
+let os: NowPlaying | null = null
 let snapshot: NowPlaying | null = null
 let receivedAt = 0
 let ticker: ReturnType<typeof setInterval> | undefined
+let remote: { from: SpotifyPlayback | null; now: NowPlaying | null } = { from: null, now: null }
+
+function remoteNow(): NowPlaying | null {
+  const { connected, playback } = useSpotify.getState()
+  if (!connected) return null
+  if (remote.from !== playback) remote = { from: playback, now: playback && fromSpotify(playback) }
+  return remote.now
+}
+
+function routing(now: NowPlaying | null) {
+  const viaSpotify = useSpotify.getState().connected && isSpotify(now)
+  const canSeek = (now?.durationMs ?? 0) > 0 && (viaSpotify || (now?.canSeek ?? false))
+  return { viaSpotify, canSeek }
+}
 
 function apply(now: NowPlaying | null) {
   snapshot = now
   receivedAt = Date.now()
-  useMusic.setState(
-    now
+  useMusic.setState({
+    ...routing(now),
+    ...(now
       ? {
           track: toTrack(now),
           source: now.source,
           playing: now.playing,
           positionSec: positionAt(now, 0),
         }
-      : { track: null, source: null, playing: false, positionSec: 0 },
-  )
+      : { track: null, source: null, playing: false, positionSec: 0 }),
+  })
   syncClock(now?.playing ?? false)
+}
+
+/** Shows Windows' player, else Spotify's; only re-applies when the choice changed. */
+function show() {
+  const next = os ?? remoteNow()
+  if (next !== snapshot) apply(next)
+  else useMusic.setState(routing(next))
 }
 
 function syncClock(playing: boolean) {
@@ -89,55 +90,60 @@ function tick() {
     useMusic.setState({ positionSec: positionAt(snapshot, Date.now() - receivedAt) })
 }
 
-/** Optimistic play/pause: flip now, the backend event confirms ~1 s later. */
-function flipLocally() {
+/** Optimistic local change (play/pause, seek); the backend confirms shortly after. */
+function patch(change: (now: NowPlaying, positionMs: number) => Partial<NowPlaying>) {
   if (!snapshot) return
   const positionMs = Math.round(positionAt(snapshot, Date.now() - receivedAt) * 1000)
-  apply({ ...snapshot, playing: !snapshot.playing, positionMs })
+  const next = { ...snapshot, positionMs, ...change(snapshot, positionMs) }
+  if (snapshot === os) os = next
+  else remote = { ...remote, now: next }
+  apply(next)
 }
 
 const report = (err: unknown) => console.warn('[ekko] controle de mídia falhou', err)
 
-export const useMusic = create<MusicState>((set, get) => ({
+/** Spotify API when it is the player; Windows otherwise (or when the API refuses). */
+async function transport(action: SpotifyAction, windows: () => Promise<void>) {
+  if (useMusic.getState().viaSpotify && (await useSpotify.getState().control(action))) return
+  if (os) await windows().catch(report)
+}
+
+export const useMusic = create<MusicState>((_set, get) => ({
   track: null,
   source: null,
   playing: false,
   positionSec: 0,
+  canSeek: false,
+  viaSpotify: false,
   toggle: () => {
-    flipLocally()
-    backend.mediaPlayPause().catch(report)
+    const action = get().playing ? 'pause' : 'play'
+    patch((now) => ({ playing: !now.playing }))
+    void transport(action, () => backend.mediaPlayPause())
   },
-  next: () => {
-    backend.mediaNext().catch(report)
-  },
-  prev: () => {
-    backend.mediaPrevious().catch(report)
-  },
+  next: () => void transport('next', () => backend.mediaNext()),
+  prev: () => void transport('previous', () => backend.mediaPrevious()),
   seek: (sec) => {
-    const max = get().track?.durationSec || Infinity
-    set({ positionSec: Math.min(max, Math.max(0, sec)) })
+    const { canSeek, viaSpotify, track } = get()
+    if (!canSeek || !track) return
+    const ms = Math.round(Math.min(track.durationSec, Math.max(0, sec)) * 1000)
+    patch(() => ({ positionMs: ms }))
+    if (viaSpotify) void useSpotify.getState().seek(ms)
+    else backend.mediaSeek(ms).catch(report)
   },
-
-  volume: 0.6,
-  queue: TRACKS.slice(1),
-  device: DEVICES[0],
-  shuffle: false,
-  repeat: 'off',
-  connected: false,
-  setVolume: (v) => set({ volume: Math.min(1, Math.max(0, v)) }),
-  setDevice: (id) => set({ device: DEVICES.find((d) => d.id === id) ?? get().device }),
-  playFromQueue: (id) => {
-    const { queue } = get()
-    const i = queue.findIndex((t) => t.id === id)
-    if (i < 0) return
-    set({ queue: queue.slice(i + 1) })
-    backend.mediaNext().catch(report)
-  },
-  toggleShuffle: () => set({ shuffle: !get().shuffle }),
-  cycleRepeat: () => set({ repeat: REPEAT_CYCLE[get().repeat] }),
-  setConnected: (v) => set({ connected: v }),
 }))
 
+function fromWindows(now: NowPlaying | null) {
+  const trackChanged = now?.title !== os?.title || now?.artist !== os?.artist
+  os = now
+  show()
+  // The Spotify queue moves with the track.
+  if (trackChanged && useSpotify.getState().connected) useSpotify.getState().refreshSoon()
+}
+
+useSpotify.subscribe((s, prev) => {
+  if (s.playback !== prev.playback || s.connected !== prev.connected) show()
+})
+
 // Follow the backend from the first import; every window gets its own copy.
-backend.onMediaChanged(apply).catch(report)
-backend.mediaNow().then(apply, report)
+backend.onMediaChanged(fromWindows).catch(report)
+backend.mediaNow().then(fromWindows, report)

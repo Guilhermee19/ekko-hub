@@ -3,8 +3,10 @@
 use serde::{Deserialize, Serialize};
 
 use crate::appearance::AppearanceSettings;
+use crate::general::GeneralSettings;
 use crate::integrations::IntegrationsSettings;
 use crate::notch::NotchSettings;
+use crate::shortcuts::ShortcutSettings;
 
 /// How Ekko shows up on the user's screen.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -101,6 +103,10 @@ pub struct Settings {
     pub onboarded: bool,
     /// Developer app IDs for Spotify / Google (secrets live in the keyring).
     pub integrations: IntegrationsSettings,
+    /// Autostart, hide in fullscreen, quiet hours, notification sound.
+    pub general: GeneralSettings,
+    /// Global shortcuts (re-registered by the desktop shell on change).
+    pub shortcuts: ShortcutSettings,
 }
 
 impl Settings {
@@ -122,6 +128,8 @@ impl Default for Settings {
             appearance: AppearanceSettings::default(),
             onboarded: false,
             integrations: IntegrationsSettings::default(),
+            general: GeneralSettings::default(),
+            shortcuts: ShortcutSettings::default(),
         }
     }
 }

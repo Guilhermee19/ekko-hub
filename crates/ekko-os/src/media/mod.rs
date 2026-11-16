@@ -1,10 +1,10 @@
 //! "Now playing" + transport controls for whatever reports to the OS media overlay
 //! (Spotify desktop, YouTube/Spotify in a browser, any GSMTC-aware player). No login.
 
-mod names;
-mod thumb;
 #[cfg(windows)]
 mod gsmtc;
+mod names;
+mod thumb;
 
 use serde::Serialize;
 
@@ -27,6 +27,8 @@ pub struct NowPlaying {
     pub playing: bool,
     pub position_ms: u64,
     pub duration_ms: u64,
+    /// The player accepts seeking (GSMTC `IsPlaybackPositionEnabled`).
+    pub can_seek: bool,
     /// `data:image/...;base64,...`, read once per track.
     pub thumbnail: Option<String>,
 }
@@ -125,6 +127,7 @@ pub fn changed(last: Option<&NowPlaying>, next: Option<&NowPlaying>, elapsed_ms:
     if !a.same_track(b)
         || a.playing != b.playing
         || a.duration_ms != b.duration_ms
+        || a.can_seek != b.can_seek
         || a.thumbnail != b.thumbnail
     {
         return true;
@@ -135,8 +138,16 @@ pub fn changed(last: Option<&NowPlaying>, next: Option<&NowPlaying>, elapsed_ms:
 
 /// Players report the position at `LastUpdatedTime`; while playing, add the time since.
 pub fn extrapolate(position_ms: u64, since_update_ms: u64, playing: bool, duration_ms: u64) -> u64 {
-    let pos = if playing { position_ms + since_update_ms } else { position_ms };
-    if duration_ms > 0 { pos.min(duration_ms) } else { pos }
+    let pos = if playing {
+        position_ms + since_update_ms
+    } else {
+        position_ms
+    };
+    if duration_ms > 0 {
+        pos.min(duration_ms)
+    } else {
+        pos
+    }
 }
 
 #[cfg(test)]

@@ -31,12 +31,28 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 
 | Versão | Data | O que tem |
 |---|---|---|
-| **v0.1.0** | 15/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers e Pomodoro reais com alarme, música tocando no notch (Windows), Spotify e Google Agenda (OAuth), próximo evento no notch, paleta de comandos, boas-vindas. O resto das telas é protótipo marcado como **Em breve** no app. |
+| **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
 ## O que já funciona de verdade (v0.1.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
+| Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
+| Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
+| Início | Real | Cards de água, tarefas, avisos e timers com dados reais; música e últimas mensagens |
+| Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
+| Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
+| Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
+| Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra; com Spotify: fila, dispositivos, aleatório, repetir |
+| Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
+| Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
+| Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
+| Atalhos | Real | Chamar e paleta trocáveis com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
+| Paleta, boas-vindas, alarme, confirmação | Real | |
+| Conversa, Copiados, Rotinas, Meu PC, Memória | **Em breve** | Telas prontas com dados de exemplo |
+| Cérebro (IA), Voz, Funções, Avatar, Privacidade, Diagnóstico | **Em breve** | Configurações visuais, ainda sem efeito |
+
+---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor |
 | Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
@@ -119,7 +135,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Selos "Em breve" / "Em parte" no app em tudo que ainda é protótipo (`src/lib/availability.ts`)
 - [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
-- [ ] Spotify na página Música (fila, volume, dispositivos reais quando conectado)
+- [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
+- [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**
 
