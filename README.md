@@ -1,32 +1,129 @@
-# Ekko Hub
+# Ekko
 
-O Ekko ("eco") é um assistente de desktop local-first para Windows. Ele mora no topo da tela, conversa por texto e voz, usa IA grátis, local ou paga, e controla o PC.
+**Um assistente que mora no topo da sua tela.** O Ekko ("eco") fica num notch discreto no alto do Windows e mostra o que importa agora: o timer correndo, a música tocando, a próxima reunião. Ao passar o mouse, ele abre um painel com tudo que você precisa no dia.
 
-- Roadmap e fase atual: [docs/ROADMAP.md](docs/ROADMAP.md)
-- Arquitetura: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Design: [docs/DESIGN.md](docs/DESIGN.md)
+![O notch do Ekko aberto no Início](docs/screenshots/notch-home.webp)
 
-## Rodar
+> **Versão 0.1.0, primeira prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas aparecem no app marcadas como **Em breve**.
+
+## Baixar
+
+1. Baixe o instalador `Ekko_0.1.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
+3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
+
+**Requisitos:** Windows 10 ou 11 (64 bits). O WebView2 já vem no Windows 11; no Windows 10, o instalador baixa se faltar.
+
+## O que ele faz
+
+### Sempre à vista, sem atrapalhar
+
+A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela mostra e em que ordem.
+
+| Timer correndo | Música tocando | Ouvindo você |
+|---|---|---|
+| ![Pílula com timer](docs/screenshots/pill-timer.webp) | ![Pílula com música](docs/screenshots/pill-music.webp) | ![Pílula ouvindo](docs/screenshots/pill-listening.webp) |
+
+- **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o Ekko mostra um alarme na tela, com a opção "Adiar 5 min".
+- **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows.
+- **Agenda:** conectado ao Google Agenda, mostra o próximo compromisso 15 minutos antes e avisa 10 minutos antes.
+- **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
+- **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
+
+![Alarme de timer na tela](docs/screenshots/alarm.webp)
+
+### Do jeito que você quiser
+
+O Ekko não precisa ficar no topo. Escolha entre **notch**, **bandeja** (perto do relógio), **bolha flutuante**, **dock lateral**, **central** (uma janela grande) ou **só voz**. A troca acontece na hora.
+
+| Bandeja, perto do relógio | Central |
+|---|---|
+| ![Modo bandeja](docs/screenshots/mode-tray.webp) | ![Modo central](docs/screenshots/mode-hub.webp) |
+
+Você também escolhe a cor (qualquer uma, ou as personas Ekko, Eco e Ultron) e o formato, a transparência, o brilho e o tamanho do notch. Dá para arrastar o notch pela borda de cima e levá-lo para outro monitor.
+
+| Persona Ultron | Configurações de aparência |
+|---|---|
+| ![Tema Ultron](docs/screenshots/theme-ultron.webp) | ![Configurações de aparência](docs/screenshots/settings-appearance.webp) |
+
+### Conectado ao que você já usa
+
+![Conexões](docs/screenshots/settings-connections.webp)
+
+- **Spotify:** fila, dispositivos, aleatório e repetir. Controlar a reprodução exige uma conta Premium.
+- **Google Agenda:** seus próximos compromissos no notch.
+- **Home Assistant:** liga e desliga luzes, tomadas e ventiladores.
+- **Claude Code:** o Ekko detecta se está instalado.
+
+Cada serviço tem um passo a passo dentro do app. O Ekko não usa uma conta própria nesses serviços: você conecta com as suas credenciais.
+
+### Rápido no teclado
+
+| Atalho | O que faz |
+|---|---|
+| `Ctrl + Shift + Espaço` | Chama o Ekko de qualquer lugar |
+| `Ctrl + Alt + Espaço` | Abre a paleta de comandos (usa `Alt + Shift + Espaço` se outro programa já ocupa a primeira) |
+
+Os dois são configuráveis em *Configurações → Atalhos*. Se outro programa já usa a combinação, o Ekko avisa.
+
+| Paleta de comandos | Boas-vindas |
+|---|---|
+| ![Paleta de comandos](docs/screenshots/palette.webp) | ![Boas-vindas](docs/screenshots/onboarding.webp) |
+
+## Em breve
+
+| O quê | Quando |
+|---|---|
+| Comandos de voz ("Ei, Ekko, timer de 5 minutos") | próxima versão |
+| Conversa com IA (grátis, no seu PC ou com sua chave) | F2 |
+| Histórico do que você copiou e rotinas automáticas | F4–F5 |
+| Status e controle do PC | F6 |
+| Memória, MCP, casa inteligente Tuya e câmeras | F7 |
+| O personagem animado do Ekko | F8 |
+
+O plano completo está no [roadmap](docs/ROADMAP.md).
+
+## Privacidade
+
+- **Tudo fica no seu PC.** Configurações, tarefas e hábitos são salvos em `%APPDATA%\dev.guidev.ekko\`.
+- **Chaves e tokens** (Spotify, Google, Home Assistant) ficam no **Gerenciador de Credenciais do Windows**, nunca em arquivo de texto.
+- **O Ekko não envia telemetria.**
+
+## Problemas?
+
+Abra uma [issue](https://github.com/Guilhermee19/ekko-hub/issues) dizendo o que aconteceu, a sua versão do Windows e, se der, um print.
+
+---
+
+## Para desenvolvedores
+
+Feito com Tauri 2, React 19, TypeScript, Tailwind 4 e um workspace Rust (`crates/`).
+
+- **Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md).
+- **Arquitetura:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Design:** [docs/DESIGN.md](docs/DESIGN.md).
+- **Regras para quem contribui (pessoas e agentes):** [AGENTS.md](AGENTS.md).
+
+### Rodar
 
 Requisitos: Node 24+, Rust estável (MSVC) e WebView2.
 
 ```bash
 npm install
-npm run tauri dev     # app real (notch, tray, atalho Ctrl+Shift+Espaço)
-npm run dev           # abre a galeria no navegador: http://127.0.0.1:1420 (todos os modos com mock)
+npm run tauri dev     # o app de verdade (notch, bandeja, atalhos)
+npm run dev           # galeria no navegador (http://127.0.0.1:1420), com todos os modos e dados de exemplo
 ```
 
-## Checar
+### Checar
 
 ```bash
 npm run check         # eslint + tsc + vitest
 npm run rust:check    # clippy -D warnings + cargo test
 ```
 
-Os dados do usuário ficam em `%APPDATA%\dev.guidev.ekko\settings.json`.
+### Testes de ponta a ponta
 
-## Testes de ponta a ponta
-
-Rodam no app real, sem mexer no seu mouse ou teclado: o script conduz a janela pelo DevTools Protocol do WebView2.
+Os testes de ponta a ponta rodam no app real sem mexer no seu mouse ou teclado. O script conduz a janela pelo DevTools Protocol do WebView2.
 
 ```bash
 # 1. Suba o app com a porta de depuração aberta
@@ -35,8 +132,6 @@ WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333 npm run tauri
 npm run e2e:onboarding
 ```
 
-`e2e:onboarding` percorre todas as etapas, escolhe a Bolha flutuante (cria uma janela nova) e confere que `onboarded` e o modo foram salvos.
-
 ### Release
 
 ```bash
@@ -44,5 +139,14 @@ npm run tauri build          # gera target/release/bundle/nsis/Ekko_<versão>_x6
 npm run e2e:smoke-release    # abre o .exe de release e confere que todas as janelas montaram
 ```
 
-O teste de fumaça existe porque o build de produção pode quebrar onde o modo dev não quebra: um build disparado de `c:\` minúsculo empacotava o React duas vezes e abria janelas vazias (ver `apps/desktop/vite.config.ts`).
+O teste de fumaça existe porque o build de produção pode quebrar onde o modo dev não quebra. Já aconteceu: um build disparado de `c:\` minúsculo empacotava o React duas vezes e abria janelas vazias (ver `apps/desktop/vite.config.ts`).
 
+### Prints do README
+
+Os prints saem da galeria, com dados de exemplo, e nunca de uma área de trabalho real:
+
+```bash
+cd apps/desktop && npx vite --open false        # galeria em 127.0.0.1:1420
+msedge --headless=new --remote-debugging-port=9400 --user-data-dir=<pasta temporária>
+node scripts/screenshots.mjs                    # grava docs/screenshots/*.webp
+```

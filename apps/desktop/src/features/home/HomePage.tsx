@@ -32,10 +32,11 @@ export function HomePage({ compact, go }: PageProps) {
   }
 
   return (
-    <div className="animate-rise-in flex flex-col gap-4">
+    <div className="animate-rise-in @container flex flex-col gap-4">
       <header>
         <h1 className="text-[20px] font-semibold">
-          {greeting(new Date().getHours())}, {userName}!
+          {greeting(new Date().getHours())}
+          {userName.trim() ? `, ${userName.trim()}` : ''}!
         </h1>
         <p className="text-[12px] text-muted">
           Escreva, fale ou diga “Ei, {assistantName}” · <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd>{' '}
@@ -62,7 +63,8 @@ export function HomePage({ compact, go }: PageProps) {
 
       <HomeCards compact={compact} go={go} />
 
-      <div className={cn('grid gap-2', compact ? 'grid-cols-1' : 'grid-cols-2')}>
+      {/* Sized by the panel itself (notch, hub and dock differ), not by the window. */}
+      <div className={cn('grid gap-2', compact ? 'grid-cols-1' : 'grid-cols-1 @lg:grid-cols-2')}>
         <NowPlaying go={go} compact={compact} />
         <RecentChat go={go} />
       </div>

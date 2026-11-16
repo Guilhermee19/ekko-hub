@@ -97,7 +97,7 @@ const CLIPS: Clip[] = [
 
 const SNIPPETS: Snippet[] = [
   { id: 's1', name: 'E-mail pessoal', shortcut: ';email', content: 'guilherme@exemplo.com' },
-  { id: 's2', name: 'Assinatura', shortcut: ';ass', content: 'Abraço,\nGuilherme' },
+  { id: 's2', name: 'Assinatura', shortcut: ';ass', content: 'Abraço,\nAna' },
   { id: 's3', name: 'Endereço', shortcut: ';end', content: 'Rua das Flores, 123 – São Paulo, SP' },
 ]
 

@@ -71,7 +71,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   version: 1,
-  userName: 'Guilherme',
+  userName: '',
   assistantName: 'Ekko',
   displayMode: 'notch',
   persona: 'ekko',

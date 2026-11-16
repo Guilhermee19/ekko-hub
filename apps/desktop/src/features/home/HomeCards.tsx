@@ -25,7 +25,7 @@ export function HomeCards({ compact, go }: PageProps) {
   const soonest = running.sort((a, b) => a.endsAt - b.endsAt)[0]
 
   return (
-    <div className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-4')}>
+    <div className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-2 @lg:grid-cols-4')}>
       <div className="relative">
         <StatCard
           icon={Droplets}

@@ -117,7 +117,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             version: Self::CURRENT_VERSION,
-            user_name: "Guilherme".into(),
+            user_name: String::new(),
             assistant_name: "Ekko".into(),
             display_mode: DisplayMode::default(),
             persona: Persona::default(),

@@ -5,6 +5,7 @@ import { useSettings } from '@/stores/settings'
 import type { PageId } from '@/surfaces/panel/nav'
 import { Badge } from '@/ui/data'
 import { Kbd } from '@/ui/primitives'
+import { comboKeys } from '@/surfaces/settings/sections/shortcutsCombo'
 import { useChat } from '../chat/store'
 import { buildCatalog, type PaletteCommand } from './catalog'
 import { GROUP_LABEL, rankCommands } from './commands'
@@ -24,6 +25,7 @@ interface Row {
 /** Spotlight-style box: type, ↑/↓, Enter. Fills a ~640px-wide transparent window. */
 export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
   const assistant = useSettings((s) => s.settings.assistantName)
+  const paletteCombo = useSettings((s) => s.settings.shortcuts.palette)
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   /** A confirm dialog is open for the chosen command; the palette yields the keyboard. */
@@ -150,9 +152,10 @@ export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
           <Kbd>Enter</Kbd> executar
         </span>
         <span className="ml-auto flex items-center gap-1">
-          <Kbd>Alt</Kbd>
-          <Kbd>Shift</Kbd>
-          <Kbd>Espaço</Kbd> abre de qualquer lugar
+          {comboKeys(paletteCombo).map((k) => (
+            <Kbd key={k}>{k}</Kbd>
+          ))}{' '}
+          abre de qualquer lugar
         </span>
       </div>
     </div>

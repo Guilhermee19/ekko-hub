@@ -41,7 +41,7 @@ const FACTS: Fact[] = [
   {
     id: 'f1',
     category: 'Pessoal',
-    text: 'Seu nome é Guilherme',
+    text: 'Seu nome é Ana',
     source: 'da configuração inicial',
   },
   { id: 'f2', category: 'Pessoal', text: 'Mora em Belo Horizonte', source: 'da conversa de ontem' },

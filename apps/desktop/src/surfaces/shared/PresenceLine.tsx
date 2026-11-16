@@ -113,7 +113,7 @@ function ActivityChip({ activity }: { activity: Activity }) {
       <span className={chip}>
         <span className="size-1.5 rounded-full bg-accent" />
         <Timer className="size-3.5 text-accent" />
-        <span className="text-muted">{activity.label}</span>
+        <span className="min-w-0 truncate text-muted">{activity.label}</span>
         <span className="ml-auto font-mono font-semibold text-accent tabular-nums">
           {formatRemaining(activity.endsAt - now)}
         </span>

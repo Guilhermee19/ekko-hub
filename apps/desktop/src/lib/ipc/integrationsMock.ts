@@ -17,7 +17,7 @@ const status: IntegrationStatus = {
   google: { connected: false, account: null, clientId: null, hasSecret: false },
 }
 const ACCOUNTS: Record<IntegrationProvider, string> = {
-  spotify: 'Guilherme',
+  spotify: 'Ana',
   google: 'guilherme@gmail.com',
 }
 
