@@ -24,22 +24,23 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.1.0 |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.1.3 |
 | V2 | Servidor + app no celular | `[ ]` |
 
 ## Releases
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.1.0)
+## O que já funciona de verdade (v0.1.3)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
 | Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
-| Início | Real | Cards de água, tarefas, avisos e timers com dados reais; música e últimas mensagens |
+| Início | Real | Cards de água, tarefas, avisos e timers com dados reais e música |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
@@ -55,16 +56,6 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
 | Cérebro (IA), Voz, Funções, Avatar, Diagnóstico | **Escondidas** | Seções das Configurações fora do menu até ter efeito; Privacidade fica (auditoria real) |
 
----|---|---|
-| Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor |
-| Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
-| Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
-| Música tocando | Real | Qualquer player do Windows (Spotify, navegador…), no notch e com controles |
-| Spotify | Real (precisa de Client ID) | OAuth PKCE, fila e dispositivos; controlar exige Premium |
-| Google Agenda | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
-| Paleta, boas-vindas, alarme, confirmação | Real | Paleta: `Ctrl+Alt+Espaço` ou `Alt+Shift+Espaço` |
-| Conversa, Tarefas, Hábitos, Copiados, Rotinas, Meu PC, Memória | **Em breve** | Telas prontas com dados de exemplo |
-| Cérebro (IA), Voz, Funções, Avatar, Privacidade, Diagnóstico | **Em breve** | Configurações visuais, ainda sem efeito |
 
 ---
 
@@ -137,6 +128,7 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Conexões reais: Spotify (OAuth PKCE) e Google Agenda (OAuth), próximo evento no notch e aviso 10 min antes
 - [x] Selos "Em breve" / "Em parte" no app em tudo que ainda é protótipo (`src/lib/availability.ts`)
 - [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
+- [x] **v0.1.3**: notch novo, prateleira de arquivos, Copiados real e protótipos escondidos dos menus
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
 - [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
 - [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)

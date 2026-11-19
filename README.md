@@ -4,11 +4,11 @@
 
 ![O notch do Ekko aberto no Início](docs/screenshots/notch-home.webp)
 
-> **Versão 0.1.0, primeira prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas aparecem no app marcadas como **Em breve**.
+> **Versão 0.1.3, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.1.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.1.3_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -31,6 +31,11 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
 
 ![Alarme de timer na tela](docs/screenshots/alarm.webp)
+
+### Uma prateleira no notch e o histórico do que você copia
+
+- **Prateleira de arquivos:** arraste arquivos ou pastas até o notch e solte. Eles ficam guardados ali e depois saem todos juntos (ou um a um) quando você arrasta para outra pasta, o e-mail ou o chat. Você escolhe se o Ekko copia ou move.
+- **Copiados:** o Ekko guarda o histórico do texto que você copia, com busca, fixar e pausar. Senhas copiadas de gerenciadores de senha ficam de fora.
 
 ### De olho no seu PC
 
@@ -85,7 +90,7 @@ Os dois são configuráveis em *Configurações → Atalhos*. Se outro programa 
 |---|---|
 | Comandos de voz ("Ei, Ekko, timer de 5 minutos") | próxima versão |
 | Conversa com IA (grátis, no seu PC ou com sua chave) | F2 |
-| Histórico do que você copiou e rotinas automáticas | F4–F5 |
+| Rotinas automáticas | F5 |
 | Controle do PC por voz/IA (abrir apps, janelas, organizar arquivos) | F6 |
 | Memória, MCP, casa inteligente Tuya e câmeras | F7 |
 | O personagem animado do Ekko | F8 |
