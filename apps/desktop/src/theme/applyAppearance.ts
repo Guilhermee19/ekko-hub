@@ -1,5 +1,5 @@
 import type { AppearanceSettings, Persona } from '@/lib/ipc'
-import { contrast, darken, mix, normalizeHex } from './color'
+import { auraPartner, contrast, darken, mix, normalizeHex } from './color'
 import { PALETTES, type Palette } from './palettes'
 
 /** Every CSS variable this module may set; the rest are removed so tokens.css wins. */
@@ -15,8 +15,7 @@ const MANAGED = [
   '--notch-glow',
   '--notch-scale',
   '--notch-bg',
-  '--notch-border',
-  '--notch-shadow',
+  '--notch-aura',
   '--font-scale',
 ] as const
 
@@ -76,22 +75,26 @@ export function appearanceVars(persona: Persona, a: AppearanceSettings): Vars {
     vars['--color-surface-hover'] = t.surfaceHover
     vars['--color-border-soft'] = t.borderSoft
   }
-  // The border alpha tracks the glow so one slider drives the whole "neon" feel.
-  const glow = a.notchGlow
   vars['--notch-radius'] = `${a.notchRadius}px`
   vars['--notch-opacity'] = String(a.notchOpacity)
-  vars['--notch-glow'] = String(glow)
+  vars['--notch-glow'] = String(a.notchGlow)
   vars['--notch-scale'] = String(a.notchScale)
-  vars['--notch-bg'] = `color-mix(in srgb, var(--color-base) ${pct(a.notchOpacity)}, transparent)`
-  vars['--notch-border'] = a.notchBorder
-    ? `color-mix(in srgb, var(--color-accent) ${pct(0.05 + glow * 0.4)}, transparent)`
-    : 'transparent'
-  vars['--notch-shadow'] =
-    glow > 0
-      ? `0 0 ${Math.round(glow * 24)}px color-mix(in srgb, var(--color-accent) ${pct(glow * 0.45)}, transparent)`
-      : 'none'
+  vars['--notch-bg'] = `color-mix(in srgb, var(--notch-ink) ${pct(a.notchOpacity)}, transparent)`
+  vars['--notch-aura'] = notchAura(accent, a.notchGlow)
   vars['--font-scale'] = String(a.fontScale)
   return vars
+}
+
+/**
+ * Light rising from the bottom edge of the pill: the accent on the left, its partner
+ * hue on the right. The "Brilho" slider scales it; 0 turns it off.
+ */
+export function notchAura(accent: string, glow: number): string {
+  if (glow <= 0) return 'none'
+  const strength = pct(Math.min(1, glow * 1.6))
+  const blob = (x: number, color: string) =>
+    `radial-gradient(70% 140% at ${x}% 150%, color-mix(in srgb, ${color} ${strength}, transparent), transparent 70%)`
+  return `${blob(18, 'var(--color-accent)')}, ${blob(82, auraPartner(accent))}`
 }
 
 /** Writes the appearance on `<html>`; called whenever persona or appearance change. */

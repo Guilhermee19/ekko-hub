@@ -40,6 +40,31 @@ impl SettingsStore {
     }
 }
 
+/// One JSON file in the data dir (`clipboard.json`, `shelf.json`…).
+pub struct JsonFile {
+    path: PathBuf,
+}
+
+impl JsonFile {
+    pub fn new(dir: &Path, name: &str) -> Self {
+        Self {
+            path: dir.join(name),
+        }
+    }
+
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    pub fn load<T: DeserializeOwned + Default>(&self) -> Result<T, StoreError> {
+        read_json(&self.path)
+    }
+
+    pub fn save<T: Serialize>(&self, value: &T) -> Result<(), StoreError> {
+        write_json_atomic(&self.path, value)
+    }
+}
+
 /// Reads a JSON file; a missing file means first run, so it returns `T::default()`.
 pub fn read_json<T: DeserializeOwned + Default>(path: &Path) -> Result<T, StoreError> {
     match fs::read_to_string(path) {

@@ -1,5 +1,6 @@
 import { CornerDownLeft, Search, Sparkles } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { pageShown } from '@/lib/availability'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/stores/settings'
 import type { PageId } from '@/surfaces/panel/nav'
@@ -41,7 +42,8 @@ export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
         out.push({ cmd, heading: i === 0 ? GROUP_LABEL[g.group] : undefined }),
       )
     const q = query.trim()
-    if (q)
+    // Asking Ekko needs the Conversa page, still a prototype until F2.
+    if (q && pageShown('chat'))
       out.push({
         heading: 'Conversa',
         cmd: {

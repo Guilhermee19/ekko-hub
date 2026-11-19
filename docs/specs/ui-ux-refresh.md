@@ -1,6 +1,6 @@
 # Spec: refresh de UI/UX do Ekko
 
-> **Status:** proposta, nada implementado ainda.
+> **Status:** proposta. **P1 implementada** (forma com orelhas, sem borda na pílula, aura embaixo). A prateleira de arquivos já vive no notch aberto e é candidata à aba `Bandeja` do peek (P2).
 > **Escopo:** visual e interação das superfícies existentes (notch, painel, bandeja, Início, Meu PC). Nenhuma feature nova de backend.
 > **Referências:** 5 imagens de inspiração (card "Hire Me" com base colorida, barra lateral com anéis no celular, barra de volume/silencioso saindo da borda, notch do Mac expandido estilo "Nook", pílulas de métrica com anel e glow).
 

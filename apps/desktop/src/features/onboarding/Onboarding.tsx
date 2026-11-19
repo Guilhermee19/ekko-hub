@@ -1,7 +1,9 @@
 import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react'
 import { useEffect, useState, type ComponentType } from 'react'
 import { backend } from '@/lib/ipc'
+import { sectionShown } from '@/lib/availability'
 import { cn } from '@/lib/cn'
+import type { SectionId } from '@/surfaces/settings/sections'
 import { useLatest } from '@/surfaces/shared/useOverlay'
 import { HudFrame, Button, Kbd } from '@/ui/primitives'
 import { advance, isBlocked } from './flow'
@@ -13,16 +15,20 @@ interface Step {
   id: string
   label: string
   view: ComponentType
+  /** Settings section the step configures; hidden while that section is "Em breve". */
+  section?: SectionId
 }
 
-const STEPS: Step[] = [
+const ALL_STEPS: Step[] = [
   { id: 'welcome', label: 'Boas-vindas', view: WelcomeStep },
   { id: 'names', label: 'Nome', view: NamesStep },
-  { id: 'brain', label: 'Cérebro', view: BrainStep },
-  { id: 'voice', label: 'Voz', view: VoiceStep },
+  { id: 'brain', label: 'Cérebro', view: BrainStep, section: 'brain' },
+  { id: 'voice', label: 'Voz', view: VoiceStep, section: 'voice' },
   { id: 'look', label: 'Aparência', view: AppearanceStep },
   { id: 'done', label: 'Pronto', view: DoneStep },
 ]
+
+const STEPS = ALL_STEPS.filter((s) => !s.section || sectionShown(s.section))
 
 /** First-run flow. Fills its container (~720×520 opaque window). */
 export function Onboarding({ onDone }: { onDone: () => void }) {

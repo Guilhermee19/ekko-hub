@@ -4,6 +4,7 @@ import { type Activity } from '@/stores/assistant'
 import { usePresence } from '@/stores/liveActivity'
 import { demo } from '@/stores/demo'
 import { useSettings } from '@/stores/settings'
+import { EkkoEyes } from '@/ui/EkkoEyes'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { Waveform } from '@/ui/Waveform'
 import { formatRemaining } from '@/lib/time'
@@ -13,14 +14,39 @@ import { useNow } from './useNow'
  * One-line presence readout: avatar + whatever matters right now (phase, toast or live
  * activity). Used by the notch pill, the dock strip header and the voice overlay.
  */
-export function PresenceLine({ compact = false }: { compact?: boolean }) {
+export function PresenceLine({
+  compact = false,
+  eyes = false,
+}: {
+  compact?: boolean
+  /** Notch look: bare glowing eyes instead of the ringed face; centered when idle. */
+  eyes?: boolean
+}) {
   const p = usePresence()
   const name = useSettings((s) => s.settings.assistantName)
   const show = useSettings((s) => s.settings.appearance.pillShow)
 
+  if (eyes && show.avatar && p.phase === 'idle' && !p.toast && !p.activity) {
+    return (
+      <div className="relative flex h-full min-w-0 flex-1 items-center justify-center px-3">
+        <EkkoEyes phase="idle" className="h-4.5 w-10" />
+        {show.clock && (
+          <span className="absolute right-3">
+            <Clock />
+          </span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3">
-      {show.avatar && <EkkoFace phase={p.phase} className="size-6 shrink-0" />}
+      {show.avatar &&
+        (eyes ? (
+          <EkkoEyes phase={p.phase} className="h-3.5 w-8 shrink-0" />
+        ) : (
+          <EkkoFace phase={p.phase} className="size-6 shrink-0" />
+        ))}
       {p.phase === 'listening' && (
         <>
           <span className="size-1.5 shrink-0 rounded-full bg-danger" />

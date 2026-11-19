@@ -8,6 +8,8 @@ import { Card, Button } from '@/ui/primitives'
 import { Toggle } from '@/ui/forms'
 import { BRAINS, useOnboarding } from './store'
 import { StepTitle, useNames } from './StepsIntro'
+import { sectionShown } from '@/lib/availability'
+import { comboKeys } from '@/surfaces/settings/sections/shortcutsCombo'
 
 const BARS = 24
 
@@ -130,20 +132,31 @@ export function DoneStep() {
   const { userName, assistantName } = useNames()
   const { brain, wakeWord, mic } = useOnboarding()
   const settings = useSettings((s) => s.settings)
+  // Brain and voice only show up once those settings actually do something.
+  const brainOn = sectionShown('brain')
+  const voiceOn = sectionShown('voice')
+  const listens = voiceOn && wakeWord
   const rows: [string, string][] = [
     ['Você', userName || '—'],
     ['Assistente', assistantName],
-    ['Cérebro', BRAINS.find((b) => b.id === brain)?.title ?? brain],
-    ['Microfone', mic === 'ok' ? 'Testado' : 'Não testado'],
-    ['“Ei, Ekko”', wakeWord ? 'Ligado' : 'Desligado'],
+    ...(brainOn
+      ? [['Cérebro', BRAINS.find((b) => b.id === brain)?.title ?? brain] as [string, string]]
+      : []),
+    ...(voiceOn
+      ? ([
+          ['Microfone', mic === 'ok' ? 'Testado' : 'Não testado'],
+          ['“Ei, Ekko”', wakeWord ? 'Ligado' : 'Desligado'],
+        ] as [string, string][])
+      : []),
     ['Exibição', MODES.find((m) => m.id === settings.displayMode)?.label ?? ''],
     ['Cores', PERSONAS.find((p) => p.id === settings.persona)?.label ?? ''],
   ]
+  const summon = comboKeys(settings.shortcuts.summon).join('+')
   return (
     <div className="mx-auto w-full max-w-sm">
       <StepTitle
         title={`Tudo pronto, ${userName || 'por aqui'}!`}
-        hint={`Me chame com Ctrl+Espaço${wakeWord ? ' ou dizendo “Ei, Ekko”' : ''}.`}
+        hint={`Me chame com ${summon}${listens ? ' ou dizendo “Ei, Ekko”' : ''}.`}
       />
       <dl className="divide-y divide-border-soft rounded-xl border border-border-soft bg-surface">
         {rows.map(([k, v]) => (

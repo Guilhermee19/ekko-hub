@@ -2,6 +2,7 @@
 
 pub mod appearance;
 pub mod audit;
+pub mod clipboard;
 pub mod clock;
 pub mod general;
 pub mod habits;
@@ -11,6 +12,7 @@ pub mod notch;
 pub mod pomodoro;
 pub mod productivity;
 pub mod settings;
+pub mod shelf;
 pub mod shortcuts;
 pub mod store;
 pub mod tasks;

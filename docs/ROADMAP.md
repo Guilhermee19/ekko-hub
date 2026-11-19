@@ -50,8 +50,10 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Atalhos | Real | Chamar e paleta trocáveis com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com limpeza de temporários e lixeira, log de auditoria |
-| Conversa, Copiados, Rotinas, Memória | **Em breve** | Telas prontas com dados de exemplo |
-| Cérebro (IA), Voz, Funções, Avatar, Privacidade, Diagnóstico | **Em breve** | Configurações visuais, ainda sem efeito |
+| Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
+| Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali e saem juntos arrastando para outro lugar (copiar ou mover) |
+| Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
+| Cérebro (IA), Voz, Funções, Avatar, Diagnóstico | **Escondidas** | Seções das Configurações fora do menu até ter efeito; Privacidade fica (auditoria real) |
 
 ---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor |
@@ -138,6 +140,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
 - [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
 - [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)
+- [x] Notch com a forma da spec P1 (preto da moldura, orelhas côncavas, luz embaixo, olhos do Ekko)
+- [x] Prateleira de arquivos no notch (soltar, guardar, arrastar todos ou um a um, copiar/mover)
+- [x] Copiados real: histórico do clipboard do Windows salvo em `clipboard.json`
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**
 

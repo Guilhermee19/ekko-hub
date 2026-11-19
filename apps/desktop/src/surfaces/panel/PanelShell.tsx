@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn'
 import { useSettings } from '@/stores/settings'
 import { useAssistant } from '@/stores/assistant'
 import { EkkoFace } from '@/ui/EkkoFace'
-import { NAV, type PageId } from './nav'
+import { VISIBLE_NAV, type PageId } from './nav'
 import { useNavBadges } from './badges'
 import { useNavigateRequests } from './navigate'
 import { PAGES } from './pages'
@@ -26,8 +26,8 @@ export function PanelShell({ layout, className }: PanelShellProps) {
   const [more, setMore] = useState(false)
   const badges = useNavBadges()
   // Compact rail fits 5 pages; the rest go into the "Mais" menu.
-  const rail = wide ? NAV : NAV.slice(0, 5)
-  const overflow = wide ? [] : NAV.slice(5)
+  const rail = wide ? VISIBLE_NAV : VISIBLE_NAV.slice(0, 5)
+  const overflow = wide ? [] : VISIBLE_NAV.slice(5)
   const open = (id: PageId) => {
     setPage(id)
     setMore(false)

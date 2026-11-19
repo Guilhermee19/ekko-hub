@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { useAssistant } from '@/stores/assistant'
+import { flashToast } from '@/stores/assistant'
 import { catalogAction } from './catalog'
 import type { Routine } from './model'
 
@@ -56,11 +56,6 @@ const ROUTINES: Routine[] = [
     lastRunAt: null,
   },
 ]
-
-function flashToast(text: string) {
-  // Auto-clears: see TOAST_MS in stores/assistant.
-  useAssistant.getState().set({ toast: text })
-}
 
 export const useRoutines = create<RoutinesState>((set, get) => ({
   routines: ROUTINES,

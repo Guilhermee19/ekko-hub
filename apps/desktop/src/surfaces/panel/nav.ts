@@ -13,6 +13,7 @@ import {
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { pageShown } from '@/lib/availability'
 
 export type PageId =
   | 'home'
@@ -48,3 +49,6 @@ export const NAV: NavItem[] = [
   { id: 'memory', label: 'Memória', icon: Brain },
   { id: 'notifications', label: 'Notificações', icon: Bell },
 ]
+
+/** What the menus show: everything except prototypes still "Em breve". */
+export const VISIBLE_NAV: NavItem[] = NAV.filter((n) => pageShown(n.id))

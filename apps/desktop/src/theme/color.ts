@@ -54,6 +54,18 @@ function fromHsl([h, s, l]: Rgb): Rgb {
 }
 
 /**
+ * Neighbor hue for the notch aura: cool accents lean violet, warm ones lean rose (the
+ * blue→purple light of the reference notch, still derived from the accent).
+ */
+export function auraPartner(hex: string): string {
+  const rgb = parseHex(hex)
+  if (!rgb) return hex
+  const [h, s, l] = toHsl(rgb)
+  const turn = h >= 150 && h < 300 ? 65 : -65
+  return toHex(fromHsl([(h + turn + 360) % 360, s, l]))
+}
+
+/**
  * Deeper, slightly more saturated tone of `hex` (how the personas pair accent and
  * accent-strong). `amount` 0..1 is the share of lightness removed.
  */

@@ -1,7 +1,7 @@
 import { APPEARANCE_LIMITS as L } from '@/lib/ipc'
 import { Field } from '../Field'
 import { NotchSettingsPanel } from '../NotchSettingsPanel'
-import { Group, percent, setAppearance, SliderRow, ToggleRow, useAppearance } from './controls'
+import { Group, percent, setAppearance, SliderRow, useAppearance } from './controls'
 import { PillPreview } from './PillPreview'
 
 /** Notch placement/behavior (existing panel) plus the pill's look, with a live preview. */
@@ -34,7 +34,7 @@ export function NotchLookGroup() {
               onChange={(notchOpacity) => setAppearance({ notchOpacity })}
             />
             <SliderRow
-              label="Brilho"
+              label="Brilho de baixo"
               value={look.notchGlow}
               min={L.notchGlow[0]}
               max={L.notchGlow[1]}
@@ -50,14 +50,6 @@ export function NotchLookGroup() {
               step={0.05}
               format={percent}
               onChange={(notchScale) => setAppearance({ notchScale })}
-            />
-          </div>
-          <div className="max-w-md">
-            <ToggleRow
-              label="Borda colorida"
-              hint="Contorno no tom do destaque; a intensidade segue o brilho."
-              checked={look.notchBorder}
-              onChange={(notchBorder) => setAppearance({ notchBorder })}
             />
           </div>
         </div>

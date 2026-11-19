@@ -1,9 +1,11 @@
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
+import { tauriClipboard } from './clipboardTauri'
 import { tauriGeneral } from './generalTauri'
 import { tauriIntegrations } from './integrationsTauri'
 import { tauriProductivity } from './productivityTauri'
+import { tauriShelf } from './shelfTauri'
 import { tauriSystem } from './systemTauri'
 import type { Backend, Settings } from './types'
 import type { TimersSnapshot } from './types'
@@ -26,6 +28,8 @@ export const tauriBackend: Backend = {
   ...tauriGeneral,
   ...tauriProductivity,
   ...tauriSystem,
+  ...tauriClipboard,
+  ...tauriShelf,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),
   setDisplayMode: (mode) => invoke('set_display_mode', { mode }),

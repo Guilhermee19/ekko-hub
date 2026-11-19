@@ -2,11 +2,13 @@ import { ChevronRight, Mic, SendHorizontal, SlidersHorizontal } from 'lucide-rea
 import { useState } from 'react'
 import { useChat } from '@/features/chat/store'
 import { backend } from '@/lib/ipc'
+import { pageShown } from '@/lib/availability'
 import { cn } from '@/lib/cn'
 import type { PageProps } from '@/surfaces/panel/pages'
 import { DisplayModePicker } from '@/surfaces/settings/DisplayModePicker'
 import { DEMO_LABELS, demo, type DemoKey } from '@/stores/demo'
 import { useSettings } from '@/stores/settings'
+import { comboKeys } from '@/surfaces/settings/sections/shortcutsCombo'
 import { IconButton, Kbd } from '@/ui/primitives'
 import { HomeCards } from './HomeCards'
 import { NowPlaying, RecentChat } from './HomeWidgets'
@@ -22,6 +24,9 @@ function greeting(hour: number): string {
 export function HomePage({ compact, go }: PageProps) {
   const { userName, assistantName } = useSettings((s) => s.settings)
   const [text, setText] = useState('')
+  // Typing/talking to Ekko needs the Conversa page (F2); until then the home is a summary.
+  const chat = pageShown('chat')
+  const summonCombo = useSettings((s) => s.settings.shortcuts.summon)
 
   const send = () => {
     const t = text.trim()
@@ -39,37 +44,47 @@ export function HomePage({ compact, go }: PageProps) {
           {userName.trim() ? `, ${userName.trim()}` : ''}!
         </h1>
         <p className="text-[12px] text-muted">
-          Escreva, fale ou diga “Ei, {assistantName}” · <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd>{' '}
-          <Kbd>Espaço</Kbd>
+          {chat
+            ? `Escreva, fale ou diga “Ei, ${assistantName}” · `
+            : 'Chame de qualquer lugar com '}
+          {comboKeys(summonCombo).map((k, i) => (
+            <span key={k}>
+              {i > 0 && ' '}
+              <Kbd>{k}</Kbd>
+            </span>
+          ))}
         </p>
       </header>
 
-      <div className="flex items-center gap-2 rounded-xl border border-border-soft bg-base/60 py-1.5 pr-1.5 pl-3 focus-within:border-accent/50">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={`Escreva ou fale com o ${assistantName}…`}
-          aria-label={`Mensagem para o ${assistantName}`}
-          className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted"
-          onKeyDown={(e) => e.key === 'Enter' && send()}
-        />
-        <IconButton label="Enviar" onClick={send} disabled={!text.trim()}>
-          <SendHorizontal className="size-4" />
-        </IconButton>
-        <IconButton label="Falar" tone="accent" onClick={demo.listening}>
-          <Mic className="size-4" />
-        </IconButton>
-      </div>
+      {chat && (
+        <div className="flex items-center gap-2 rounded-xl border border-border-soft bg-base/60 py-1.5 pr-1.5 pl-3 focus-within:border-accent/50">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={`Escreva ou fale com o ${assistantName}…`}
+            aria-label={`Mensagem para o ${assistantName}`}
+            className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted"
+            onKeyDown={(e) => e.key === 'Enter' && send()}
+          />
+          <IconButton label="Enviar" onClick={send} disabled={!text.trim()}>
+            <SendHorizontal className="size-4" />
+          </IconButton>
+          <IconButton label="Falar" tone="accent" onClick={demo.listening}>
+            <Mic className="size-4" />
+          </IconButton>
+        </div>
+      )}
 
       <HomeCards compact={compact} go={go} />
 
       {/* Sized by the panel itself (notch, hub and dock differ), not by the window. */}
       <div className={cn('grid gap-2', compact ? 'grid-cols-1' : 'grid-cols-1 @lg:grid-cols-2')}>
         <NowPlaying go={go} compact={compact} />
-        <RecentChat go={go} />
+        {chat && <RecentChat go={go} />}
       </div>
 
-      <PrototypeTools compact={compact} />
+      {/* Fake states are for the browser gallery only, never the real app. */}
+      {backend.kind === 'mock' && <PrototypeTools compact={compact} />}
     </div>
   )
 }

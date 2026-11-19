@@ -30,9 +30,8 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
   },
   agenda: { status: 'live', note: 'Conecte o Google Agenda em Configurações → Conexões.' },
   clipboard: {
-    status: 'soon',
-    phase: 'F4',
-    note: 'Histórico de exemplo; a leitura real da área de transferência chega na F4.',
+    status: 'live',
+    note: 'Guarda o texto que você copiar (imagens ainda não). Senhas de gerenciadores ficam de fora. Os atalhos dos snippets ainda não expandem sozinhos.',
   },
   routines: {
     status: 'soon',
@@ -91,6 +90,12 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
   },
   about: { status: 'live' },
 }
+
+/** Prototypes ("Em breve") stay out of the UI until their phase lands; flip the status
+ * above and the page/section comes back everywhere (menu, palette, settings). */
+export const isShown = (a: Availability) => a.status !== 'soon'
+export const pageShown = (id: PageId) => isShown(PAGE_AVAILABILITY[id])
+export const sectionShown = (id: SectionId) => isShown(SECTION_AVAILABILITY[id])
 
 export const STATUS_LABEL: Record<Exclude<Status, 'live'>, string> = {
   partial: 'Em parte',

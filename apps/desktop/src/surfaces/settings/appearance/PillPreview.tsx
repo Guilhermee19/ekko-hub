@@ -1,9 +1,10 @@
 import { CalendarClock, Music2, Timer } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import type { PillItem } from '@/lib/ipc'
+import { cn } from '@/lib/cn'
 import { pickPillItem } from '@/lib/pillPriority'
 import { useSettings } from '@/stores/settings'
-import { EkkoFace } from '@/ui/EkkoFace'
+import { EkkoEyes } from '@/ui/EkkoEyes'
 import { Segmented } from '@/ui/primitives'
 import { Waveform } from '@/ui/Waveform'
 import { useAppearance } from './controls'
@@ -30,8 +31,8 @@ const ACTIVE: Record<Scene, PillItem[]> = {
 const WIDTH: Record<PillItem | 'idle', number> = { idle: 150, timer: 220, event: 280, music: 320 }
 
 /**
- * Live, local copy of the collapsed notch: uses the real CSS variables (radius, glow,
- * opacity) plus the scale, toggles and priority, over mock activities.
+ * Live, local copy of the collapsed notch: uses the real CSS variables (radius, aura,
+ * opacity, ears) plus the scale, toggles and priority, over mock activities.
  */
 export function PillPreview() {
   const look = useAppearance()
@@ -46,11 +47,19 @@ export function PillPreview() {
       <div className="hud-grid relative flex h-24 max-w-xl justify-center overflow-hidden rounded-xl border border-border-soft bg-surface">
         <span className="label-hud absolute bottom-2 left-3">Prévia ao vivo</span>
         <div
-          className="notch-pill flex items-center gap-2.5 border border-t-0 px-3 transition-[width,border-radius,box-shadow] duration-300 ease-out-soft"
+          className={cn(
+            'notch-pill notch-ears relative flex items-center gap-2.5 px-3 transition-[width,border-radius] duration-300 ease-out-soft',
+            item === null && show.avatar && 'justify-center',
+          )}
           style={{ width: WIDTH[item ?? 'idle'] + extra, height: 38, zoom: look.notchScale }}
         >
-          {show.avatar && <EkkoFace phase="idle" className="size-6 shrink-0" />}
-          {item === null && (
+          {show.avatar && (
+            <EkkoEyes
+              phase="idle"
+              className={item === null ? 'h-4.5 w-10' : 'h-3.5 w-8 shrink-0'}
+            />
+          )}
+          {item === null && !show.avatar && (
             <>
               {show.statusDot && (
                 <span className="animate-hud-breathe size-1.5 shrink-0 rounded-full bg-accent" />
@@ -77,7 +86,14 @@ export function PillPreview() {
             </Row>
           )}
           {show.clock && (
-            <span className="shrink-0 font-mono text-[11px] text-muted tabular-nums">09:41</span>
+            <span
+              className={cn(
+                'shrink-0 font-mono text-[11px] text-muted tabular-nums',
+                item === null && show.avatar && 'absolute right-3',
+              )}
+            >
+              09:41
+            </span>
           )}
         </div>
       </div>

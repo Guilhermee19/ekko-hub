@@ -57,21 +57,65 @@ body,
   --notch-opacity: 1;
   --notch-glow: 0.25;
   --notch-scale: 1;
-  --notch-bg: var(--color-base);
-  --notch-border: color-mix(in srgb, var(--color-accent) 15%, transparent);
-  --notch-shadow: 0 0 6px color-mix(in srgb, var(--color-accent) 11%, transparent);
+  /* The screen bezel's own black: the notch grows out of the edge (spec P1). */
+  --notch-ink: #000000;
+  --notch-bg: var(--notch-ink);
+  /* Concave fillet where the notch meets the top edge. */
+  --notch-ear: calc(var(--notch-radius) * 0.6);
+  /* Soft light at the bottom of the pill; applyAppearance adds the second hue. */
+  --notch-aura: radial-gradient(
+    70% 140% at 50% 150%,
+    color-mix(in srgb, var(--color-accent) 40%, transparent),
+    transparent 70%
+  );
   --font-scale: 1;
 }
 
-/* Collapsed notch pill: radius, translucency and accent glow come from the settings.
-   In the components layer so state utilities (border-danger while listening) still win. */
+/* Notch shapes. Radius, translucency and aura come from Configurações > Aparência.
+   In the components layer so state utilities still win. */
 @layer components {
   .notch-pill {
+    --ear-bg: var(--notch-bg);
     border-bottom-left-radius: var(--notch-radius);
     border-bottom-right-radius: var(--notch-radius);
-    border-color: var(--notch-border);
-    background-color: var(--notch-bg);
-    box-shadow: var(--notch-shadow);
+    background: var(--notch-aura), var(--notch-bg);
+  }
+  /* Open notch (panel, drop zone): same black, solid, rounder, with depth. */
+  .notch-open {
+    --ear-bg: var(--notch-ink);
+    border-bottom-left-radius: calc(var(--notch-radius) + 4px);
+    border-bottom-right-radius: calc(var(--notch-radius) + 4px);
+    background-color: var(--notch-ink);
+    box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.8);
+  }
+  .notch-ears::before,
+  .notch-ears::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: var(--notch-ear);
+    height: var(--notch-ear);
+    pointer-events: none;
+  }
+  .notch-ears::before {
+    right: 100%;
+    background: radial-gradient(
+      circle at 0 100%,
+      transparent calc(var(--notch-ear) - 0.5px),
+      var(--ear-bg) var(--notch-ear)
+    );
+  }
+  .notch-ears::after {
+    left: 100%;
+    background: radial-gradient(
+      circle at 100% 100%,
+      transparent calc(var(--notch-ear) - 0.5px),
+      var(--ear-bg) var(--notch-ear)
+    );
+  }
+  /* Listening: the only state where the notch glows. */
+  .notch-live {
+    box-shadow: 0 0 18px color-mix(in srgb, var(--color-danger) 45%, transparent);
   }
 }
 
@@ -146,6 +190,50 @@ body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel'])
 
 .hud-glow {
   filter: drop-shadow(0 0 5px currentColor);
+}
+
+/* Ekko's eyes in the notch: two glowing ovals that blink now and then. */
+.ekko-eyes {
+  overflow: visible;
+  filter: drop-shadow(0 0 2px currentColor)
+    drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
+}
+.ekko-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.animate-ekko-blink .ekko-eye {
+  animation: ekko-blink 5.5s ease-in-out infinite;
+}
+.animate-ekko-look {
+  animation: ekko-look 1.6s ease-in-out infinite;
+}
+@keyframes ekko-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.12);
+  }
+}
+@keyframes ekko-look {
+  0%,
+  100% {
+    transform: translateX(-1.5px);
+  }
+  50% {
+    transform: translateX(1.5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion='off']) :is(.animate-ekko-blink .ekko-eye, .animate-ekko-look) {
+    animation: none;
+  }
+}
+:root[data-reduce-motion='on'] :is(.animate-ekko-blink .ekko-eye, .animate-ekko-look) {
+  animation: none;
 }
 
 /* --nivel (0..1) vem do áudio: o halo carrega a intensidade, o tamanho só um pouco. */

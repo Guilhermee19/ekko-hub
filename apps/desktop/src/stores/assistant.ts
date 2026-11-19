@@ -65,6 +65,11 @@ export const useAssistant = create<AssistantState>((set, get) => ({
   },
 }))
 
+/** Short toast in the notch (every window); clears itself after TOAST_MS. */
+export function flashToast(text: string) {
+  useAssistant.getState().set({ toast: text })
+}
+
 function pick(s: Presence): Presence {
   return { phase: s.phase, caption: s.caption, toast: s.toast, activity: s.activity }
 }

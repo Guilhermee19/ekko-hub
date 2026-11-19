@@ -2,7 +2,6 @@ import {
   Cpu,
   Droplets,
   FolderInput,
-  MessageSquare,
   Palette,
   Play,
   Settings,
@@ -13,8 +12,7 @@ import {
 import { backend, type Persona } from '@/lib/ipc'
 import { useAssistant } from '@/stores/assistant'
 import { requestConfirm, type Risk } from '@/stores/confirm'
-import { demo } from '@/stores/demo'
-import { NAV, type PageId } from '@/surfaces/panel/nav'
+import { VISIBLE_NAV, type PageId } from '@/surfaces/panel/nav'
 import { MODES } from '@/surfaces/settings/DisplayModePicker'
 import { useHabits } from '../habits/store'
 import { useMusic } from '../music/store'
@@ -64,14 +62,6 @@ function actions({ onNavigate }: CatalogContext): PaletteCommand[] {
       keywords: ['play', 'pause', 'spotify'],
       icon: Play,
       run: () => useMusic.getState().toggle(),
-    },
-    {
-      id: 'demo-conversation',
-      group: 'actions',
-      label: 'Simular conversa',
-      keywords: ['demo', 'voz', 'teste'],
-      icon: MessageSquare,
-      run: () => demo.conversation(),
     },
     {
       id: 'water',
@@ -137,7 +127,7 @@ function actions({ onNavigate }: CatalogContext): PaletteCommand[] {
 
 function navigation({ onNavigate }: CatalogContext): PaletteCommand[] {
   if (!onNavigate) return []
-  return NAV.map((n) => ({
+  return VISIBLE_NAV.map((n) => ({
     id: `go-${n.id}`,
     group: 'navigate',
     label: n.label,

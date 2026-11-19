@@ -2,7 +2,16 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_APPEARANCE, type AppearanceSettings } from '@/lib/ipc'
 import { accentContrast, appearanceVars, applyAppearance } from './applyAppearance'
-import { contrast, darken, luminance, mix, normalizeHex, parseHex, toHex } from './color'
+import {
+  auraPartner,
+  contrast,
+  darken,
+  luminance,
+  mix,
+  normalizeHex,
+  parseHex,
+  toHex,
+} from './color'
 import { PALETTES } from './palettes'
 
 const look = (patch: Partial<AppearanceSettings>) => ({ ...DEFAULT_APPEARANCE, ...patch })
@@ -55,10 +64,21 @@ describe('appearanceVars', () => {
     expect(luminance(darker['--color-base']!)).toBeLessThan(luminance(PALETTES.ekko.base))
   })
 
-  it('drops the border when disabled', () => {
-    expect(appearanceVars('eco', look({ notchBorder: false }))['--notch-border']).toBe(
-      'transparent',
-    )
+  it('scales the aura with the glow and turns it off at zero', () => {
+    expect(appearanceVars('eco', look({ notchGlow: 0 }))['--notch-aura']).toBe('none')
+    const aura = appearanceVars('ekko', look({ notchGlow: 0.25 }))['--notch-aura']!
+    expect(aura).toContain('var(--color-accent) 40%')
+    expect(aura).toContain(auraPartner(PALETTES.ekko.accent))
+  })
+
+  it('pairs cool accents with violet and warm ones with rose', () => {
+    const hue = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      return (Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b) * 180) / Math.PI + 360
+    }
+    // ekko blue (~200°) turns violet; ultron orange (~30°) turns pink.
+    expect(hue(auraPartner('#5ec8ff')) % 360).toBeGreaterThan(240)
+    expect(hue(auraPartner('#ff9c3f')) % 360).toBeGreaterThan(300)
   })
 
   it('flags a dark accent', () => {

@@ -28,6 +28,8 @@ pub fn run() {
             display::hit::spawn(handle.clone());
             services::timers::spawn(handle.clone());
             services::productivity::init(&handle);
+            services::clipboard::init(&handle);
+            services::shelf::init(&handle);
             services::media::spawn(&handle);
             services::volume::spawn(&handle);
             services::system::spawn(&handle);
@@ -132,6 +134,22 @@ pub fn run() {
             commands::system::system_empty_recycle_bin,
             commands::system::system_open_startup_settings,
             commands::system::audit_recent,
+            commands::clipboard::clipboard_list,
+            commands::clipboard::clipboard_copy,
+            commands::clipboard::clipboard_pin,
+            commands::clipboard::clipboard_remove,
+            commands::clipboard::clipboard_clear,
+            commands::clipboard::clipboard_pause,
+            commands::clipboard::snippet_save,
+            commands::clipboard::snippet_remove,
+            commands::shelf::shelf_list,
+            commands::shelf::shelf_add,
+            commands::shelf::shelf_remove,
+            commands::shelf::shelf_clear,
+            commands::shelf::shelf_set_mode,
+            commands::shelf::shelf_drag_out,
+            commands::shelf::shelf_open,
+            commands::shelf::shelf_reveal,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")

@@ -15,7 +15,7 @@ pub mod scan;
 pub mod startup;
 #[cfg(test)]
 mod tests;
-mod verinfo;
+pub(crate) mod verinfo;
 
 use serde::Serialize;
 

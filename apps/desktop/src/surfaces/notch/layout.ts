@@ -7,6 +7,8 @@ export { canvas }
 export const PILL_H = 38
 /** Minimal idle style: a thin bar drawn inside a slightly bigger box, easy to reach. */
 export const MINIMAL = { w: 120, h: 12, bar: { w: 96, h: 5 } } as const
+/** Drop zone shown while files are dragged over the notch. */
+export const DROP = { w: 380, h: 112 } as const
 
 /** Nothing worth showing in the pill: the minimal style can shrink to a line. */
 export function isQuiet(p: Presence): boolean {
@@ -39,9 +41,16 @@ export interface Box {
   h: number
 }
 
-export type NotchLook = 'panel' | 'pill' | 'line'
+export type NotchLook = 'panel' | 'pill' | 'line' | 'drop'
 
-export function notchLook(expanded: boolean, idle: NotchIdle, p: Presence): NotchLook {
+export function notchLook(
+  expanded: boolean,
+  idle: NotchIdle,
+  p: Presence,
+  /** Files are being dragged over the notch: that wins over everything. */
+  dropping = false,
+): NotchLook {
+  if (dropping) return 'drop'
   if (expanded) return 'panel'
   return idle === 'minimal' && isQuiet(p) ? 'line' : 'pill'
 }
@@ -57,16 +66,18 @@ export function notchBox(
   anchor?: number,
   /** Pill size multiplier from the appearance settings (pill only). */
   pillScale = 1,
-  /** Extra pill width for optional bits (the clock). */
+  /** Extra pill width for optional bits (clock, shelf chip). */
   extraW = 0,
 ): Box {
   const { w: cw } = canvas(size)
   const [w, h] =
     look === 'panel'
       ? [PANELS[size].w, PANELS[size].h]
-      : look === 'line'
-        ? [MINIMAL.w, MINIMAL.h]
-        : [Math.round((pillWidth(p) + extraW) * pillScale), Math.round(PILL_H * pillScale)]
+      : look === 'drop'
+        ? [DROP.w, DROP.h]
+        : look === 'line'
+          ? [MINIMAL.w, MINIMAL.h]
+          : [Math.round((pillWidth(p) + extraW) * pillScale), Math.round(PILL_H * pillScale)]
   const center = anchor ?? cw / 2
   const x = Math.min(cw - w, Math.max(0, Math.round(center - w / 2)))
   return { x, y: 0, w, h }

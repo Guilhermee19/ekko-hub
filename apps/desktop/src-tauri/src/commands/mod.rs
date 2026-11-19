@@ -1,4 +1,5 @@
 pub mod appearance;
+pub mod clipboard;
 pub mod connectors;
 pub mod display;
 pub mod flows;
@@ -10,6 +11,7 @@ pub mod media;
 pub mod notch;
 pub mod productivity;
 pub mod settings;
+pub mod shelf;
 pub mod system;
 pub mod timers;
 pub mod volume;

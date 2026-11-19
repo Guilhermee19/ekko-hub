@@ -1,8 +1,10 @@
 import { canvas, placeNotch } from '../notchGeometry'
+import { mockClipboard } from './clipboardMock'
 import { mockGeneral } from './generalMock'
 import { mockIntegrations } from './integrationsMock'
 import { mockMedia } from './mockMedia'
 import { mockProductivity } from './mockProductivity'
+import { mockShelf } from './shelfMock'
 import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
 import {
@@ -149,4 +151,6 @@ export const mockBackend: Backend = {
   }),
   ...mockProductivity({ on, fire, showAlarm: (alarm) => mockBackend.showAlarm(alarm) }),
   ...mockSystem({ on, fire }),
+  ...mockClipboard({ on, fire }),
+  ...mockShelf({ on, fire }),
 }

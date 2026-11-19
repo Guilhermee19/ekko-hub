@@ -16,37 +16,44 @@ import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { TitleBar } from '../shared/TitleBar'
 import { SECTIONS, type SectionId } from './sections'
-import { SECTION_AVAILABILITY } from '@/lib/availability'
+import { SECTION_AVAILABILITY, sectionShown } from '@/lib/availability'
 import { SoonBanner, SoonTag } from '@/ui/Availability'
 
-const GROUPS: { title: string; items: { id: SectionId; label: string; icon: LucideIcon }[] }[] = [
-  {
-    title: 'Geral',
-    items: [
-      { id: 'general', label: 'Geral', icon: Settings2 },
-      { id: 'appearance', label: 'Aparência', icon: Palette },
-      { id: 'avatar', label: 'Avatar', icon: Bot },
-    ],
-  },
-  {
-    title: 'Assistente',
-    items: [
-      { id: 'brain', label: 'Cérebro (IA)', icon: Brain },
-      { id: 'voice', label: 'Voz', icon: Mic },
-      { id: 'tools', label: 'Funções e autonomia', icon: Wrench },
-      { id: 'shortcuts', label: 'Atalhos', icon: Keyboard },
-    ],
-  },
-  {
-    title: 'Sistema',
-    items: [
-      { id: 'privacy', label: 'Privacidade', icon: ShieldCheck },
-      { id: 'connections', label: 'Conexões', icon: Cable },
-      { id: 'diagnostics', label: 'Diagnóstico', icon: Stethoscope },
-      { id: 'about', label: 'Sobre', icon: Info },
-    ],
-  },
-]
+const ALL_GROUPS: { title: string; items: { id: SectionId; label: string; icon: LucideIcon }[] }[] =
+  [
+    {
+      title: 'Geral',
+      items: [
+        { id: 'general', label: 'Geral', icon: Settings2 },
+        { id: 'appearance', label: 'Aparência', icon: Palette },
+        { id: 'avatar', label: 'Avatar', icon: Bot },
+      ],
+    },
+    {
+      title: 'Assistente',
+      items: [
+        { id: 'brain', label: 'Cérebro (IA)', icon: Brain },
+        { id: 'voice', label: 'Voz', icon: Mic },
+        { id: 'tools', label: 'Funções e autonomia', icon: Wrench },
+        { id: 'shortcuts', label: 'Atalhos', icon: Keyboard },
+      ],
+    },
+    {
+      title: 'Sistema',
+      items: [
+        { id: 'privacy', label: 'Privacidade', icon: ShieldCheck },
+        { id: 'connections', label: 'Conexões', icon: Cable },
+        { id: 'diagnostics', label: 'Diagnóstico', icon: Stethoscope },
+        { id: 'about', label: 'Sobre', icon: Info },
+      ],
+    },
+  ]
+
+/** Sections still "Em breve" stay hidden until their phase lands. */
+const GROUPS = ALL_GROUPS.map((g) => ({
+  ...g,
+  items: g.items.filter((i) => sectionShown(i.id)),
+})).filter((g) => g.items.length > 0)
 
 export function SettingsSurface() {
   const [section, setSection] = useState<SectionId>('appearance')

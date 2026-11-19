@@ -11,6 +11,8 @@ import {
   type ShortcutSettings,
 } from './generalTypes'
 import type { ProductivityBackend } from './productivityTypes'
+import type { ClipboardBackend } from './clipboardTypes'
+import type { ShelfBackend } from './shelfTypes'
 import type { SystemBackend } from './systemTypes'
 
 export * from './appearanceTypes'
@@ -19,6 +21,8 @@ export * from './integrations'
 export * from './generalTypes'
 export * from './productivityTypes'
 export * from './systemTypes'
+export * from './clipboardTypes'
+export * from './shelfTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
 export type Persona = 'ekko' | 'ultron' | 'eco'
@@ -131,7 +135,14 @@ export type Unlisten = () => void
 
 /** Everything the UI may ask from the backend. Real (Tauri) or mock (browser/prototype). */
 export interface Backend
-  extends IntegrationsBackend, VolumeBackend, ProductivityBackend, GeneralBackend, SystemBackend {
+  extends
+    IntegrationsBackend,
+    VolumeBackend,
+    ProductivityBackend,
+    GeneralBackend,
+    SystemBackend,
+    ClipboardBackend,
+    ShelfBackend {
   readonly kind: 'tauri' | 'mock'
   getSettings(): Promise<Settings>
   onSettingsChanged(cb: (s: Settings) => void): Promise<Unlisten>
