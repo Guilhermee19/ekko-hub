@@ -54,6 +54,19 @@ pub fn write_text(text: &str) -> Result<(), Busy> {
     }
 }
 
+/// Puts an image on the clipboard as CF_DIB (`dib`: BITMAPINFOHEADER + pixels).
+pub fn write_image(dib: &[u8]) -> Result<(), Busy> {
+    #[cfg(windows)]
+    {
+        win::write_bytes(8, dib)
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = dib;
+        Err(Busy)
+    }
+}
+
 /// Friendly name of the foreground app ("Google Chrome"), used as the copy source.
 pub fn foreground_app() -> Option<String> {
     #[cfg(windows)]
@@ -181,20 +194,29 @@ mod win {
     }
 
     pub fn write_text(text: &str) -> Result<(), Busy> {
-        let wide: Vec<u16> = text.encode_utf16().chain(std::iter::once(0)).collect();
+        let bytes: Vec<u8> = text
+            .encode_utf16()
+            .chain(std::iter::once(0))
+            .flat_map(u16::to_le_bytes)
+            .collect();
+        write_bytes(u32::from(CF_UNICODETEXT.0), &bytes)
+    }
+
+    /// Replaces the clipboard with `bytes` in `format`.
+    pub fn write_bytes(format: u32, bytes: &[u8]) -> Result<(), Busy> {
         let _open = Open::new().ok_or(Busy)?;
-        // SAFETY: the buffer is sized for `wide`; on success the system owns the memory.
+        // SAFETY: the buffer is sized for `bytes`; on success the system owns the memory.
         unsafe {
             EmptyClipboard().map_err(|_| Busy)?;
-            let global = GlobalAlloc(GMEM_MOVEABLE, wide.len() * 2).map_err(|_| Busy)?;
-            let ptr = GlobalLock(global) as *mut u16;
+            let global = GlobalAlloc(GMEM_MOVEABLE, bytes.len()).map_err(|_| Busy)?;
+            let ptr = GlobalLock(global) as *mut u8;
             if ptr.is_null() {
                 let _ = GlobalFree(Some(global));
                 return Err(Busy);
             }
-            std::ptr::copy_nonoverlapping(wide.as_ptr(), ptr, wide.len());
+            std::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
             let _ = GlobalUnlock(global);
-            if SetClipboardData(u32::from(CF_UNICODETEXT.0), Some(HANDLE(global.0))).is_err() {
+            if SetClipboardData(format, Some(HANDLE(global.0))).is_err() {
                 let _ = GlobalFree(Some(global));
                 return Err(Busy);
             }

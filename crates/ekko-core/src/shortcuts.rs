@@ -12,16 +12,18 @@ pub enum ShortcutAction {
     Selection,
     Dictation,
     Interrupt,
+    Capture,
 }
 
 impl ShortcutAction {
-    pub const ALL: [ShortcutAction; 6] = [
+    pub const ALL: [ShortcutAction; 7] = [
         ShortcutAction::Summon,
         ShortcutAction::Palette,
         ShortcutAction::Ptt,
         ShortcutAction::Selection,
         ShortcutAction::Dictation,
         ShortcutAction::Interrupt,
+        ShortcutAction::Capture,
     ];
 
     /// pt-BR name for logs and toasts.
@@ -33,13 +35,14 @@ impl ShortcutAction {
             ShortcutAction::Selection => "Ações no texto selecionado",
             ShortcutAction::Dictation => "Ditado",
             ShortcutAction::Interrupt => "Interromper fala",
+            ShortcutAction::Capture => "Print de uma área",
         }
     }
 
     /// Roadmap phase that gives the action a real behavior; `None` = already real.
     pub fn arrives_in(self) -> Option<&'static str> {
         match self {
-            ShortcutAction::Summon | ShortcutAction::Palette => None,
+            ShortcutAction::Summon | ShortcutAction::Palette | ShortcutAction::Capture => None,
             ShortcutAction::Ptt | ShortcutAction::Dictation | ShortcutAction::Interrupt => {
                 Some("F3")
             }
@@ -52,6 +55,7 @@ impl ShortcutAction {
         match self {
             ShortcutAction::Summon => &["Alt+Shift+E"],
             ShortcutAction::Palette => &["Alt+Shift+Space"],
+            ShortcutAction::Capture => &["Ctrl+Alt+P"],
             _ => &[],
         }
     }
@@ -66,6 +70,8 @@ pub struct ShortcutSettings {
     pub selection: String,
     pub dictation: String,
     pub interrupt: String,
+    /// Alt Gr is Ctrl+Alt on Windows, so this is "Alt Gr + Print Screen".
+    pub capture: String,
 }
 
 impl Default for ShortcutSettings {
@@ -78,6 +84,7 @@ impl Default for ShortcutSettings {
             dictation: "Ctrl+Shift+D".into(),
             // Never a bare Esc: a global Esc would be stolen from every app.
             interrupt: "Alt+Shift+X".into(),
+            capture: "Ctrl+Alt+PrintScreen".into(),
         }
     }
 }
@@ -91,6 +98,7 @@ impl ShortcutSettings {
             ShortcutAction::Selection => &self.selection,
             ShortcutAction::Dictation => &self.dictation,
             ShortcutAction::Interrupt => &self.interrupt,
+            ShortcutAction::Capture => &self.capture,
         }
     }
 
@@ -116,8 +124,8 @@ impl ShortcutSettings {
 pub struct InvalidCombo(pub String);
 
 /// Canonical combo → accelerator understood by the global-shortcut plugin.
-/// Requires one main key last and Ctrl/Alt/Win (F-keys may go alone), so a global
-/// shortcut never swallows plain typing.
+/// Requires one main key last and Ctrl/Alt/Win (F-keys and Print Screen may go
+/// alone), so a global shortcut never swallows plain typing.
 pub fn to_accelerator(combo: &str) -> Result<String, InvalidCombo> {
     let invalid = || InvalidCombo(combo.to_owned());
     let tokens: Vec<&str> = combo.split('+').map(str::trim).collect();
@@ -139,7 +147,7 @@ pub fn to_accelerator(combo: &str) -> Result<String, InvalidCombo> {
         out.push(name);
     }
     let key = main_key(key).ok_or_else(invalid)?;
-    if !strong && !is_function_key(&key) {
+    if !strong && !is_function_key(&key) && key != "PrintScreen" {
         return Err(invalid());
     }
     out.push(&key);
@@ -168,6 +176,7 @@ const NAMED_KEYS: &[&str] = &[
     "Down",
     "Left",
     "Right",
+    "PrintScreen",
 ];
 
 /// Normalized main key, or None when the plugin would not understand it.
@@ -197,6 +206,9 @@ mod tests {
         assert_eq!(to_accelerator("Win+Shift+/").unwrap(), "Super+Shift+/");
         assert_eq!(to_accelerator("F9").unwrap(), "F9");
         assert_eq!(to_accelerator("Shift+f12").unwrap(), "Shift+F12");
+        // Print Screen alone is fine: it never types anything.
+        assert_eq!(to_accelerator("PrintScreen").unwrap(), "PrintScreen");
+        assert_eq!(to_accelerator("Shift+printscreen").unwrap(), "Shift+PrintScreen");
     }
 
     #[test]
@@ -240,12 +252,23 @@ mod tests {
     }
 
     #[test]
-    fn only_summon_and_palette_are_real_today() {
+    fn summon_palette_and_capture_are_real_today() {
         let real: Vec<_> = ShortcutAction::ALL
             .into_iter()
             .filter(|a| a.arrives_in().is_none())
             .collect();
-        assert_eq!(real, vec![ShortcutAction::Summon, ShortcutAction::Palette]);
+        assert_eq!(
+            real,
+            vec![
+                ShortcutAction::Summon,
+                ShortcutAction::Palette,
+                ShortcutAction::Capture
+            ]
+        );
+        assert_eq!(
+            to_accelerator("Ctrl+Alt+PrintScreen").unwrap(),
+            "Ctrl+Alt+PrintScreen"
+        );
     }
 
     #[test]

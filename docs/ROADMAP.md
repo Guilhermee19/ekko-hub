@@ -31,7 +31,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 
 | Versão | Data | O que tem |
 |---|---|---|
-| **v0.2.0** | a publicar | Início personalizável (adicionar, mover e remover cards, com prévia ao arrastar), menu do painel configurável, barras da música que seguem o som do PC, prévia das imagens na prateleira, Verificar meu PC com nota de saúde e animações. Arrastar para reordenar passa a funcionar dentro do app. |
+| **v0.2.0** | a publicar | Início personalizável (adicionar, mover e remover cards, com prévia ao arrastar), menu do painel configurável, barras da música que seguem o som do PC, prévia das imagens na prateleira, Verificar meu PC com nota de saúde e animações, print de uma área (Alt Gr + Print Screen) que vai para o notch. Arrastar para reordenar passa a funcionar dentro do app. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
@@ -49,10 +49,11 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
-| Atalhos | Real | Chamar e paleta trocáveis com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
+| Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
+| Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
 | Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali (imagens com prévia) e saem juntos arrastando para outro lugar (copiar ou mover) |
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
 | Cérebro (IA), Voz, Funções, Avatar, Diagnóstico | **Escondidas** | Seções das Configurações fora do menu até ter efeito; Privacidade fica (auditoria real) |
@@ -130,7 +131,7 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Selos "Em breve" / "Em parte" no app em tudo que ainda é protótipo (`src/lib/availability.ts`)
 - [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
 - [x] **v0.1.3**: notch novo, prateleira de arquivos, Copiados real e protótipos escondidos dos menus
-- [~] **v0.2.0**: Início e menu personalizáveis, barras da música reais, prévia de imagens, Meu PC novo (falta publicar o instalador)
+- [~] **v0.2.0**: Início e menu personalizáveis, barras da música reais, prévia de imagens, Meu PC novo, print de uma área (falta publicar o instalador)
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
 - [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
 - [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)
@@ -143,6 +144,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Prateleira mostra a prévia das imagens soltas no notch
 - [x] Verificar meu PC com nota de saúde, cartões por verificação e animações
 - [x] Arrastar para reordenar (Início, menu, prioridade da pílula) funcionando dentro do app, com prévia ao vivo de como vai ficar
+- [x] Print de uma área (Alt Gr + Print Screen): seleção na tela congelada, PNG em Imagens\Ekko, card no notch para copiar ou arrastar, que some (e sai da prateleira) ao fechar ou após 7 s
+- [x] Atalho do print trocável nas Configurações, inclusive Print Screen sozinho e atalhos prontos
+- [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print
 - [ ] Confirmar no app instalado: soltar arquivos no notch e arrastar da prateleira para fora
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**

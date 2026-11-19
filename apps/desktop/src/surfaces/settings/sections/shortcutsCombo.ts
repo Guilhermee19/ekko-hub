@@ -49,6 +49,7 @@ const DISPLAY: Record<string, string> = {
   Down: '↓',
   Left: '←',
   Right: '→',
+  PrintScreen: 'Print Screen',
 }
 
 /** Keys of a combo as shown to the user, one per <Kbd>. */

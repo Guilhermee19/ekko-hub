@@ -11,9 +11,22 @@ import { ComboCapture } from './ShortcutsCapture'
 import { DEFAULT_SHORTCUTS, findConflicts, type ShortcutId } from './shortcutsCombo'
 import { useShortcuts } from './shortcutsStore'
 
-const ROWS: { id: ShortcutId; title: string; hint: string; later?: string }[] = [
+const ROWS: {
+  id: ShortcutId
+  title: string
+  hint: string
+  later?: string
+  presets?: string[]
+}[] = [
   { id: 'summon', title: 'Chamar o Ekko', hint: 'Abre o notch pronto para digitar.' },
   { id: 'palette', title: 'Paleta de comandos', hint: 'Busca rápida de ações e apps.' },
+  {
+    id: 'capture',
+    title: 'Print de uma área',
+    hint: 'Escolha um pedaço da tela; o print vai para o notch. Se o Print Screen não responder, desligue a captura de tela do Windows nessa tecla.',
+    // Alt Gr = Ctrl+Alt on Windows.
+    presets: ['Ctrl+Alt+PrintScreen', 'PrintScreen', 'Ctrl+Shift+S', 'Ctrl+Alt+P'],
+  },
   { id: 'ptt', title: 'Apertar para falar', hint: 'Segure enquanto fala.', later: 'F3' },
   {
     id: 'selection',
@@ -102,6 +115,7 @@ export function ShortcutsPage() {
                         label={r.title}
                         combo={combo}
                         onChange={(c) => void setShortcut(r.id, c)}
+                        presets={r.presets}
                       />
                       <StatusNote report={reports[r.id]} combo={combo} />
                     </div>

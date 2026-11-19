@@ -9,7 +9,7 @@ mod tray;
 use ekko_core::store::SettingsStore;
 use tauri::{Manager, RunEvent, Window, WindowEvent};
 
-use display::windows::{HUB, ONBOARDING, ORB, PALETTE, PANEL, SETTINGS};
+use display::windows::{CAPTURE, HUB, ONBOARDING, ORB, PALETTE, PANEL, SETTINGS};
 use state::AppState;
 
 pub fn run() {
@@ -30,6 +30,7 @@ pub fn run() {
             services::productivity::init(&handle);
             services::clipboard::init(&handle);
             services::shelf::init(&handle);
+            services::capture::init(&handle);
             services::media::spawn(&handle);
             services::audio_levels::spawn(&handle);
             services::volume::spawn(&handle);
@@ -151,6 +152,11 @@ pub fn run() {
             commands::shelf::shelf_drag_out,
             commands::shelf::shelf_open,
             commands::shelf::shelf_reveal,
+            commands::capture::capture_frame,
+            commands::capture::capture_commit,
+            commands::capture::capture_cancel,
+            commands::capture::capture_start,
+            commands::capture::shelf_copy_image,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")
@@ -171,6 +177,10 @@ fn on_window_event(window: &Window, event: &WindowEvent) {
         }
         (PANEL, WindowEvent::Focused(false)) => {
             let _ = window.hide();
+        }
+        // Clicking elsewhere (or Alt+Tab) drops the print instead of leaving a frozen screen.
+        (CAPTURE, WindowEvent::Focused(false)) => {
+            services::capture::cancel(window.app_handle());
         }
         // Remember where the orb was dragged; saved to disk on exit/next change.
         (ORB, WindowEvent::Moved(pos)) => {

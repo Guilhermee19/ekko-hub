@@ -1,0 +1,49 @@
+/* The print lands in the notch: drops in with a little bounce, then glows once. */
+
+.print-thumb {
+  animation:
+    print-land 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    print-glow 900ms ease-out 380ms both;
+}
+
+.print-title {
+  animation: print-title 360ms ease-out 200ms both;
+}
+
+@keyframes print-land {
+  from {
+    transform: translateY(-36px) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes print-glow {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes print-title {
+  from {
+    transform: translateX(-6px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .print-thumb,
+  .print-title {
+    animation: none;
+  }
+}

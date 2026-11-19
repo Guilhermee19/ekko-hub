@@ -17,7 +17,7 @@ describe('notch layout', () => {
   it('box is top-centered and fits the canvas for every size', () => {
     const sizes: NotchSize[] = ['compact', 'normal', 'large']
     for (const size of sizes) {
-      for (const look of ['panel', 'pill', 'line', 'drop'] as const) {
+      for (const look of ['panel', 'pill', 'line', 'drop', 'print'] as const) {
         const b = notchBox(look, size, IDLE)
         expect(b.y).toBe(0)
         expect(b.x * 2 + b.w).toBe(canvas(size).w)
@@ -45,6 +45,11 @@ describe('notch layout', () => {
   it('files dragged over the notch show the drop zone, even when open', () => {
     expect(notchLook(false, 'minimal', IDLE, true)).toBe('drop')
     expect(notchLook(true, 'pill', IDLE, true)).toBe('drop')
+  })
+
+  it('a fresh print shows its card over the panel, but not over a file drop', () => {
+    expect(notchLook(true, 'pill', IDLE, false, true)).toBe('print')
+    expect(notchLook(false, 'pill', IDLE, true, true)).toBe('drop')
   })
 
   it('formats countdown and never goes negative', () => {

@@ -7,7 +7,7 @@ export { canvas }
 export const PILL_H = 38
 /** Minimal idle style: a thin bar drawn inside a slightly bigger box, easy to reach. */
 export const MINIMAL = { w: 120, h: 12, bar: { w: 96, h: 5 } } as const
-/** Drop zone shown while files are dragged over the notch. */
+/** Drop zone shown while files are dragged over the notch (also the "print salvo" card). */
 export const DROP = { w: 380, h: 112 } as const
 
 /** Nothing worth showing in the pill: the minimal style can shrink to a line. */
@@ -41,7 +41,7 @@ export interface Box {
   h: number
 }
 
-export type NotchLook = 'panel' | 'pill' | 'line' | 'drop'
+export type NotchLook = 'panel' | 'pill' | 'line' | 'drop' | 'print'
 
 export function notchLook(
   expanded: boolean,
@@ -49,8 +49,11 @@ export function notchLook(
   p: Presence,
   /** Files are being dragged over the notch: that wins over everything. */
   dropping = false,
+  /** A print was just saved: its card shows until it times out or is closed. */
+  printing = false,
 ): NotchLook {
   if (dropping) return 'drop'
+  if (printing) return 'print'
   if (expanded) return 'panel'
   return idle === 'minimal' && isQuiet(p) ? 'line' : 'pill'
 }
@@ -73,7 +76,7 @@ export function notchBox(
   const [w, h] =
     look === 'panel'
       ? [PANELS[size].w, PANELS[size].h]
-      : look === 'drop'
+      : look === 'drop' || look === 'print'
         ? [DROP.w, DROP.h]
         : look === 'line'
           ? [MINIMAL.w, MINIMAL.h]

@@ -5,6 +5,7 @@ import { useAssistant } from '@/stores/assistant'
 import { ConfirmHost } from '@/ui/ConfirmDialog'
 import { useSettings } from '@/stores/settings'
 import { AlarmSurface } from '@/surfaces/alarm/AlarmSurface'
+import { CaptureSurface } from '@/surfaces/capture/CaptureSurface'
 import { DockSurface } from '@/surfaces/dock/DockSurface'
 import { Gallery } from '@/surfaces/gallery/Gallery'
 import { HubSurface } from '@/surfaces/hub/HubSurface'
@@ -30,6 +31,7 @@ const SURFACES: Record<SurfaceId, ComponentType> = {
   palette: PaletteSurface,
   onboarding: OnboardingSurface,
   alarm: AlarmSurface,
+  capture: CaptureSurface,
 }
 
 /** Opaque windows paint the base color; overlays stay transparent over the desktop. */
