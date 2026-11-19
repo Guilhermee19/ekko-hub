@@ -5,7 +5,8 @@ import { cn } from '@/lib/cn'
 import { useSettings } from '@/stores/settings'
 import { useAssistant } from '@/stores/assistant'
 import { EkkoFace } from '@/ui/EkkoFace'
-import { VISIBLE_NAV, type PageId } from './nav'
+import { useMenuNav } from './menu'
+import type { PageId } from './nav'
 import { useNavBadges } from './badges'
 import { useNavigateRequests } from './navigate'
 import { PAGES } from './pages'
@@ -20,14 +21,16 @@ interface PanelShellProps {
 
 /** The assistant panel shared by every display mode; only the window "shell" changes. */
 export function PanelShell({ layout, className }: PanelShellProps) {
-  const [page, setPage] = useState<PageId>('home')
+  const nav = useMenuNav()
+  // Opens on the first page of the user's menu (Início unless they moved or hid it).
+  const [page, setPage] = useState<PageId>(() => nav[0]?.id ?? 'home')
   const wide = layout === 'wide'
   const Page = PAGES[page]
   const [more, setMore] = useState(false)
   const badges = useNavBadges()
   // Compact rail fits 5 pages; the rest go into the "Mais" menu.
-  const rail = wide ? VISIBLE_NAV : VISIBLE_NAV.slice(0, 5)
-  const overflow = wide ? [] : VISIBLE_NAV.slice(5)
+  const rail = wide ? nav : nav.slice(0, 5)
+  const overflow = wide ? [] : nav.slice(5)
   const open = (id: PageId) => {
     setPage(id)
     setMore(false)

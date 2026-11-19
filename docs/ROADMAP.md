@@ -44,7 +44,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
-| Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra; com Spotify: fila, dispositivos, aleatório, repetir |
+| Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som; com Spotify: fila, dispositivos, aleatório, repetir |
 | Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
@@ -135,6 +135,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Notch com a forma da spec P1 (preto da moldura, orelhas côncavas, luz embaixo, olhos do Ekko)
 - [x] Prateleira de arquivos no notch (soltar, guardar, arrastar todos ou um a um, copiar/mover)
 - [x] Copiados real: histórico do clipboard do Windows salvo em `clipboard.json`
+- [x] Barras da música seguem o som de verdade (captura do que o PC toca, 4 faixas: grave a agudo)
+- [x] Menu do painel configurável: mostrar/esconder páginas e mudar a ordem (*Aparência → Menu*)
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**
 

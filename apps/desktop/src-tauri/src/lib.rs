@@ -31,6 +31,7 @@ pub fn run() {
             services::clipboard::init(&handle);
             services::shelf::init(&handle);
             services::media::spawn(&handle);
+            services::audio_levels::spawn(&handle);
             services::volume::spawn(&handle);
             services::system::spawn(&handle);
             services::integrations::init(&handle);
