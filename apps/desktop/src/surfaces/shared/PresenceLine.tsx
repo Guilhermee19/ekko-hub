@@ -8,6 +8,7 @@ import { EkkoEyes } from '@/ui/EkkoEyes'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { Waveform } from '@/ui/Waveform'
 import { useAudioLevels } from '@/features/music/useAudioLevels'
+import { HudChip } from '@/features/hud/HudChips'
 import { formatRemaining } from '@/lib/time'
 import { useNow } from './useNow'
 
@@ -168,6 +169,7 @@ function ActivityChip({ activity }: { activity: Activity }) {
       </span>
     )
   }
+  if (activity.kind === 'hud') return <HudChip activity={activity} />
   return (
     <span className={chip}>
       <Volume2 className="size-3.5 text-accent" />

@@ -177,12 +177,37 @@ mod tests {
 
     #[test]
     fn crop_takes_the_region_and_clamps_it() {
-        let c = frame().crop(Region { x: 1, y: 0, w: 5, h: 5 }).unwrap();
+        let c = frame()
+            .crop(Region {
+                x: 1,
+                y: 0,
+                w: 5,
+                h: 5,
+            })
+            .unwrap();
         assert_eq!((c.width, c.height), (2, 2));
         let blues: Vec<u8> = c.bgra.chunks(4).map(|p| p[0]).collect();
         assert_eq!(blues, vec![1, 2, 4, 5]);
-        assert!(frame().crop(Region { x: 3, y: 0, w: 2, h: 2 }).is_err());
-        assert!(frame().crop(Region { x: -5, y: -5, w: 2, h: 2 }).is_err());
+        assert!(
+            frame()
+                .crop(Region {
+                    x: 3,
+                    y: 0,
+                    w: 2,
+                    h: 2
+                })
+                .is_err()
+        );
+        assert!(
+            frame()
+                .crop(Region {
+                    x: -5,
+                    y: -5,
+                    w: 2,
+                    h: 2
+                })
+                .is_err()
+        );
     }
 
     #[test]
@@ -190,7 +215,11 @@ mod tests {
         let f = frame();
         let back = Frame::from_png(&f.png().unwrap()).unwrap();
         assert_eq!((back.width, back.height), (3, 2));
-        let opaque: Vec<u8> = f.bgra.chunks(4).flat_map(|p| [p[0], p[1], p[2], 255]).collect();
+        let opaque: Vec<u8> = f
+            .bgra
+            .chunks(4)
+            .flat_map(|p| [p[0], p[1], p[2], 255])
+            .collect();
         assert_eq!(back.bgra, opaque);
     }
 
@@ -212,6 +241,9 @@ mod tests {
     fn file_name_uses_local_time_without_colons() {
         // 2026-11-19 18:30:12 UTC at UTC-3.
         let at = 1_795_113_012_000;
-        assert_eq!(file_name(at, -3 * 3_600_000), "Print 2026-11-19 15-30-12.png");
+        assert_eq!(
+            file_name(at, -3 * 3_600_000),
+            "Print 2026-11-19 15-30-12.png"
+        );
     }
 }

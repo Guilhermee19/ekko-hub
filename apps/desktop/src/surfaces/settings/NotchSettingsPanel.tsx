@@ -87,7 +87,39 @@ export function NotchSettingsPanel() {
             />
             <span className="w-14 shrink-0 text-right font-mono">{notch.hoverDelayMs} ms</span>
           </label>
+          <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
+            <span className="w-28 shrink-0">Animação de abrir</span>
+            <Slider
+              label="Duração da animação de abrir"
+              value={notch.openMs}
+              min={0}
+              max={1000}
+              step={50}
+              onChange={(openMs) => set({ openMs })}
+            />
+            <span className="w-14 shrink-0 text-right font-mono">
+              {notch.openMs === 0 ? 'sem' : `${notch.openMs} ms`}
+            </span>
+          </label>
         </div>
+      </Field>
+
+      <Field
+        title="Avisos rápidos"
+        hint="Quanto tempo volume, brilho, bateria, Caps Lock e microfone ficam no notch antes de sumir."
+      >
+        <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
+          <span className="w-28 shrink-0">Tempo na tela</span>
+          <Slider
+            label="Tempo dos avisos rápidos"
+            value={notch.alertSeconds}
+            min={1}
+            max={10}
+            step={1}
+            onChange={(alertSeconds) => set({ alertSeconds })}
+          />
+          <span className="w-14 shrink-0 text-right font-mono">{notch.alertSeconds} s</span>
+        </label>
       </Field>
 
       <Field

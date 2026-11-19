@@ -5,6 +5,9 @@ export type ReduceMotion = 'system' | 'on' | 'off'
 /** Live activities competing for the pill; the first active one in the list wins. */
 export type PillItem = 'timer' | 'event' | 'music'
 export type AvatarStyle = 'pill' | 'round' | 'line' | 'pixel' | 'visor'
+/** Outline around the notch, so its edges show on any wallpaper. */
+export type NotchOutline = 'none' | 'line' | 'glow' | 'shadow'
+
 export type AvatarColor = 'accent' | 'strong' | 'neutral'
 
 export interface PillShow {
@@ -14,6 +17,10 @@ export interface PillShow {
   timer: boolean
   music: boolean
   event: boolean
+  /** Battery of the laptop and Bluetooth headsets, next to the clock. */
+  battery: boolean
+  /** Quick flashes when Caps Lock, mic, brightness, volume or power change. */
+  system: boolean
 }
 
 /** Panel menu pages (ids from `surfaces/panel/nav.ts`). */
@@ -36,6 +43,9 @@ export interface AppearanceSettings {
   /** Pill size multiplier (0.85..1.25). */
   notchScale: number
   notchBorder: boolean
+  notchOutline: NotchOutline
+  /** 0..1 */
+  notchOutlineStrength: number
   pillShow: PillShow
   pillPriority: PillItem[]
   /** Full windows scale (0.9..1.15). */
@@ -46,6 +56,8 @@ export interface AppearanceSettings {
   panelMenu: PanelMenu
   /** Home cards in order (`features/home/catalog.ts`); null = default set. */
   homeCards: string[] | null
+  /** Columns each home card takes (1..4); missing = the card's default. */
+  homeWidths: Record<string, number>
 }
 
 export const APPEARANCE_LIMITS = {
@@ -54,6 +66,7 @@ export const APPEARANCE_LIMITS = {
   notchGlow: [0, 1],
   notchScale: [0.85, 1.25],
   fontScale: [0.9, 1.15],
+  notchOutlineStrength: [0, 1],
 } as const
 
 export const DEFAULT_APPEARANCE: AppearanceSettings = {
@@ -64,7 +77,18 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   notchGlow: 0.25,
   notchScale: 1,
   notchBorder: true,
-  pillShow: { avatar: true, statusDot: true, clock: false, timer: true, music: true, event: true },
+  notchOutline: 'none',
+  notchOutlineStrength: 0.5,
+  pillShow: {
+    avatar: true,
+    statusDot: true,
+    clock: false,
+    timer: true,
+    music: true,
+    event: true,
+    battery: true,
+    system: true,
+  },
   pillPriority: ['timer', 'event', 'music'],
   fontScale: 1,
   reduceMotion: 'system',
@@ -72,4 +96,5 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   avatarColor: 'accent',
   panelMenu: { order: [], hidden: [] },
   homeCards: null,
+  homeWidths: {},
 }

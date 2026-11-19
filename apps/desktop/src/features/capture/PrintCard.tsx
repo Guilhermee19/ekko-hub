@@ -52,7 +52,11 @@ export function PrintCard({ print, onClose }: { print: CaptureSaved; onClose: ()
           className="size-full object-cover"
         />
         <span className="absolute inset-0 grid place-items-center bg-base/60 opacity-0 transition-opacity group-hover:opacity-100">
-          {copied ? <Check className="size-5 text-accent" /> : <Copy className="size-5 text-content" />}
+          {copied ? (
+            <Check className="size-5 text-accent" />
+          ) : (
+            <Copy className="size-5 text-content" />
+          )}
         </span>
       </button>
       <div className="min-w-0 flex-1" role="status">

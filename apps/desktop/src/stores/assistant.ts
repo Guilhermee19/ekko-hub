@@ -6,10 +6,23 @@ import { backend } from '@/lib/ipc'
 
 export type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 
+export type HudIcon =
+  | 'caps'
+  | 'capsOff'
+  | 'mic'
+  | 'micOff'
+  | 'brightness'
+  | 'charging'
+  | 'battery'
+  | 'batteryLow'
+  | 'headphones'
+
 export type Activity =
   | { kind: 'timer'; label: string; endsAt: number; total: number }
   | { kind: 'music'; title: string; artist: string; playing: boolean }
   | { kind: 'volume'; level: number }
+  /** Quick system reaction (Caps Lock, mic, brightness, battery, headset). */
+  | { kind: 'hud'; icon: HudIcon; label: string; level?: number; warn?: boolean }
   | { kind: 'event'; title: string; startsAt: number; endsAt: number; meetLink?: string }
 
 export interface Presence {

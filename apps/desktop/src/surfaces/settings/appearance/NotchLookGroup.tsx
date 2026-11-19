@@ -1,4 +1,5 @@
 import { APPEARANCE_LIMITS as L } from '@/lib/ipc'
+import { Segmented } from '@/ui/primitives'
 import { Field } from '../Field'
 import { NotchSettingsPanel } from '../NotchSettingsPanel'
 import { Group, percent, setAppearance, SliderRow, useAppearance } from './controls'
@@ -11,7 +12,10 @@ export function NotchLookGroup() {
     <Group title="Notch" hint="Onde ele fica, como abre e o visual da pílula fechada.">
       <NotchSettingsPanel />
 
-      <Field title="Visual da pílula" hint="Mudou aqui, mudou no notch de verdade na hora.">
+      <Field
+        title="Visual da pílula"
+        hint="Mudou aqui, mudou no notch de verdade na hora. O contorno ajuda a ver onde o notch começa e termina."
+      >
         <div className="flex flex-col gap-4">
           <PillPreview />
           <div className="flex flex-col gap-2.5">
@@ -42,6 +46,30 @@ export function NotchLookGroup() {
               format={percent}
               onChange={(notchGlow) => setAppearance({ notchGlow })}
             />
+            <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted">
+              <span className="w-28 shrink-0">Contorno</span>
+              <Segmented
+                value={look.notchOutline}
+                options={[
+                  { value: 'none', label: 'Nenhum' },
+                  { value: 'line', label: 'Linha' },
+                  { value: 'glow', label: 'Brilho' },
+                  { value: 'shadow', label: 'Sombra' },
+                ]}
+                onChange={(notchOutline) => setAppearance({ notchOutline })}
+              />
+            </div>
+            {look.notchOutline !== 'none' && (
+              <SliderRow
+                label="Força do contorno"
+                value={look.notchOutlineStrength}
+                min={L.notchOutlineStrength[0]}
+                max={L.notchOutlineStrength[1]}
+                step={0.05}
+                format={percent}
+                onChange={(notchOutlineStrength) => setAppearance({ notchOutlineStrength })}
+              />
+            )}
             <SliderRow
               label="Tamanho"
               value={look.notchScale}

@@ -24,24 +24,24 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.1.3 (v0.2.0 a publicar) |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.3.0 |
 | V2 | Servidor + app no celular | `[ ]` |
 
 ## Releases
 
 | Versão | Data | O que tem |
 |---|---|---|
-| **v0.2.0** | a publicar | Início personalizável (adicionar, mover e remover cards, com prévia ao arrastar), menu do painel configurável, barras da música que seguem o som do PC, prévia das imagens na prateleira, Verificar meu PC com nota de saúde e animações, print de uma área (Alt Gr + Print Screen) que vai para o notch. Arrastar para reordenar passa a funcionar dentro do app. |
+| **v0.3.0** | 19/11/2026 | Print de uma área (Alt Gr + Print Screen) que vai para o notch; notch que reage ao sistema (volume, brilho, Caps Lock, microfone, fones) com tempo ajustável; avisos de bateria do notebook e de aparelhos Bluetooth; Início personalizável (adicionar, mover, remover, largura de 1 a 4 colunas, mesma altura) com card Bateria; menu do painel configurável; barras da música que seguem o som do PC; prévia das imagens na prateleira; Verificar meu PC com nota de saúde; contorno e velocidade de abrir do notch. Correções no arrastar para reordenar e nos avisos que ficavam presos no notch. A v0.2.0 não chegou a ser publicada e entrou nesta. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.2.0)
+## O que já funciona de verdade (v0.3.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
-| Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel, páginas do menu e a ordem delas |
-| Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Copiados, Prateleira, Tocando agora |
+| Aparência | Real | Contorno do notch (linha, brilho ou sombra, com força), velocidade da animação de abrir o notch, cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel, páginas do menu e a ordem delas |
+| Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover, largura de 1 a 4 colunas, todos da mesma altura): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Bateria, Copiados, Prateleira, Tocando agora |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
@@ -54,6 +54,8 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
+| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos); liga e desliga em Aparência → Pílula |
+| Bateria | Real | Aviso no notch quando começa a carregar e em 15%, 10% e 5% (com som); card no Início com notebook e aparelhos Bluetooth (fone, mouse, teclado, celular, controle), cada um com seu ícone num anel de carga |
 | Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali (imagens com prévia) e saem juntos arrastando para outro lugar (copiar ou mover) |
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
 | Cérebro (IA), Voz, Funções, Avatar, Diagnóstico | **Escondidas** | Seções das Configurações fora do menu até ter efeito; Privacidade fica (auditoria real) |
@@ -131,7 +133,7 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Selos "Em breve" / "Em parte" no app em tudo que ainda é protótipo (`src/lib/availability.ts`)
 - [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
 - [x] **v0.1.3**: notch novo, prateleira de arquivos, Copiados real e protótipos escondidos dos menus
-- [~] **v0.2.0**: Início e menu personalizáveis, barras da música reais, prévia de imagens, Meu PC novo, print de uma área (falta publicar o instalador)
+- [x] **v0.3.0**: Início e menu personalizáveis, barras da música reais, prévia de imagens, Meu PC novo, print de uma área, notch que reage ao sistema e avisos de bateria
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
 - [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
 - [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)
@@ -146,6 +148,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Arrastar para reordenar (Início, menu, prioridade da pílula) funcionando dentro do app, com prévia ao vivo de como vai ficar
 - [x] Print de uma área (Alt Gr + Print Screen): seleção na tela congelada, PNG em Imagens\Ekko, card no notch para copiar ou arrastar, que some (e sai da prateleira) ao fechar ou após 7 s
 - [x] Atalho do print trocável nas Configurações, inclusive Print Screen sozinho e atalhos prontos
+- [x] Notch reage ao sistema: volume pelas teclas, brilho, Caps Lock, microfone mudo e carregador
+- [x] Bateria do notebook e dos fones Bluetooth na pílula, com aviso de bateria fraca
+- [ ] Confirmar no app: reações do notch e bateria de um fone Bluetooth conectado
 - [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print
 - [ ] Confirmar no app instalado: soltar arquivos no notch e arrastar da prateleira para fora
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme

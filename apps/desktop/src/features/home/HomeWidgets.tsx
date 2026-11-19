@@ -13,7 +13,7 @@ export function NowPlaying({ go, compact }: PageProps) {
       <button
         type="button"
         onClick={() => go('music')}
-        className="flex min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5 text-left"
+        className="flex h-full w-full min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5 text-left"
       >
         <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-accent/10 text-muted">
           <Music2 className="size-4" />
@@ -27,7 +27,7 @@ export function NowPlaying({ go, compact }: PageProps) {
   }
   const details = [track.artist, source].filter(Boolean).join(' · ')
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5">
+    <div className="@container flex h-full min-w-0 items-center gap-2 rounded-xl border border-border-soft bg-surface p-2.5">
       <button
         type="button"
         aria-label="Abrir Música"
@@ -40,14 +40,14 @@ export function NowPlaying({ go, compact }: PageProps) {
         <div className="truncate text-[11px] text-muted">{details}</div>
       </button>
       {!compact && (
-        <IconButton label="Anterior" onClick={prev}>
+        <IconButton label="Anterior" onClick={prev} className="@max-[300px]:hidden">
           <SkipBack className="size-4" />
         </IconButton>
       )}
       <IconButton label={playing ? 'Pausar' : 'Tocar'} tone="accent" onClick={toggle}>
         {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
       </IconButton>
-      <IconButton label="Próxima" onClick={next}>
+      <IconButton label="Próxima" onClick={next} className="@max-[200px]:hidden">
         <SkipForward className="size-4" />
       </IconButton>
     </div>

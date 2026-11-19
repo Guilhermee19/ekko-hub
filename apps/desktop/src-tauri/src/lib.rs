@@ -33,6 +33,7 @@ pub fn run() {
             services::capture::init(&handle);
             services::media::spawn(&handle);
             services::audio_levels::spawn(&handle);
+            services::system_hud::spawn(&handle);
             services::volume::spawn(&handle);
             services::system::spawn(&handle);
             services::integrations::init(&handle);
@@ -157,6 +158,7 @@ pub fn run() {
             commands::capture::capture_cancel,
             commands::capture::capture_start,
             commands::capture::shelf_copy_image,
+            commands::hud::power_snapshot,
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o Ekko")

@@ -4,11 +4,11 @@
 
 ![O notch do Ekko aberto no Início](docs/screenshots/notch-home.webp)
 
-> **Versão 0.2.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.3.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.2.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.3.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 

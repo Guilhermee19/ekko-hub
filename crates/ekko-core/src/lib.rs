@@ -1,12 +1,13 @@
 //! Ekko domain core: types shared by every app (desktop now, server in v2).
 
 pub mod appearance;
-pub mod capture;
 pub mod audit;
+pub mod capture;
 pub mod clipboard;
 pub mod clock;
 pub mod general;
 pub mod habits;
+pub mod hud;
 pub mod integrations;
 pub mod intents;
 pub mod notch;

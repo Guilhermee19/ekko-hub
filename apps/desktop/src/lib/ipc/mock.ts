@@ -6,6 +6,7 @@ import { mockMedia } from './mockMedia'
 import { mockProductivity } from './mockProductivity'
 import { mockShelf } from './shelfMock'
 import { mockCapture } from './captureMock'
+import { mockHud } from './hudMock'
 import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
 import {
@@ -154,6 +155,7 @@ export const mockBackend: Backend = {
   ...mockSystem({ on, fire }),
   ...mockClipboard({ on, fire }),
   ...mockShelf({ on, fire }),
+  ...mockHud({ on }),
   ...mockCapture({
     on,
     fire,

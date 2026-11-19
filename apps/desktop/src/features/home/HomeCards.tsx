@@ -1,4 +1,13 @@
-import { ArrowLeft, ArrowRight, GripVertical, Plus, RotateCcw, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronsLeftRight,
+  ChevronsRightLeft,
+  GripVertical,
+  Plus,
+  RotateCcw,
+  X,
+} from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { movePillItem } from '@/lib/pillPriority'
 import { useSortable } from '@/lib/useSortable'
@@ -6,10 +15,19 @@ import type { PageProps } from '@/surfaces/panel/pages'
 import { setAppearance } from '@/surfaces/settings/appearance/controls'
 import { useSettings } from '@/stores/settings'
 import { IconButton } from '@/ui/primitives'
-import { cardMeta, homeLayout, missingCards, type HomeCardId } from './catalog'
+import {
+  cardMeta,
+  cardWidth,
+  HOME_COLUMNS,
+  homeLayout,
+  missingCards,
+  spanClass,
+  type HomeCardId,
+} from './catalog'
 import { CARD_VIEW } from './cardViews'
 
 const save = (homeCards: HomeCardId[] | null) => setAppearance({ homeCards })
+const saveWidths = (homeWidths: Record<string, number>) => setAppearance({ homeWidths })
 
 /** The home's cards in the user's order; `editing` turns on move/remove/add. */
 export function HomeCards({
@@ -19,6 +37,7 @@ export function HomeCards({
 }: Pick<PageProps, 'compact' | 'go'> & { editing: boolean }) {
   const layout = homeLayout(useSettings((s) => s.settings.appearance.homeCards))
   const sort = useSortable(layout, save)
+  const widths = useSettings((s) => s.settings.appearance.homeWidths)
 
   if (layout.length === 0 && !editing) {
     return (
@@ -30,10 +49,18 @@ export function HomeCards({
 
   return (
     <div className="flex flex-col gap-3">
-      <ul className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-2 @lg:grid-cols-4')}>
+      {/* Equal rows: every card is as tall as the tallest one, so the grid lines up. */}
+      <ul
+        className={cn(
+          'grid auto-rows-fr gap-2',
+          compact ? 'grid-cols-2' : 'grid-cols-2 @lg:grid-cols-4',
+        )}
+      >
         {sort.list.map((id, i) => {
           const View = CARD_VIEW[id]
           const meta = cardMeta(id)
+          const width = cardWidth(id, widths)
+          const resize = (delta: number) => saveWidths({ ...widths, [id]: width + delta })
           return (
             <li
               key={id}
@@ -41,7 +68,7 @@ export function HomeCards({
               {...(editing ? sort.handle(id) : {})}
               className={cn(
                 'flex min-w-0 flex-col gap-1',
-                meta.wide && 'col-span-full',
+                spanClass(width, compact),
                 editing &&
                   'animate-fade-in cursor-grab rounded-xl border border-dashed border-accent/40 p-1',
                 editing && 'touch-none select-none',
@@ -49,9 +76,31 @@ export function HomeCards({
               )}
             >
               {editing && (
-                <div className="flex items-center gap-0.5 text-muted">
+                <div className="flex flex-wrap items-center gap-0.5 text-muted">
                   <GripVertical className="size-3.5 shrink-0" aria-hidden />
-                  <span className="min-w-0 flex-1 truncate text-[11px]">{meta.label}</span>
+                  <span className="min-w-10 flex-1 truncate text-[11px]">{meta.label}</span>
+                  <IconButton
+                    label={`Estreitar ${meta.label}`}
+                    disabled={width === 1}
+                    onClick={() => resize(-1)}
+                    className="size-6"
+                  >
+                    <ChevronsRightLeft className="size-3" />
+                  </IconButton>
+                  <span
+                    className="font-mono text-[10px] tabular-nums"
+                    title="Colunas que o card ocupa"
+                  >
+                    {width}/{HOME_COLUMNS}
+                  </span>
+                  <IconButton
+                    label={`Alargar ${meta.label}`}
+                    disabled={width === HOME_COLUMNS}
+                    onClick={() => resize(1)}
+                    className="size-6"
+                  >
+                    <ChevronsLeftRight className="size-3" />
+                  </IconButton>
                   <IconButton
                     label={`Mover ${meta.label} para trás`}
                     disabled={i === 0}

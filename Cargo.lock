@@ -794,7 +794,7 @@ checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
 name = "ekko-core"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "png",
  "serde",
@@ -804,7 +804,7 @@ dependencies = [
 
 [[package]]
 name = "ekko-desktop"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chrono",
  "ekko-core",
@@ -820,7 +820,7 @@ dependencies = [
 
 [[package]]
 name = "ekko-integrations"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -836,9 +836,10 @@ dependencies = [
 
 [[package]]
 name = "ekko-os"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "base64 0.23.1",
+ "ekko-core",
  "serde",
  "serde_json",
  "sysinfo",

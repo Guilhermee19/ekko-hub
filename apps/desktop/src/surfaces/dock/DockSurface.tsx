@@ -4,6 +4,7 @@ import { useAssistant } from '@/stores/assistant'
 import { useSettings } from '@/stores/settings'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { PanelShell } from '../panel/PanelShell'
+import { useSystemHud } from '@/features/hud/useSystemHud'
 import { PresenceLine } from '../shared/PresenceLine'
 import { useEscape, useHitRect, useOverlayHover, useSummon } from '../shared/useOverlay'
 import { useElementSize } from '../shared/useViewport'
@@ -29,6 +30,7 @@ export function DockSurface() {
       : { x: right ? width - TAB.w : 0, y: tabY, w: TAB.w, h: TAB.h },
   )
   useSummon(() => setPinned((p) => !p))
+  useSystemHud()
   useEscape(() => setPinned(false))
 
   return (

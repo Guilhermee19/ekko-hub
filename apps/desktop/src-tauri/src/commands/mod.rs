@@ -7,6 +7,7 @@ pub mod flows;
 pub mod general;
 #[cfg(test)]
 mod guard;
+pub mod hud;
 pub mod integrations;
 pub mod media;
 pub mod notch;

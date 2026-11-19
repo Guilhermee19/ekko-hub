@@ -1,6 +1,8 @@
 //! Look customization on top of the persona: accent override, notch look, what the
 //! pill shows, panel scale and the panel menu. The frontend turns this into CSS variables.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::panel_menu::{PanelMenu, tidy};
@@ -51,6 +53,20 @@ pub enum AvatarStyle {
     Visor,
 }
 
+/// Outline around the notch, so its edges show on any wallpaper.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NotchOutline {
+    #[default]
+    None,
+    /// Thin accent line.
+    Line,
+    /// Accent light around it.
+    Glow,
+    /// Dark shadow (light wallpapers).
+    Shadow,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum AvatarColor {
@@ -70,6 +86,10 @@ pub struct PillShow {
     pub timer: bool,
     pub music: bool,
     pub event: bool,
+    /// Battery of the laptop and of Bluetooth headsets, next to the clock.
+    pub battery: bool,
+    /// Quick flashes when Caps Lock, mic, brightness, volume or power change.
+    pub system: bool,
 }
 
 impl Default for PillShow {
@@ -81,6 +101,8 @@ impl Default for PillShow {
             timer: true,
             music: true,
             event: true,
+            battery: true,
+            system: true,
         }
     }
 }
@@ -100,6 +122,9 @@ pub struct AppearanceSettings {
     /// Pill size multiplier (box and content).
     pub notch_scale: f64,
     pub notch_border: bool,
+    pub notch_outline: NotchOutline,
+    /// 0..1 strength of `notch_outline`.
+    pub notch_outline_strength: f64,
     pub pill_show: PillShow,
     /// Always holds every `PillItem` exactly once after `sanitized()`.
     pub pill_priority: Vec<PillItem>,
@@ -113,6 +138,9 @@ pub struct AppearanceSettings {
     /// Cards on the home page, in order (ids from the frontend). `None` = default set;
     /// an empty list is a home the user cleared on purpose.
     pub home_cards: Option<Vec<String>>,
+    /// Columns each home card takes (1..=4, the home is a 4-column grid); cards not
+    /// listed use their default width.
+    pub home_widths: BTreeMap<String, u8>,
 }
 
 impl AppearanceSettings {
@@ -121,6 +149,8 @@ impl AppearanceSettings {
     pub const GLOW: (f64, f64) = (0.0, 1.0);
     pub const SCALE: (f64, f64) = (0.85, 1.25);
     pub const FONT_SCALE: (f64, f64) = (0.9, 1.15);
+    pub const OUTLINE: (f64, f64) = (0.0, 1.0);
+    pub const HOME_COLUMNS: u8 = 4;
 
     /// Clamps numbers, drops an invalid accent and repairs the priority list, so a
     /// hand-edited file can never make the notch invisible.
@@ -132,6 +162,11 @@ impl AppearanceSettings {
         self.notch_glow = clamp(self.notch_glow, Self::GLOW, d.notch_glow);
         self.notch_scale = clamp(self.notch_scale, Self::SCALE, d.notch_scale);
         self.font_scale = clamp(self.font_scale, Self::FONT_SCALE, d.font_scale);
+        self.notch_outline_strength = clamp(
+            self.notch_outline_strength,
+            Self::OUTLINE,
+            d.notch_outline_strength,
+        );
         let mut priority: Vec<PillItem> = Vec::with_capacity(PillItem::ALL.len());
         for item in self.pill_priority.into_iter().chain(PillItem::ALL) {
             if !priority.contains(&item) {
@@ -141,6 +176,13 @@ impl AppearanceSettings {
         self.pill_priority = priority;
         self.panel_menu = self.panel_menu.sanitized();
         self.home_cards = self.home_cards.map(tidy);
+        self.home_widths = self
+            .home_widths
+            .into_iter()
+            .filter(|(id, _)| !id.is_empty() && id.len() <= 32)
+            .take(64)
+            .map(|(id, w)| (id, w.clamp(1, Self::HOME_COLUMNS)))
+            .collect();
         self
     }
 }
@@ -155,6 +197,8 @@ impl Default for AppearanceSettings {
             notch_glow: 0.25,
             notch_scale: 1.0,
             notch_border: true,
+            notch_outline: NotchOutline::default(),
+            notch_outline_strength: 0.5,
             pill_show: PillShow::default(),
             pill_priority: PillItem::ALL.to_vec(),
             font_scale: 1.0,
@@ -163,6 +207,7 @@ impl Default for AppearanceSettings {
             avatar_color: AvatarColor::default(),
             panel_menu: PanelMenu::default(),
             home_cards: None,
+            home_widths: BTreeMap::new(),
         }
     }
 }
@@ -245,6 +290,16 @@ mod tests {
         let cleared: AppearanceSettings = serde_json::from_str(r#"{"homeCards":[]}"#).unwrap();
         assert_eq!(cleared.home_cards, Some(vec![]));
         assert_eq!(AppearanceSettings::default().home_cards, None);
+    }
+
+    #[test]
+    fn home_widths_stay_within_the_grid() {
+        let s: AppearanceSettings =
+            serde_json::from_str(r#"{"homeWidths":{"music":9,"pc":0,"tasks":2}}"#).unwrap();
+        let s = s.sanitized();
+        assert_eq!(s.home_widths["music"], 4);
+        assert_eq!(s.home_widths["pc"], 1);
+        assert_eq!(s.home_widths["tasks"], 2);
     }
 
     #[test]

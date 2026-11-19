@@ -2,6 +2,7 @@ import { Pin, PinOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PrintCard } from '@/features/capture/PrintCard'
 import { useRecentPrint } from '@/features/capture/useRecentPrint'
+import { useSystemHud } from '@/features/hud/useSystemHud'
 import { ShelfChip, SHELF_CHIP_W } from '@/features/shelf/ShelfChip'
 import { ShelfTray } from '@/features/shelf/ShelfTray'
 import { useShelf } from '@/features/shelf/store'
@@ -62,6 +63,7 @@ export function NotchSurface() {
 
   useHitRect(box)
   useSummon(toggleHeld)
+  useSystemHud()
   useEscape(() => {
     setHeld(false)
     setPinned(false)
@@ -76,7 +78,14 @@ export function NotchSurface() {
         onFocusCapture={(e) => e.target.matches('input, textarea') && setHeld(true)}
         // The thin line has no top bar, so the whole line is the click target.
         onClick={look === 'line' ? toggleHeld : undefined}
-        style={{ left: box.x / zoom, width: box.w / zoom, height: box.h / zoom, zoom }}
+        style={{
+          left: box.x / zoom,
+          width: box.w / zoom,
+          height: box.h / zoom,
+          zoom,
+          // Notch → Animação de abrir.
+          transitionDuration: `${notch.openMs}ms`,
+        }}
         className={cn(
           'absolute top-0',
           'transition-[left,width,height,border-radius,box-shadow] duration-300 ease-out-soft',

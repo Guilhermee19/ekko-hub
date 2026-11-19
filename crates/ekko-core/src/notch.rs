@@ -60,10 +60,16 @@ pub struct NotchSettings {
     pub open_on: NotchOpen,
     pub hover_delay_ms: u32,
     pub idle: NotchIdle,
+    /// How long the notch takes to open into the panel (the grow animation).
+    pub open_ms: u32,
+    /// How long quick alerts (volume, brightness, battery…) stay in the pill.
+    pub alert_seconds: u8,
 }
 
 impl NotchSettings {
     pub const MAX_HOVER_DELAY_MS: u32 = 1000;
+    pub const OPEN_MS: (u32, u32) = (0, 1000);
+    pub const ALERT_SECONDS: (u8, u8) = (1, 10);
 
     /// Values coming from the UI are clamped so a bad file can't hide the notch.
     pub fn sanitized(mut self) -> Self {
@@ -73,6 +79,10 @@ impl NotchSettings {
             0.5
         };
         self.hover_delay_ms = self.hover_delay_ms.min(Self::MAX_HOVER_DELAY_MS);
+        self.open_ms = self.open_ms.clamp(Self::OPEN_MS.0, Self::OPEN_MS.1);
+        self.alert_seconds = self
+            .alert_seconds
+            .clamp(Self::ALERT_SECONDS.0, Self::ALERT_SECONDS.1);
         self
     }
 }
@@ -85,6 +95,8 @@ impl Default for NotchSettings {
             open_on: NotchOpen::default(),
             hover_delay_ms: 180,
             idle: NotchIdle::default(),
+            open_ms: 300,
+            alert_seconds: 5,
         }
     }
 }
@@ -98,10 +110,14 @@ mod tests {
         let s = NotchSettings {
             offset: 3.0,
             hover_delay_ms: 99_999,
+            open_ms: 5000,
+            alert_seconds: 0,
             ..Default::default()
         }
         .sanitized();
         assert_eq!(s.offset, 1.0);
+        assert_eq!(s.open_ms, 1000);
+        assert_eq!(s.alert_seconds, 1);
         assert_eq!(s.hover_delay_ms, NotchSettings::MAX_HOVER_DELAY_MS);
         let nan = NotchSettings {
             offset: f64::NAN,
