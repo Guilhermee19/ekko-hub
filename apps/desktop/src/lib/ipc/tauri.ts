@@ -6,10 +6,17 @@ import { tauriGeneral } from './generalTauri'
 import { tauriIntegrations } from './integrationsTauri'
 import { tauriProductivity } from './productivityTauri'
 import { tauriShelf } from './shelfTauri'
+import { tauriCapture } from './captureTauri'
 import { tauriSystem } from './systemTauri'
 import type { Backend, Settings } from './types'
 import type { TimersSnapshot } from './types'
-import { MEDIA_CHANGED, VOLUME_CHANGED, type NowPlaying, type VolumeState } from './mediaTypes'
+import {
+  AUDIO_LEVELS,
+  MEDIA_CHANGED,
+  VOLUME_CHANGED,
+  type NowPlaying,
+  type VolumeState,
+} from './mediaTypes'
 
 const TIMERS_CHANGED = 'ekko://timers/changed'
 
@@ -30,6 +37,7 @@ export const tauriBackend: Backend = {
   ...tauriSystem,
   ...tauriClipboard,
   ...tauriShelf,
+  ...tauriCapture,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),
   setDisplayMode: (mode) => invoke('set_display_mode', { mode }),
@@ -76,6 +84,7 @@ export const tauriBackend: Backend = {
   mediaNext: () => invoke('media_next'),
   mediaPrevious: () => invoke('media_previous'),
   mediaSeek: (positionMs) => invoke('media_seek', { positionMs }),
+  onAudioLevels: (cb) => listen<number[]>(AUDIO_LEVELS, (e) => cb(e.payload)),
   volumeGet: () => invoke('volume_get'),
   volumeSet: (level) => invoke('volume_set', { level }),
   volumeStep: (delta) => invoke('volume_step', { delta }),

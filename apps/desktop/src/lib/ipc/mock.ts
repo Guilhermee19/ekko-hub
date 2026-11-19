@@ -5,6 +5,7 @@ import { mockIntegrations } from './integrationsMock'
 import { mockMedia } from './mockMedia'
 import { mockProductivity } from './mockProductivity'
 import { mockShelf } from './shelfMock'
+import { mockCapture } from './captureMock'
 import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
 import {
@@ -153,4 +154,12 @@ export const mockBackend: Backend = {
   ...mockSystem({ on, fire }),
   ...mockClipboard({ on, fire }),
   ...mockShelf({ on, fire }),
+  ...mockCapture({
+    on,
+    fire,
+    shelve: async (name) => {
+      const s = await mockBackend.shelfAdd([name])
+      return s.items.find((i) => i.name === name)?.id ?? null
+    },
+  }),
 }

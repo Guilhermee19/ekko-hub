@@ -17,6 +17,7 @@ pub const SETTINGS: &str = "settings";
 pub const PALETTE: &str = "palette";
 pub const ONBOARDING: &str = "onboarding";
 pub const ALARM: &str = "alarm";
+pub const CAPTURE: &str = "capture";
 
 /// Every surface that belongs to a display mode (settings is independent).
 pub const MODE_SURFACES: [&str; 6] = [NOTCH, PANEL, ORB, DOCK, HUB, VOICE];
@@ -42,6 +43,8 @@ fn spec(label: &str, notch: NotchSize) -> Spec {
         HUB => ("Ekko Hub", 1180.0, 760.0, false),
         PALETTE => ("Ekko · Comandos", 680.0, 540.0, true),
         ALARM => ("Ekko · Alarme", 460.0, 300.0, true),
+        // Placed over the whole monitor when a print starts.
+        CAPTURE => ("Ekko · Print", 800.0, 600.0, true),
         ONBOARDING => ("Bem-vindo ao Ekko", 760.0, 560.0, false),
         _ => ("Ekko · Configurações", 1000.0, 700.0, false),
     };

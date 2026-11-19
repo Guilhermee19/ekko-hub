@@ -13,6 +13,7 @@ import {
 import type { ProductivityBackend } from './productivityTypes'
 import type { ClipboardBackend } from './clipboardTypes'
 import type { ShelfBackend } from './shelfTypes'
+import type { CaptureBackend } from './captureTypes'
 import type { SystemBackend } from './systemTypes'
 
 export * from './appearanceTypes'
@@ -23,6 +24,7 @@ export * from './productivityTypes'
 export * from './systemTypes'
 export * from './clipboardTypes'
 export * from './shelfTypes'
+export * from './captureTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
 export type Persona = 'ekko' | 'ultron' | 'eco'
@@ -142,7 +144,8 @@ export interface Backend
     GeneralBackend,
     SystemBackend,
     ClipboardBackend,
-    ShelfBackend {
+    ShelfBackend,
+    CaptureBackend {
   readonly kind: 'tauri' | 'mock'
   getSettings(): Promise<Settings>
   onSettingsChanged(cb: (s: Settings) => void): Promise<Unlisten>

@@ -1,0 +1,113 @@
+/* "Verificar meu PC": tone of the result and the scan animations. Colors only via
+   theme tokens; every animation is off with "Reduzir movimento". */
+
+.scan {
+  --scan-tone: var(--color-accent);
+}
+.scan[data-tone='fair'] {
+  --scan-tone: color-mix(in srgb, var(--color-accent) 45%, var(--color-danger));
+}
+.scan[data-tone='bad'] {
+  --scan-tone: var(--color-danger);
+}
+.scan-tone-text {
+  color: var(--scan-tone);
+}
+.scan-tone-stroke {
+  stroke: var(--scan-tone);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--scan-tone) 55%, transparent));
+}
+
+/* Radar sweep spinning inside the ring while it runs. */
+.scan-sweep {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 70%,
+    color-mix(in srgb, var(--color-accent) 35%, transparent) 100%
+  );
+  mask: radial-gradient(circle, transparent 54%, #000 56%, #000 69%, transparent 71%);
+  animation: scan-spin 1.4s linear infinite;
+}
+@keyframes scan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* One soft glow wave when the result lands. */
+.scan-burst {
+  animation: scan-burst 900ms var(--ease-out-soft) both;
+}
+@keyframes scan-burst {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--scan-tone) 55%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 22px transparent;
+  }
+}
+
+/* Tiles: staggered entry, shimmer while waiting, a scan line while checking. */
+.scan-enter {
+  animation: rise-in 320ms var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.scan-pop {
+  animation: scan-pop 420ms var(--ease-out-soft) both;
+}
+@keyframes scan-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+.scan-shimmer {
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--color-content) 5%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: scan-shimmer 1.6s linear infinite;
+}
+@keyframes scan-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+.scan-line {
+  animation: scan-line 1.1s ease-in-out infinite alternate;
+}
+@keyframes scan-line {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+.scan-swap {
+  animation: rise-in 260ms var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion='off'])
+    :is(.scan-sweep, .scan-burst, .scan-enter, .scan-pop, .scan-shimmer, .scan-line, .scan-swap) {
+    animation: none;
+  }
+}
+:root[data-reduce-motion='on']
+  :is(.scan-sweep, .scan-burst, .scan-enter, .scan-pop, .scan-shimmer, .scan-line, .scan-swap) {
+  animation: none;
+}

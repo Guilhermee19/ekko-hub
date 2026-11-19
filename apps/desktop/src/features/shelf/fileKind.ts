@@ -24,6 +24,14 @@ add('sheet', 'xls xlsx csv ods')
 add('doc', 'pdf doc docx txt md rtf odt ppt pptx')
 add('code', 'js ts tsx jsx json rs py html css java c cpp cs go sql sh ps1 yml yaml toml')
 
+/** Image types the webview draws; mirrors `previewable` in crates/ekko-core shelf.rs. */
+const PREVIEW = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'ico', 'avif'])
+
+export function previewable(name: string, isDir: boolean): boolean {
+  const dot = name.lastIndexOf('.')
+  return !isDir && dot > 0 && PREVIEW.has(name.slice(dot + 1).toLowerCase())
+}
+
 export function fileKind(name: string, isDir: boolean): FileKind {
   if (isDir) return 'folder'
   const dot = name.lastIndexOf('.')

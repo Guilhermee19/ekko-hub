@@ -23,7 +23,7 @@ function reports(shortcuts: ShortcutSettings): ShortcutReport[] {
   return (Object.keys(shortcuts) as ShortcutAction[]).map((action) => {
     const combo = shortcuts[action]
     const key = combo.toLowerCase()
-    const pending = action !== 'summon' && action !== 'palette'
+    const pending = !['summon', 'palette', 'capture'].includes(action)
     const status = !valid(combo) ? 'invalid' : pending ? 'pending' : seen.has(key) ? 'taken' : 'ok'
     seen.add(key)
     return { action, status, active: status === 'ok' ? combo : null }

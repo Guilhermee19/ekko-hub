@@ -1,4 +1,11 @@
-import { ChevronRight, Mic, SendHorizontal, SlidersHorizontal } from 'lucide-react'
+import {
+  Check,
+  ChevronRight,
+  LayoutGrid,
+  Mic,
+  SendHorizontal,
+  SlidersHorizontal,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useChat } from '@/features/chat/store'
 import { backend } from '@/lib/ipc'
@@ -9,9 +16,9 @@ import { DisplayModePicker } from '@/surfaces/settings/DisplayModePicker'
 import { DEMO_LABELS, demo, type DemoKey } from '@/stores/demo'
 import { useSettings } from '@/stores/settings'
 import { comboKeys } from '@/surfaces/settings/sections/shortcutsCombo'
-import { IconButton, Kbd } from '@/ui/primitives'
+import { Button, IconButton, Kbd } from '@/ui/primitives'
 import { HomeCards } from './HomeCards'
-import { NowPlaying, RecentChat } from './HomeWidgets'
+import { RecentChat } from './HomeWidgets'
 
 function greeting(hour: number): string {
   if (hour < 5) return 'Boa noite'
@@ -20,13 +27,14 @@ function greeting(hour: number): string {
   return 'Boa noite'
 }
 
-/** Home (Kobi layout): greeting, ask box, summary cards, now playing, last messages. */
+/** Home (Kobi layout): greeting, ask box and the cards the user picked. */
 export function HomePage({ compact, go }: PageProps) {
   const { userName, assistantName } = useSettings((s) => s.settings)
   const [text, setText] = useState('')
   // Typing/talking to Ekko needs the Conversa page (F2); until then the home is a summary.
   const chat = pageShown('chat')
   const summonCombo = useSettings((s) => s.settings.shortcuts.summon)
+  const [editing, setEditing] = useState(false)
 
   const send = () => {
     const t = text.trim()
@@ -38,22 +46,33 @@ export function HomePage({ compact, go }: PageProps) {
 
   return (
     <div className="animate-rise-in @container flex flex-col gap-4">
-      <header>
-        <h1 className="text-[20px] font-semibold">
-          {greeting(new Date().getHours())}
-          {userName.trim() ? `, ${userName.trim()}` : ''}!
-        </h1>
-        <p className="text-[12px] text-muted">
-          {chat
-            ? `Escreva, fale ou diga “Ei, ${assistantName}” · `
-            : 'Chame de qualquer lugar com '}
-          {comboKeys(summonCombo).map((k, i) => (
-            <span key={k}>
-              {i > 0 && ' '}
-              <Kbd>{k}</Kbd>
-            </span>
-          ))}
-        </p>
+      <header className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-[20px] font-semibold">
+            {greeting(new Date().getHours())}
+            {userName.trim() ? `, ${userName.trim()}` : ''}!
+          </h1>
+          <p className="text-[12px] text-muted">
+            {chat
+              ? `Escreva, fale ou diga “Ei, ${assistantName}” · `
+              : 'Chame de qualquer lugar com '}
+            {comboKeys(summonCombo).map((k, i) => (
+              <span key={k}>
+                {i > 0 && ' '}
+                <Kbd>{k}</Kbd>
+              </span>
+            ))}
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant={editing ? 'primary' : 'ghost'}
+          onClick={() => setEditing((e) => !e)}
+          aria-pressed={editing}
+        >
+          {editing ? <Check className="size-3.5" /> : <LayoutGrid className="size-3.5" />}
+          {editing ? 'Pronto' : 'Personalizar'}
+        </Button>
       </header>
 
       {chat && (
@@ -75,13 +94,9 @@ export function HomePage({ compact, go }: PageProps) {
         </div>
       )}
 
-      <HomeCards compact={compact} go={go} />
+      <HomeCards compact={compact} go={go} editing={editing} />
 
-      {/* Sized by the panel itself (notch, hub and dock differ), not by the window. */}
-      <div className={cn('grid gap-2', compact ? 'grid-cols-1' : 'grid-cols-1 @lg:grid-cols-2')}>
-        <NowPlaying go={go} compact={compact} />
-        {chat && <RecentChat go={go} />}
-      </div>
+      {chat && <RecentChat go={go} />}
 
       {/* Fake states are for the browser gallery only, never the real app. */}
       {backend.kind === 'mock' && <PrototypeTools compact={compact} />}

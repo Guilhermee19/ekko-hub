@@ -118,6 +118,11 @@ fn run(app: &AppHandle, action: ShortcutAction) {
         ShortcutAction::Palette => {
             let _ = display::flows::toggle_palette(app);
         }
+        ShortcutAction::Capture => {
+            if let Err(err) = crate::services::capture::start(app) {
+                let _ = app.emit(TOAST_EVENT, format!("Não deu para tirar o print: {err}"));
+            }
+        }
         // Not registered while pending (see `register`); kept for when they are.
         other => {
             let phase = other.arrives_in().unwrap_or("uma próxima versão");

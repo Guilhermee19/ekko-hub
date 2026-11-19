@@ -16,6 +16,7 @@ type MediaMethods = Pick<
   | 'volumeStep'
   | 'volumeMute'
   | 'onVolumeChanged'
+  | 'onAudioLevels'
 >
 
 interface Deps {
@@ -109,5 +110,14 @@ export function mockMedia({ on, fire }: Deps): MediaMethods {
       setVolume({ level: Math.round((volume.level + delta) * 100) / 100, muted: false }),
     volumeMute: (on) => setVolume({ ...volume, muted: on }),
     onVolumeChanged: (cb) => on(VOLUME_CHANGED, (p) => cb(p as VolumeState)),
+    // The gallery has no audio: a steady fake beat (120 bpm) while "playing".
+    onAudioLevels: (cb) => {
+      const tick = window.setInterval(() => {
+        const t = Date.now() / 1000
+        const beat = Math.exp(-((t * 2) % 1) * 5)
+        cb(playing ? [beat, 0.3 + 0.3 * Math.sin(t * 3), 0.5 * beat + 0.2, 0.25] : [0, 0, 0, 0])
+      }, 33)
+      return Promise.resolve(() => window.clearInterval(tick))
+    },
   }
 }

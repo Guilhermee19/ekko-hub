@@ -16,6 +16,13 @@ export interface PillShow {
   event: boolean
 }
 
+/** Panel menu pages (ids from `surfaces/panel/nav.ts`). */
+export interface PanelMenu {
+  /** User order; pages not listed follow in the default order. */
+  order: string[]
+  hidden: string[]
+}
+
 export interface AppearanceSettings {
   /** Custom `#rrggbb` accent; null keeps the persona accent. */
   accent: string | null
@@ -36,6 +43,9 @@ export interface AppearanceSettings {
   reduceMotion: ReduceMotion
   avatarStyle: AvatarStyle
   avatarColor: AvatarColor
+  panelMenu: PanelMenu
+  /** Home cards in order (`features/home/catalog.ts`); null = default set. */
+  homeCards: string[] | null
 }
 
 export const APPEARANCE_LIMITS = {
@@ -60,4 +70,6 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   reduceMotion: 'system',
   avatarStyle: 'pill',
   avatarColor: 'accent',
+  panelMenu: { order: [], hidden: [] },
+  homeCards: null,
 }

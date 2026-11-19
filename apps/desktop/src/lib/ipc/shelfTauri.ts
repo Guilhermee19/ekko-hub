@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core'
+import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 import { SHELF_CHANGED, SHELF_DRAG_END, type ShelfBackend, type ShelfSnapshot } from './shelfTypes'
@@ -14,6 +14,8 @@ export const tauriShelf: ShelfBackend = {
   onShelfDragEnd: (cb) => listen(SHELF_DRAG_END, () => cb()),
   shelfOpen: (id) => invoke('shelf_open', { id }),
   shelfReveal: (id) => invoke('shelf_reveal', { id }),
+  // The backend allows exactly the shelved images on the asset protocol.
+  shelfPreviewUrl: (item) => convertFileSrc(item.path),
   onFileDrop: (cb) =>
     getCurrentWebview().onDragDropEvent(({ payload: p }) => {
       if (p.type === 'enter' || p.type === 'drop') cb({ type: p.type, paths: p.paths })

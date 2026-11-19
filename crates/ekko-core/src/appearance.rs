@@ -1,7 +1,9 @@
 //! Look customization on top of the persona: accent override, notch look, what the
-//! pill shows and panel scale. The frontend turns this into CSS variables.
+//! pill shows, panel scale and the panel menu. The frontend turns this into CSS variables.
 
 use serde::{Deserialize, Serialize};
+
+use crate::panel_menu::{PanelMenu, tidy};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -106,6 +108,11 @@ pub struct AppearanceSettings {
     pub reduce_motion: ReduceMotion,
     pub avatar_style: AvatarStyle,
     pub avatar_color: AvatarColor,
+    /// Pages in the panel menu and their order.
+    pub panel_menu: PanelMenu,
+    /// Cards on the home page, in order (ids from the frontend). `None` = default set;
+    /// an empty list is a home the user cleared on purpose.
+    pub home_cards: Option<Vec<String>>,
 }
 
 impl AppearanceSettings {
@@ -132,6 +139,8 @@ impl AppearanceSettings {
             }
         }
         self.pill_priority = priority;
+        self.panel_menu = self.panel_menu.sanitized();
+        self.home_cards = self.home_cards.map(tidy);
         self
     }
 }
@@ -152,6 +161,8 @@ impl Default for AppearanceSettings {
             reduce_motion: ReduceMotion::default(),
             avatar_style: AvatarStyle::default(),
             avatar_color: AvatarColor::default(),
+            panel_menu: PanelMenu::default(),
+            home_cards: None,
         }
     }
 }
@@ -221,6 +232,19 @@ mod tests {
             s.pill_priority,
             vec![PillItem::Music, PillItem::Timer, PillItem::Event]
         );
+    }
+
+    #[test]
+    fn home_cards_keep_order_and_empty_differs_from_default() {
+        let s = AppearanceSettings {
+            home_cards: Some(vec!["music".into(), "music".into(), "pc".into()]),
+            ..Default::default()
+        }
+        .sanitized();
+        assert_eq!(s.home_cards, Some(vec!["music".into(), "pc".into()]));
+        let cleared: AppearanceSettings = serde_json::from_str(r#"{"homeCards":[]}"#).unwrap();
+        assert_eq!(cleared.home_cards, Some(vec![]));
+        assert_eq!(AppearanceSettings::default().home_cards, None);
     }
 
     #[test]

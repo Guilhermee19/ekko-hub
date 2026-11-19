@@ -27,7 +27,8 @@ export const DEFAULT_GENERAL: GeneralSettings = {
   volume: 0.6,
 }
 
-export type ShortcutAction = 'summon' | 'palette' | 'ptt' | 'selection' | 'dictation' | 'interrupt'
+export type ShortcutAction =
+  'summon' | 'palette' | 'ptt' | 'selection' | 'dictation' | 'interrupt' | 'capture'
 
 export type ShortcutSettings = Record<ShortcutAction, string>
 
@@ -38,6 +39,8 @@ export const DEFAULT_SHORTCUT_SETTINGS: ShortcutSettings = {
   selection: 'Ctrl+Shift+E',
   dictation: 'Ctrl+Shift+D',
   interrupt: 'Alt+Shift+X',
+  // Alt Gr is Ctrl+Alt on Windows: "Alt Gr + Print Screen".
+  capture: 'Ctrl+Alt+PrintScreen',
 }
 
 /** `taken`: another app (or another Ekko action) owns the combo. */

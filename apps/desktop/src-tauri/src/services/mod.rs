@@ -1,5 +1,7 @@
 //! Long-running background services (state lives in `AppState`).
 
+pub mod audio_levels;
+pub mod capture;
 pub mod calendar;
 pub mod clipboard;
 pub mod fullscreen;

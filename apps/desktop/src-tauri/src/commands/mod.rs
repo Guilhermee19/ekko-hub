@@ -1,4 +1,5 @@
 pub mod appearance;
+pub mod capture;
 pub mod clipboard;
 pub mod connectors;
 pub mod display;

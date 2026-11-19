@@ -4,11 +4,11 @@
 
 ![O notch do Ekko aberto no Início](docs/screenshots/notch-home.webp)
 
-> **Versão 0.1.3, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.2.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.1.3_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.2.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -25,7 +25,8 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 | ![Pílula com timer](docs/screenshots/pill-timer.webp) | ![Pílula com música](docs/screenshots/pill-music.webp) | ![Pílula ouvindo](docs/screenshots/pill-listening.webp) |
 
 - **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o Ekko mostra um alarme na tela, com a opção "Adiar 5 min".
-- **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows.
+- **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade.
+- **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
 - **Agenda:** conectado ao Google Agenda, mostra o próximo compromisso 15 minutos antes e avisa 10 minutos antes.
 - **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
@@ -34,7 +35,7 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 
 ### Uma prateleira no notch e o histórico do que você copia
 
-- **Prateleira de arquivos:** arraste arquivos ou pastas até o notch e solte. Eles ficam guardados ali e depois saem todos juntos (ou um a um) quando você arrasta para outra pasta, o e-mail ou o chat. Você escolhe se o Ekko copia ou move.
+- **Prateleira de arquivos:** arraste arquivos ou pastas até o notch e solte (imagens aparecem com prévia). Eles ficam guardados ali e depois saem todos juntos (ou um a um) quando você arrasta para outra pasta, o e-mail ou o chat. Você escolhe se o Ekko copia ou move.
 - **Copiados:** o Ekko guarda o histórico do texto que você copia, com busca, fixar e pausar. Senhas copiadas de gerenciadores de senha ficam de fora.
 
 ### De olho no seu PC

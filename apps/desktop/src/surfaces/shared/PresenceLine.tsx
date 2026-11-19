@@ -7,6 +7,7 @@ import { useSettings } from '@/stores/settings'
 import { EkkoEyes } from '@/ui/EkkoEyes'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { Waveform } from '@/ui/Waveform'
+import { useAudioLevels } from '@/features/music/useAudioLevels'
 import { formatRemaining } from '@/lib/time'
 import { useNow } from './useNow'
 
@@ -152,7 +153,7 @@ function ActivityChip({ activity }: { activity: Activity }) {
         <Music2 className="size-3.5 shrink-0 text-accent" />
         <span className="truncate">{activity.title}</span>
         <span className="truncate text-muted">· {activity.artist}</span>
-        <Waveform bars={4} className={cn('ml-auto h-3', !activity.playing && 'opacity-30')} />
+        <MusicBars playing={activity.playing} />
       </span>
     )
   }
@@ -195,4 +196,16 @@ export function eventWhen(startsAt: number, endsAt: number, now: number): string
   if (min < 60) return `em ${min} min`
   const h = Math.floor(min / 60)
   return `em ${h}h${String(min % 60).padStart(2, '0')}`
+}
+
+/** Bars that follow the song itself (bass first), flat while paused. */
+function MusicBars({ playing }: { playing: boolean }) {
+  const levels = useAudioLevels(playing)
+  return (
+    <Waveform
+      bars={4}
+      levels={levels ?? [0, 0, 0, 0]}
+      className={cn('ml-auto h-3', !playing && 'opacity-30')}
+    />
+  )
 }

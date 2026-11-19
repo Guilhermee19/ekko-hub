@@ -4,6 +4,7 @@ import { backend, DEFAULT_APPEARANCE } from '@/lib/ipc'
 import { useSettings } from '@/stores/settings'
 import { Button, Segmented } from '@/ui/primitives'
 import { setAppearance } from './appearance/controls'
+import { MenuGroup } from './appearance/MenuGroup'
 import { NotchLookGroup } from './appearance/NotchLookGroup'
 import { PanelGroup } from './appearance/PanelGroup'
 import { PillGroup } from './appearance/PillGroup'
@@ -34,6 +35,7 @@ export function AppearancePage() {
       <NotchLookGroup />
       <PillGroup />
       <PanelGroup />
+      <MenuGroup />
 
       <section className="flex flex-col gap-6 border-t border-border-soft pt-6">
         <Field title="Lado do dock" hint="Usado no modo Dock lateral.">

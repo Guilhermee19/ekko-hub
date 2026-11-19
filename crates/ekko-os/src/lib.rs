@@ -3,6 +3,8 @@
 pub mod clipboard;
 pub mod filedrag;
 pub mod fullscreen;
+pub mod loopback;
 pub mod media;
+pub mod screen;
 pub mod system;
 pub mod volume;

@@ -1,8 +1,8 @@
 import { Files, FolderOpen, X } from 'lucide-react'
-import type { KeyboardEvent, ReactNode } from 'react'
-import type { ShelfItem, ShelfMode } from '@/lib/ipc'
+import { useState, type KeyboardEvent, type ReactNode } from 'react'
+import { backend, type ShelfItem, type ShelfMode } from '@/lib/ipc'
 import { Button, Segmented } from '@/ui/primitives'
-import { fileKind, formatSize, KIND_ICON } from './fileKind'
+import { fileKind, formatSize, KIND_ICON, previewable } from './fileKind'
 import { useShelf } from './store'
 import { useDragOut } from './useDragOut'
 
@@ -68,7 +68,10 @@ function ShelfTile({ item }: { item: ShelfItem }) {
         title={`${item.path}\n${detail} · clique duplo abre · arraste para outro lugar`}
         className="flex h-[68px] w-[76px] cursor-grab flex-col items-center justify-center gap-1 rounded-xl px-1 transition-colors hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none active:cursor-grabbing"
       >
-        <Icon className="size-6 text-accent" strokeWidth={1.5} aria-hidden />
+        <Thumb
+          item={item}
+          fallback={<Icon className="size-6 text-accent" strokeWidth={1.5} aria-hidden />}
+        />
         <span className="line-clamp-2 w-full text-center text-[10.5px] leading-tight break-all">
           {item.name}
         </span>
@@ -82,6 +85,23 @@ function ShelfTile({ item }: { item: ShelfItem }) {
         </TileAction>
       </div>
     </li>
+  )
+}
+
+/** The image itself for photos and pictures; the file-type icon otherwise. */
+function Thumb({ item, fallback }: { item: ShelfItem; fallback: ReactNode }) {
+  const [broken, setBroken] = useState(false)
+  if (broken || !previewable(item.name, item.isDir)) return fallback
+  return (
+    <img
+      src={backend.shelfPreviewUrl(item)}
+      alt=""
+      draggable={false}
+      loading="lazy"
+      decoding="async"
+      onError={() => setBroken(true)}
+      className="animate-fade-in h-9 w-12 rounded-md border border-border-soft object-cover"
+    />
   )
 }
 

@@ -29,11 +29,15 @@ export interface VolumeState {
 
 export const VOLUME_CHANGED = 'ekko://volume/changed'
 
-/** Windows volume part of `Backend`: every call returns the new state. */
+/** Music visualizer bars (0..1, bass first) from the PC's audio output, ~30/s while playing. */
+export const AUDIO_LEVELS = 'ekko://audio/levels'
+
+/** Windows audio part of `Backend`: volume calls return the new state. */
 export interface VolumeBackend {
   volumeGet(): Promise<VolumeState>
   volumeSet(level: number): Promise<VolumeState>
   volumeStep(delta: number): Promise<VolumeState>
   volumeMute(on: boolean): Promise<VolumeState>
   onVolumeChanged(cb: (state: VolumeState) => void): Promise<() => void>
+  onAudioLevels(cb: (levels: number[]) => void): Promise<() => void>
 }

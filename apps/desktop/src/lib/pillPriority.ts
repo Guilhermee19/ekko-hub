@@ -12,8 +12,8 @@ export function pickPillItem(
   return priority.find((item) => show[item] && active.includes(item)) ?? null
 }
 
-/** Moves `item` one step (-1 up, +1 down) in the priority list. */
-export function movePillItem(priority: readonly PillItem[], item: PillItem, step: -1 | 1) {
+/** Moves `item` one step (-1 up, +1 down) in an ordered list. */
+export function movePillItem<T>(priority: readonly T[], item: T, step: -1 | 1) {
   const from = priority.indexOf(item)
   const to = from + step
   if (from < 0 || to < 0 || to >= priority.length) return [...priority]
@@ -23,7 +23,7 @@ export function movePillItem(priority: readonly PillItem[], item: PillItem, step
 }
 
 /** Drag-and-drop: puts `item` where `target` is. */
-export function dropPillItem(priority: readonly PillItem[], item: PillItem, target: PillItem) {
+export function dropPillItem<T>(priority: readonly T[], item: T, target: T) {
   const rest = priority.filter((p) => p !== item)
   const at = priority.indexOf(target)
   rest.splice(at, 0, item)

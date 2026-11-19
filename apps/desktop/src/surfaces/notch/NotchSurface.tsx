@@ -1,5 +1,7 @@
 import { Pin, PinOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { PrintCard } from '@/features/capture/PrintCard'
+import { useRecentPrint } from '@/features/capture/useRecentPrint'
 import { ShelfChip, SHELF_CHIP_W } from '@/features/shelf/ShelfChip'
 import { ShelfTray } from '@/features/shelf/ShelfTray'
 import { useShelf } from '@/features/shelf/store'
@@ -45,9 +47,10 @@ export function NotchSurface() {
   const drag = useNotchDrag(toggleHeld)
   const dropping = useFileDrop()
   const shelved = useShelf((s) => s.items.length > 0)
+  const recent = useRecentPrint()
 
   const expanded = hovered || held || pinned
-  const look = notchLook(expanded, notch.idle, presence, dropping)
+  const look = notchLook(expanded, notch.idle, presence, dropping, recent.print !== null)
   const anchor = useNotchAnchor()
   const showClock = useSettings((s) => s.settings.appearance.pillShow.clock)
   const extraW = (showClock ? CLOCK_W : 0) + (shelved ? SHELF_CHIP_W : 0)
@@ -55,7 +58,7 @@ export function NotchSurface() {
   // The pill zooms its content; the box (hit rect) is already scaled, so undo it in px.
   const zoom = look === 'pill' ? pillScale : 1
   const size = canvas(notch.size)
-  const open = look === 'panel' || look === 'drop'
+  const open = look === 'panel' || look === 'drop' || look === 'print'
 
   useHitRect(box)
   useSummon(toggleHeld)
@@ -97,6 +100,15 @@ export function NotchSurface() {
             />
           )}
           {look === 'drop' && <DropZone />}
+          {look === 'print' && recent.print && (
+            <div
+              className="h-full"
+              onPointerEnter={() => recent.hold(true)}
+              onPointerLeave={() => recent.hold(false)}
+            >
+              <PrintCard key={recent.print.path} print={recent.print} onClose={recent.dismiss} />
+            </div>
+          )}
           {(look === 'pill' || look === 'panel') && (
             <div
               {...drag.handlers}
