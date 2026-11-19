@@ -53,6 +53,20 @@ pub enum AvatarStyle {
     Visor,
 }
 
+/// Outline around the notch, so its edges show on any wallpaper.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NotchOutline {
+    #[default]
+    None,
+    /// Thin accent line.
+    Line,
+    /// Accent light around it.
+    Glow,
+    /// Dark shadow (light wallpapers).
+    Shadow,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum AvatarColor {
@@ -108,6 +122,9 @@ pub struct AppearanceSettings {
     /// Pill size multiplier (box and content).
     pub notch_scale: f64,
     pub notch_border: bool,
+    pub notch_outline: NotchOutline,
+    /// 0..1 strength of `notch_outline`.
+    pub notch_outline_strength: f64,
     pub pill_show: PillShow,
     /// Always holds every `PillItem` exactly once after `sanitized()`.
     pub pill_priority: Vec<PillItem>,
@@ -132,6 +149,7 @@ impl AppearanceSettings {
     pub const GLOW: (f64, f64) = (0.0, 1.0);
     pub const SCALE: (f64, f64) = (0.85, 1.25);
     pub const FONT_SCALE: (f64, f64) = (0.9, 1.15);
+    pub const OUTLINE: (f64, f64) = (0.0, 1.0);
     pub const HOME_COLUMNS: u8 = 4;
 
     /// Clamps numbers, drops an invalid accent and repairs the priority list, so a
@@ -144,6 +162,11 @@ impl AppearanceSettings {
         self.notch_glow = clamp(self.notch_glow, Self::GLOW, d.notch_glow);
         self.notch_scale = clamp(self.notch_scale, Self::SCALE, d.notch_scale);
         self.font_scale = clamp(self.font_scale, Self::FONT_SCALE, d.font_scale);
+        self.notch_outline_strength = clamp(
+            self.notch_outline_strength,
+            Self::OUTLINE,
+            d.notch_outline_strength,
+        );
         let mut priority: Vec<PillItem> = Vec::with_capacity(PillItem::ALL.len());
         for item in self.pill_priority.into_iter().chain(PillItem::ALL) {
             if !priority.contains(&item) {
@@ -174,6 +197,8 @@ impl Default for AppearanceSettings {
             notch_glow: 0.25,
             notch_scale: 1.0,
             notch_border: true,
+            notch_outline: NotchOutline::default(),
+            notch_outline_strength: 0.5,
             pill_show: PillShow::default(),
             pill_priority: PillItem::ALL.to_vec(),
             font_scale: 1.0,

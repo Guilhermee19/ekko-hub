@@ -57,6 +57,8 @@ body,
   --notch-opacity: 1;
   --notch-glow: 0.25;
   --notch-scale: 1;
+  /* Edge marker (Aparência → Notch → Contorno); off by default. */
+  --notch-outline: 0 0 #0000;
   /* The screen bezel's own black: the notch grows out of the edge (spec P1). */
   --notch-ink: #000000;
   --notch-bg: var(--notch-ink);
@@ -79,6 +81,7 @@ body,
     border-bottom-left-radius: var(--notch-radius);
     border-bottom-right-radius: var(--notch-radius);
     background: var(--notch-aura), var(--notch-bg);
+    box-shadow: var(--notch-outline);
   }
   /* Open notch (panel, drop zone): same black, solid, rounder, with depth. */
   .notch-open {
@@ -86,7 +89,9 @@ body,
     border-bottom-left-radius: calc(var(--notch-radius) + 4px);
     border-bottom-right-radius: calc(var(--notch-radius) + 4px);
     background-color: var(--notch-ink);
-    box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.8);
+    box-shadow:
+      var(--notch-outline),
+      0 18px 50px -12px rgb(0 0 0 / 0.8);
   }
   .notch-ears::before,
   .notch-ears::after {

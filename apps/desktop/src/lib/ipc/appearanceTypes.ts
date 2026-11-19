@@ -5,6 +5,9 @@ export type ReduceMotion = 'system' | 'on' | 'off'
 /** Live activities competing for the pill; the first active one in the list wins. */
 export type PillItem = 'timer' | 'event' | 'music'
 export type AvatarStyle = 'pill' | 'round' | 'line' | 'pixel' | 'visor'
+/** Outline around the notch, so its edges show on any wallpaper. */
+export type NotchOutline = 'none' | 'line' | 'glow' | 'shadow'
+
 export type AvatarColor = 'accent' | 'strong' | 'neutral'
 
 export interface PillShow {
@@ -40,6 +43,9 @@ export interface AppearanceSettings {
   /** Pill size multiplier (0.85..1.25). */
   notchScale: number
   notchBorder: boolean
+  notchOutline: NotchOutline
+  /** 0..1 */
+  notchOutlineStrength: number
   pillShow: PillShow
   pillPriority: PillItem[]
   /** Full windows scale (0.9..1.15). */
@@ -60,6 +66,7 @@ export const APPEARANCE_LIMITS = {
   notchGlow: [0, 1],
   notchScale: [0.85, 1.25],
   fontScale: [0.9, 1.15],
+  notchOutlineStrength: [0, 1],
 } as const
 
 export const DEFAULT_APPEARANCE: AppearanceSettings = {
@@ -70,6 +77,8 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   notchGlow: 0.25,
   notchScale: 1,
   notchBorder: true,
+  notchOutline: 'none',
+  notchOutlineStrength: 0.5,
   pillShow: {
     avatar: true,
     statusDot: true,

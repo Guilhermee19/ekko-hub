@@ -16,6 +16,7 @@ const MANAGED = [
   '--notch-scale',
   '--notch-bg',
   '--notch-aura',
+  '--notch-outline',
   '--font-scale',
 ] as const
 
@@ -81,6 +82,7 @@ export function appearanceVars(persona: Persona, a: AppearanceSettings): Vars {
   vars['--notch-scale'] = String(a.notchScale)
   vars['--notch-bg'] = `color-mix(in srgb, var(--notch-ink) ${pct(a.notchOpacity)}, transparent)`
   vars['--notch-aura'] = notchAura(accent, a.notchGlow)
+  vars['--notch-outline'] = notchOutline(a.notchOutline, a.notchOutlineStrength)
   vars['--font-scale'] = String(a.fontScale)
   return vars
 }
@@ -95,6 +97,25 @@ export function notchAura(accent: string, glow: number): string {
   const blob = (x: number, color: string) =>
     `radial-gradient(70% 140% at ${x}% 150%, color-mix(in srgb, ${color} ${strength}, transparent), transparent 70%)`
   return `${blob(18, 'var(--color-accent)')}, ${blob(82, auraPartner(accent))}`
+}
+
+/**
+ * Box-shadow that marks the notch's edges (Aparência → Notch → Contorno); a no-op
+ * shadow when off, so it can always be listed with other shadows.
+ */
+export function notchOutline(kind: AppearanceSettings['notchOutline'], strength: number): string {
+  const s = Math.min(1, Math.max(0, strength))
+  const accent = (p: number) => `color-mix(in srgb, var(--color-accent) ${pct(p)}, transparent)`
+  switch (kind) {
+    case 'line':
+      return `0 0 0 ${(1 + s).toFixed(1)}px ${accent(0.35 + s * 0.6)}`
+    case 'glow':
+      return `0 0 0 1px ${accent(0.25 + s * 0.4)}, 0 0 ${Math.round(8 + s * 22)}px ${accent(0.2 + s * 0.5)}`
+    case 'shadow':
+      return `0 0 0 1px rgb(255 255 255 / ${(0.05 + s * 0.15).toFixed(2)}), 0 4px ${Math.round(10 + s * 24)}px rgb(0 0 0 / ${(0.35 + s * 0.5).toFixed(2)})`
+    default:
+      return '0 0 #0000'
+  }
 }
 
 /** Writes the appearance on `<html>`; called whenever persona or appearance change. */

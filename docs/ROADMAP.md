@@ -40,7 +40,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Área | Status no app | Detalhe |
 |---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
-| Aparência | Real | Velocidade da animação de abrir o notch, cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel, páginas do menu e a ordem delas |
+| Aparência | Real | Contorno do notch (linha, brilho ou sombra, com força), velocidade da animação de abrir o notch, cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel, páginas do menu e a ordem delas |
 | Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover, largura de 1 a 4 colunas, todos da mesma altura): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Bateria, Copiados, Prateleira, Tocando agora |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
