@@ -46,6 +46,7 @@ pub fn init(app: &AppHandle) {
         Shelf::default()
     });
     data.retain_existing(exists);
+    allow_previews(app, &data);
     app.manage(ShelfService {
         data: Mutex::new(data),
         file,
@@ -65,9 +66,21 @@ pub fn mutate(app: &AppHandle, change: impl FnOnce(&mut Shelf, u64) -> bool) -> 
         (changed, data.clone())
     };
     if changed {
+        allow_previews(app, &snapshot);
         let _ = app.emit(SHELF_CHANGED, &snapshot);
     }
     snapshot
+}
+
+/// Lets the webview read just the shelved images (asset protocol, empty scope by
+/// default), so the shelf can show them as previews. Nothing else becomes readable.
+fn allow_previews(app: &AppHandle, shelf: &Shelf) {
+    let scope = app.asset_protocol_scope();
+    for item in shelf.items.iter().filter(|i| i.previewable()) {
+        if let Err(err) = scope.allow_file(&item.path) {
+            eprintln!("[ekko] prévia de {} indisponível: {err}", item.name);
+        }
+    }
 }
 
 pub fn exists(path: &str) -> bool {

@@ -40,7 +40,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 |---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
 | Aparência | Real | Cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel |
-| Início | Real | Cards de água, tarefas, avisos e timers com dados reais e música |
+| Início | Real | Cards escolhidos pelo usuário (adicionar, mover, remover) com dados reais |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
@@ -137,6 +137,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Copiados real: histórico do clipboard do Windows salvo em `clipboard.json`
 - [x] Barras da música seguem o som de verdade (captura do que o PC toca, 4 faixas: grave a agudo)
 - [x] Menu do painel configurável: mostrar/esconder páginas e mudar a ordem (*Aparência → Menu*)
+- [x] Início personalizável: adicionar, mover e remover cards (Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Copiados, Prateleira, Tocando agora)
+- [x] Prateleira mostra a prévia das imagens soltas no notch
+- [x] Verificar meu PC com nota de saúde, cartões por verificação e animações
 - [ ] Testar o login real do Spotify e do Google com as credenciais do Guilherme
 - [ ] **Aprovação F1.5**
 

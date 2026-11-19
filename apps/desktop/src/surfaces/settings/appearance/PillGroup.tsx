@@ -1,8 +1,8 @@
 import { ArrowDown, ArrowUp, GripVertical } from 'lucide-react'
-import { useState } from 'react'
 import type { PillItem, PillShow } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
-import { dropPillItem, movePillItem } from '@/lib/pillPriority'
+import { movePillItem } from '@/lib/pillPriority'
+import { useSortable } from '@/lib/useSortable'
 import { Card, IconButton } from '@/ui/primitives'
 import { Field } from '../Field'
 import { Group, setAppearance, ToggleRow, useAppearance } from './controls'
@@ -55,29 +55,21 @@ export function PillGroup() {
 }
 
 function PriorityList({ priority }: { priority: PillItem[] }) {
-  const [dragging, setDragging] = useState<PillItem | null>(null)
   const save = (pillPriority: PillItem[]) => setAppearance({ pillPriority })
+  const sort = useSortable(priority, save)
 
   return (
     <ol className="flex max-w-sm flex-col gap-1.5" aria-label="Prioridade da pílula">
-      {priority.map((item, i) => (
+      {sort.list.map((item, i) => (
         <li
           key={item}
-          draggable
-          onDragStart={(e) => {
-            setDragging(item)
-            e.dataTransfer.effectAllowed = 'move'
-          }}
-          onDragEnd={() => setDragging(null)}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            if (dragging && dragging !== item) save(dropPillItem(priority, dragging, item))
-            setDragging(null)
-          }}
+          ref={sort.itemRef(item)}
+          {...sort.handle(item)}
           className={cn(
-            'flex cursor-grab items-center gap-2 rounded-lg border bg-surface px-2 py-1.5',
-            dragging === item ? 'border-accent/50 opacity-60' : 'border-border-soft',
+            'flex cursor-grab touch-none items-center gap-2 rounded-lg border bg-surface px-2 py-1.5 transition-colors select-none',
+            sort.dragging === item
+              ? 'border-dashed border-accent/60 bg-accent/5 [&>*]:opacity-30'
+              : 'border-border-soft',
           )}
         >
           <GripVertical className="size-4 text-muted" aria-hidden />

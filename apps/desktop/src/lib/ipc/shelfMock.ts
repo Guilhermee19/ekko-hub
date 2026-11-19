@@ -68,6 +68,12 @@ export function mockShelf({ on, fire }: Bus): ShelfBackend {
   }
   const done = () => Promise.resolve()
   return {
+    // No real files in the browser: a gradient stands in for the photo.
+    shelfPreviewUrl: (it) => {
+      const hue = [...it.name].reduce((h, c) => h + c.charCodeAt(0), 0) % 360
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="hsl(${hue} 70% 55%)"/><stop offset="1" stop-color="hsl(${hue + 60} 70% 30%)"/></linearGradient></defs><rect width="4" height="3" fill="url(#g)"/><circle cx="3" cy=".8" r=".4" fill="#fff8"/></svg>`
+      return `data:image/svg+xml,${encodeURIComponent(svg)}`
+    },
     shelfList: () => Promise.resolve(state),
     onShelfChanged: (cb) => on(SHELF_CHANGED, (s) => cb(s as ShelfSnapshot)),
     shelfAdd: (paths) => {

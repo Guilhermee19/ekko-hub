@@ -44,6 +44,8 @@ export interface AppearanceSettings {
   avatarStyle: AvatarStyle
   avatarColor: AvatarColor
   panelMenu: PanelMenu
+  /** Home cards in order (`features/home/catalog.ts`); null = default set. */
+  homeCards: string[] | null
 }
 
 export const APPEARANCE_LIMITS = {
@@ -69,4 +71,5 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   avatarStyle: 'pill',
   avatarColor: 'accent',
   panelMenu: { order: [], hidden: [] },
+  homeCards: null,
 }

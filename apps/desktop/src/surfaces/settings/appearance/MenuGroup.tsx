@@ -1,8 +1,8 @@
 import { ArrowDown, ArrowUp, GripVertical, RotateCcw } from 'lucide-react'
-import { useState } from 'react'
 import type { PanelMenu } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
-import { dropPillItem, movePillItem } from '@/lib/pillPriority'
+import { movePillItem } from '@/lib/pillPriority'
+import { useSortable } from '@/lib/useSortable'
 import { menuRows, setPageVisible } from '@/surfaces/panel/menu'
 import type { PageId } from '@/surfaces/panel/nav'
 import { Toggle } from '@/ui/forms'
@@ -14,10 +14,11 @@ import { Group, setAppearance, useAppearance } from './controls'
 export function MenuGroup() {
   const menu = useAppearance().panelMenu
   const rows = menuRows(menu)
-  const [dragging, setDragging] = useState<PageId | null>(null)
   const save = (panelMenu: PanelMenu) => setAppearance({ panelMenu })
   const order = rows.map((r) => r.item.id)
   const reorder = (next: PageId[]) => save({ ...menu, order: next })
+  const sort = useSortable(order, reorder)
+  const byId = new Map(rows.map((r) => [r.item.id, r]))
   const custom = menu.order.length > 0 || menu.hidden.length > 0
 
   return (
@@ -27,27 +28,19 @@ export function MenuGroup() {
         hint="Desligue o que não usa e arraste para mudar a ordem. Na bandeja e na bolha, as 5 primeiras ficam à vista e o resto vai para Mais."
       >
         <ol className="flex max-w-md flex-col gap-1.5" aria-label="Páginas do menu">
-          {rows.map(({ item, visible }, i) => {
+          {sort.list.map((id, i) => {
+            const { item, visible } = byId.get(id) as (typeof rows)[number]
             const Icon = item.icon
             return (
               <li
                 key={item.id}
-                draggable
-                onDragStart={(e) => {
-                  setDragging(item.id)
-                  e.dataTransfer.effectAllowed = 'move'
-                }}
-                onDragEnd={() => setDragging(null)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  if (dragging && dragging !== item.id)
-                    reorder(dropPillItem(order, dragging, item.id))
-                  setDragging(null)
-                }}
+                ref={sort.itemRef(item.id)}
+                {...sort.handle(item.id)}
                 className={cn(
-                  'flex cursor-grab items-center gap-2 rounded-lg border bg-surface px-2 py-1.5',
-                  dragging === item.id ? 'border-accent/50 opacity-60' : 'border-border-soft',
+                  'flex cursor-grab touch-none items-center gap-2 rounded-lg border bg-surface px-2 py-1.5 transition-colors select-none',
+                  sort.dragging === item.id
+                    ? 'border-dashed border-accent/60 bg-accent/5 [&>*]:opacity-30'
+                    : 'border-border-soft',
                 )}
               >
                 <GripVertical className="size-4 text-muted" aria-hidden />

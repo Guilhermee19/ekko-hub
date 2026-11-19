@@ -25,8 +25,8 @@ impl PanelMenu {
     }
 }
 
-/// Drops duplicates and anything that can't be a page id.
-fn tidy(ids: Vec<String>) -> Vec<String> {
+/// Drops duplicates and anything that can't be a page or card id.
+pub(crate) fn tidy(ids: Vec<String>) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
     for id in ids {
         let id = id.trim().to_owned();

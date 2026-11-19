@@ -112,6 +112,21 @@ impl Shelf {
     }
 }
 
+/// Image types the webview can draw, so the shelf may show the file itself as preview.
+pub fn previewable(name: &str) -> bool {
+    const EXT: [&str; 9] = [
+        "png", "jpg", "jpeg", "gif", "webp", "bmp", "svg", "ico", "avif",
+    ];
+    name.rsplit_once('.')
+        .is_some_and(|(_, ext)| EXT.iter().any(|e| ext.eq_ignore_ascii_case(e)))
+}
+
+impl ShelfItem {
+    pub fn previewable(&self) -> bool {
+        !self.is_dir && previewable(&self.name)
+    }
+}
+
 fn same_path(a: &str, b: &str) -> bool {
     let norm = |p: &str| p.trim_end_matches(['\\', '/']).replace('/', "\\");
     norm(a).eq_ignore_ascii_case(&norm(b))
@@ -120,6 +135,15 @@ fn same_path(a: &str, b: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_web_images_are_previewable() {
+        assert!(previewable("Foto.JPG"));
+        assert!(previewable("logo.svg"));
+        assert!(!previewable("raw.heic"));
+        assert!(!previewable("png"));
+        assert!(!previewable("notes.txt"));
+    }
 
     fn file(path: &str) -> FileEntry {
         FileEntry {

@@ -1,82 +1,57 @@
-import { AlertTriangle, Check, Circle, Info, Loader2, Wrench } from 'lucide-react'
-import { useState } from 'react'
+import { Check, ExternalLink, FileX2, Loader2, Trash2, Wrench, type LucideIcon } from 'lucide-react'
+import { useState, type CSSProperties } from 'react'
 import type { ScanAction } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { Button } from '@/ui/primitives'
 import { applyAction } from './actions'
 import { formatBytes } from './metrics'
-import { useMyPc, type ScanStep, type StepStatus } from './store'
+import { freeableBytes, statusCounts } from './score'
+import { useMyPc } from './store'
 
-/** Items listed under a finding before "ver mais". */
-const ITEMS = 3
-
-export function StepRow({ step }: { step: ScanStep }) {
-  const [more, setMore] = useState(false)
-  const items = step.check?.items ?? []
-  const shown = more ? items : items.slice(0, ITEMS)
+/** Chips under the ring: how many checks passed, need attention, and space to free. */
+export function ScanSummary() {
+  const steps = useMyPc((s) => s.steps)
+  const applied = useMyPc((s) => s.applied)
+  const { ok, warn, info } = statusCounts(steps)
+  const free = freeableBytes(steps, applied)
+  const chips = [
+    ok > 0 && { text: `${ok} em ordem`, tone: 'text-accent bg-accent/10' },
+    warn > 0 && {
+      text: `${warn} ${warn === 1 ? 'pede' : 'pedem'} atenção`,
+      tone: 'text-danger bg-danger/10',
+    },
+    info > 0 && { text: `${info} para saber`, tone: 'text-muted bg-surface-hover' },
+    free > 0 && {
+      text: `até ${formatBytes(free)} para liberar`,
+      tone: 'text-content bg-accent/15',
+    },
+  ].filter((c): c is { text: string; tone: string } => Boolean(c))
   return (
-    <li className="flex items-start gap-2">
-      <StepIcon status={step.status} />
-      <div className="min-w-0 flex-1">
-        <div
-          className={cn('text-[12px]', step.status === 'pending' ? 'text-muted' : 'text-content')}
+    <div className="flex flex-wrap gap-1.5">
+      {chips.map((c, i) => (
+        <span
+          key={c.text}
+          style={{ '--i': i } as CSSProperties}
+          className={cn('scan-enter rounded-full px-2.5 py-0.5 text-[11.5px] font-medium', c.tone)}
         >
-          {step.label}
-        </div>
-        {step.check && (
-          <div className="animate-rise-in text-[11px] text-muted">{step.check.finding}</div>
-        )}
-        {shown.length > 0 && (
-          <ul className="mt-1 flex flex-col gap-0.5">
-            {shown.map((item, i) => (
-              <li key={i} className="flex justify-between gap-2 text-[11px]">
-                <span className={cn('truncate', item.warn ? 'text-danger' : 'text-content/80')}>
-                  {item.label}
-                </span>
-                <span className="shrink-0 truncate text-muted" title={item.detail}>
-                  {item.detail}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {items.length > ITEMS && (
-          <button
-            type="button"
-            onClick={() => setMore((m) => !m)}
-            className="mt-0.5 text-[11px] text-accent hover:underline"
-          >
-            {more ? 'ver menos' : `ver todos (${items.length})`}
-          </button>
-        )}
-      </div>
-    </li>
+          {c.text}
+        </span>
+      ))}
+    </div>
   )
 }
 
-function StepIcon({ status }: { status: StepStatus }) {
-  const base = 'mt-px size-3.5 shrink-0'
-  if (status === 'running')
-    return (
-      <Loader2
-        className={cn(base, 'text-accent motion-safe:animate-spin')}
-        aria-label="Verificando"
-      />
-    )
-  if (status === 'ok') return <Check className={cn(base, 'text-accent')} aria-label="Ok" />
-  if (status === 'warn')
-    return <AlertTriangle className={cn(base, 'text-danger')} aria-label="Atenção" />
-  if (status === 'info') return <Info className={cn(base, 'text-muted')} aria-label="Informação" />
-  return <Circle className={cn(base, 'text-muted/60')} aria-label="Pendente" />
+const ACTION: Record<ScanAction['kind'], { icon: LucideIcon; title: string; button: string }> = {
+  cleanTemp: { icon: FileX2, title: 'Limpar temporários', button: 'Limpar' },
+  emptyRecycleBin: { icon: Trash2, title: 'Esvaziar a lixeira', button: 'Esvaziar' },
+  openStartup: {
+    icon: ExternalLink,
+    title: 'Revisar programas de inicialização',
+    button: 'Abrir',
+  },
 }
 
-function actionLabel(action: ScanAction): string {
-  if (action.kind === 'cleanTemp') return `Limpar temporários (${formatBytes(action.bytes)})`
-  if (action.kind === 'emptyRecycleBin') return `Esvaziar lixeira (${formatBytes(action.bytes)})`
-  return 'Abrir programas de inicialização'
-}
-
-/** Buttons for the checks that came back with a suggested action. */
+/** Cards for the checks that came back with a suggested action. */
 export function Suggestions() {
   const steps = useMyPc((s) => s.steps)
   const applied = useMyPc((s) => s.applied)
@@ -92,31 +67,58 @@ export function Suggestions() {
   }
 
   return (
-    <div className="animate-rise-in mt-3 border-t border-border-soft pt-3">
+    <div className="mt-4 border-t border-border-soft pt-3">
       <div className="label-hud mb-2 flex items-center gap-1.5">
         <Wrench className="size-3" aria-hidden /> Sugestões
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {fixes.map(({ id, action }) => {
+      <ul className="flex flex-col gap-1.5">
+        {fixes.map(({ id, action }, i) => {
           const done = applied.includes(id)
+          const meta = ACTION[action.kind]
+          const Icon = meta.icon
           return (
-            <Button
+            <li
               key={id}
-              variant={done ? 'ghost' : 'subtle'}
-              disabled={done || busy !== null}
-              onClick={() => run(id, action)}
-              className="text-[12px]"
+              style={{ '--i': i + 2 } as CSSProperties}
+              className={cn(
+                'scan-enter flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors duration-300',
+                done ? 'border-accent/30 bg-accent/5' : 'border-border-soft',
+              )}
             >
-              {done && <Check className="size-3.5" aria-hidden />}
-              {busy === id && <Loader2 className="size-3.5 motion-safe:animate-spin" aria-hidden />}
-              {actionLabel(action)}
-            </Button>
+              <span className="grid size-7 shrink-0 place-items-center rounded-md bg-accent/12 text-accent">
+                {done ? (
+                  <Check className="scan-pop size-3.5" strokeWidth={3} aria-hidden />
+                ) : (
+                  <Icon className="size-3.5" aria-hidden />
+                )}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[12.5px] font-medium">{meta.title}</span>
+                <span className="block text-[11px] text-muted">
+                  {done
+                    ? 'Feito'
+                    : action.kind === 'openStartup'
+                      ? 'Desative o que não precisa na tela do Windows'
+                      : `Libera ${formatBytes(action.bytes)}`}
+                </span>
+              </span>
+              {!done && (
+                <Button
+                  size="sm"
+                  variant={action.kind === 'openStartup' ? 'ghost' : 'subtle'}
+                  disabled={busy !== null}
+                  onClick={() => run(id, action)}
+                >
+                  {busy === id && (
+                    <Loader2 className="size-3.5 motion-safe:animate-spin" aria-hidden />
+                  )}
+                  {meta.button}
+                </Button>
+              )}
+            </li>
           )
         })}
-      </div>
-      <p className="mt-2 text-[11px] text-muted">
-        O Ekko só lista os programas de inicialização; desative-os pela tela do Windows.
-      </p>
+      </ul>
     </div>
   )
 }

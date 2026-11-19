@@ -43,4 +43,6 @@ export interface ShelfBackend {
   shelfOpen(id: string): Promise<void>
   shelfReveal(id: string): Promise<void>
   onFileDrop(cb: (e: FileDropEvent) => void): Promise<Unlisten>
+  /** URL the webview can show for a shelved image (only call for previewable files). */
+  shelfPreviewUrl(item: ShelfItem): string
 }
