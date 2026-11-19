@@ -60,6 +60,11 @@ pub fn step(delta: f32) -> Result<VolumeState> {
     imp::set(stepped(now.level, delta), None)
 }
 
+/// Whether the default microphone is muted; None when there is no microphone.
+pub fn mic_muted() -> Option<bool> {
+    imp::mic_muted()
+}
+
 pub fn set_muted(muted: bool) -> Result<VolumeState> {
     let now = get()?;
     imp::set(now.level, Some(muted))
@@ -69,7 +74,7 @@ pub fn set_muted(muted: bool) -> Result<VolumeState> {
 mod imp {
     use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
     use windows::Win32::Media::Audio::{
-        IMMDeviceEnumerator, MMDeviceEnumerator, eConsole, eRender,
+        EDataFlow, IMMDeviceEnumerator, MMDeviceEnumerator, eCapture, eConsole, eRender,
     };
     use windows::Win32::System::Com::{
         CLSCTX_ALL, COINIT_MULTITHREADED, CoCreateInstance, CoInitializeEx, CoUninitialize,
@@ -103,11 +108,24 @@ mod imp {
     fn with_endpoint<T>(
         job: impl FnOnce(&IAudioEndpointVolume) -> windows::core::Result<T>,
     ) -> Result<T> {
+        with_flow(eRender, job)
+    }
+
+    pub fn mic_muted() -> Option<bool> {
+        with_flow(eCapture, |e| unsafe { e.GetMute() })
+            .ok()
+            .map(|m| m.as_bool())
+    }
+
+    fn with_flow<T>(
+        flow: EDataFlow,
+        job: impl FnOnce(&IAudioEndpointVolume) -> windows::core::Result<T>,
+    ) -> Result<T> {
         let _com = Com::init();
         let run = || -> windows::core::Result<T> {
             let devices: IMMDeviceEnumerator =
                 unsafe { CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)? };
-            let device = unsafe { devices.GetDefaultAudioEndpoint(eRender, eConsole)? };
+            let device = unsafe { devices.GetDefaultAudioEndpoint(flow, eConsole)? };
             let endpoint: IAudioEndpointVolume = unsafe { device.Activate(CLSCTX_ALL, None)? };
             job(&endpoint)
         };
@@ -145,6 +163,10 @@ mod imp {
 
     pub fn set(_: f32, _: Option<bool>) -> Result<VolumeState> {
         Err(VolumeError::Unsupported)
+    }
+
+    pub fn mic_muted() -> Option<bool> {
+        None
     }
 }
 

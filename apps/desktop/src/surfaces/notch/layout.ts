@@ -29,6 +29,11 @@ export function pillWidth(p: Presence): number {
       return 220
     case 'volume':
       return 240
+    case 'hud':
+      // Levels show a bar; messages need room for their text (low battery is long).
+      return p.activity.level !== undefined
+        ? 240
+        : Math.min(420, 110 + Math.round(p.activity.label.length * 6.6))
     default:
       return 150
   }

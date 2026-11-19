@@ -66,12 +66,15 @@ export function StatCard({ icon: Icon, label, value, sub, progress, onClick }: S
         onClick && 'transition-colors hover:border-accent/30 hover:bg-surface-hover',
       )}
     >
-      <span className="flex items-center gap-1.5 text-muted">
-        <Icon className="size-3.5" />
-        <span className="label-hud">{label}</span>
+      <span className="flex min-w-0 items-center gap-1.5 text-muted">
+        <Icon className="size-3.5 shrink-0" />
+        <span className="label-hud truncate">{label}</span>
       </span>
-      <span className="text-[20px] font-semibold tabular-nums">{value}</span>
-      {sub && <span className="text-[11px] text-muted">{sub}</span>}
+      {/* Narrow cards (1 of 4 columns) cut long text instead of breaking the layout. */}
+      <span className="truncate text-[20px] font-semibold tabular-nums">{value}</span>
+      {sub && (
+        <span className="line-clamp-2 min-w-0 text-[11px] break-words text-muted">{sub}</span>
+      )}
       {progress !== undefined && (
         <span className="absolute inset-x-0 bottom-0 h-0.5 bg-border-soft">
           <span

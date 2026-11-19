@@ -11,6 +11,7 @@ import {
 import { useEffect, type ComponentType } from 'react'
 import { nextEvent, relative } from '@/features/calendar/agenda'
 import { useCalendar } from '@/features/calendar/store'
+import { BatteryCard } from '@/features/hud/BatteryCard'
 import { useClipboard } from '@/features/clipboard/store'
 import { useHabits } from '@/features/habits/store'
 import { connectSystem, useMyPc } from '@/features/mypc/store'
@@ -195,6 +196,7 @@ export const CARD_VIEW: Record<HomeCardId, ComponentType<CardProps>> = {
   timers: TimersCard,
   agenda: AgendaCard,
   pc: PcCard,
+  battery: BatteryCard,
   clipboard: ClipboardCard,
   shelf: ShelfCard,
   music: MusicCard,

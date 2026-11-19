@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { backend, type VolumeState } from '@/lib/ipc'
 import { useSpotify } from '@/features/spotify/store'
-import { useAssistant, type Activity } from '@/stores/assistant'
+import { alertMs, flashActivity } from '@/features/hud/flash'
+import { useSettings } from '@/stores/settings'
 import { coalesce } from './coalesce'
 import { volumeTarget, type Player, type VolumeTarget } from './nowPlaying'
 import { useMusic } from './store'
@@ -9,9 +10,6 @@ import { useMusic } from './store'
 // One volume slider, two targets: Spotify's device volume when Spotify is the player
 // (and connected), otherwise the Windows master volume, which works with no login.
 // Changes made through Ekko flash the notch's volume pill.
-
-/** How long the notch shows the volume pill after a change. */
-export const VOLUME_PILL_MS = 2500
 
 const useWindowsVolume = create<VolumeState>(() => ({ level: 0, muted: false }))
 
@@ -22,8 +20,32 @@ function adopt(state: VolumeState) {
   useWindowsVolume.setState(state)
 }
 
-backend.onVolumeChanged(adopt).catch(report)
-backend.volumeGet().then(adopt, report)
+/** Our own last change: the OS echo of it must not flash again. */
+let ownChangeAt = 0
+let known = false
+/** Only the window with the pill (notch/dock) reacts, or every window would flash. */
+let reactToOs = false
+
+export function reactToOsVolume() {
+  reactToOs = true
+}
+
+/** Volume changed outside Ekko (keyboard keys, Windows flyout): flash the pill. */
+function fromOs(state: VolumeState) {
+  const before = useWindowsVolume.getState()
+  adopt(state)
+  const moved = before.muted !== state.muted || Math.abs(before.level - state.level) >= 0.005
+  const ours = Date.now() - ownChangeAt < 800
+  const on = useSettings.getState().settings.appearance.pillShow.system
+  if (reactToOs && known && moved && !ours && on) flashVolume(state.muted ? 0 : state.level)
+  known = true
+}
+
+backend.onVolumeChanged(fromOs).catch(report)
+backend.volumeGet().then((s) => {
+  adopt(s)
+  known = true
+}, report)
 
 function player(track: unknown, viaSpotify: boolean): Player {
   return track === null ? 'none' : viaSpotify ? 'spotify' : 'other'
@@ -36,26 +58,14 @@ function currentTarget(): VolumeTarget {
   return volumeTarget(spotify.connected, player(track, viaSpotify), volume)
 }
 
-let pillTimer: ReturnType<typeof setTimeout> | undefined
-/** What the pill replaced (an explicit activity), restored when it goes away. */
-let underneath: Activity | null = null
-
 /** Transient notch pill; clears itself unless another change replaced it. */
 export function flashVolume(level: number) {
-  const assistant = useAssistant.getState()
-  if (assistant.activity?.kind !== 'volume') underneath = assistant.activity
-  assistant.set({ activity: { kind: 'volume', level } })
-  clearTimeout(pillTimer)
-  pillTimer = setTimeout(() => {
-    const now = useAssistant.getState()
-    if (now.activity?.kind === 'volume' && now.activity.level === level)
-      now.set({ activity: underneath })
-    underneath = null
-  }, VOLUME_PILL_MS)
+  flashActivity({ kind: 'volume', level }, alertMs())
 }
 
 /** Sets the volume (0..1) on the current target. */
 export function setVolume(level: number) {
+  ownChangeAt = Date.now()
   const v = Math.min(1, Math.max(0, level))
   flashVolume(v)
   if (currentTarget() === 'spotify') {
@@ -70,6 +80,7 @@ let beforeMute = 0.5
 
 /** Windows: real mute. Spotify (no mute in its API): volume 0 and back. */
 export function toggleMute() {
+  ownChangeAt = Date.now()
   if (currentTarget() === 'spotify') {
     const percent = useSpotify.getState().playback?.device?.volume ?? 0
     if (percent > 0) beforeMute = percent / 100

@@ -1,6 +1,8 @@
 //! Look customization on top of the persona: accent override, notch look, what the
 //! pill shows, panel scale and the panel menu. The frontend turns this into CSS variables.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::panel_menu::{PanelMenu, tidy};
@@ -70,6 +72,10 @@ pub struct PillShow {
     pub timer: bool,
     pub music: bool,
     pub event: bool,
+    /// Battery of the laptop and of Bluetooth headsets, next to the clock.
+    pub battery: bool,
+    /// Quick flashes when Caps Lock, mic, brightness, volume or power change.
+    pub system: bool,
 }
 
 impl Default for PillShow {
@@ -81,6 +87,8 @@ impl Default for PillShow {
             timer: true,
             music: true,
             event: true,
+            battery: true,
+            system: true,
         }
     }
 }
@@ -113,6 +121,9 @@ pub struct AppearanceSettings {
     /// Cards on the home page, in order (ids from the frontend). `None` = default set;
     /// an empty list is a home the user cleared on purpose.
     pub home_cards: Option<Vec<String>>,
+    /// Columns each home card takes (1..=4, the home is a 4-column grid); cards not
+    /// listed use their default width.
+    pub home_widths: BTreeMap<String, u8>,
 }
 
 impl AppearanceSettings {
@@ -121,6 +132,7 @@ impl AppearanceSettings {
     pub const GLOW: (f64, f64) = (0.0, 1.0);
     pub const SCALE: (f64, f64) = (0.85, 1.25);
     pub const FONT_SCALE: (f64, f64) = (0.9, 1.15);
+    pub const HOME_COLUMNS: u8 = 4;
 
     /// Clamps numbers, drops an invalid accent and repairs the priority list, so a
     /// hand-edited file can never make the notch invisible.
@@ -141,6 +153,13 @@ impl AppearanceSettings {
         self.pill_priority = priority;
         self.panel_menu = self.panel_menu.sanitized();
         self.home_cards = self.home_cards.map(tidy);
+        self.home_widths = self
+            .home_widths
+            .into_iter()
+            .filter(|(id, _)| !id.is_empty() && id.len() <= 32)
+            .take(64)
+            .map(|(id, w)| (id, w.clamp(1, Self::HOME_COLUMNS)))
+            .collect();
         self
     }
 }
@@ -163,6 +182,7 @@ impl Default for AppearanceSettings {
             avatar_color: AvatarColor::default(),
             panel_menu: PanelMenu::default(),
             home_cards: None,
+            home_widths: BTreeMap::new(),
         }
     }
 }
@@ -245,6 +265,16 @@ mod tests {
         let cleared: AppearanceSettings = serde_json::from_str(r#"{"homeCards":[]}"#).unwrap();
         assert_eq!(cleared.home_cards, Some(vec![]));
         assert_eq!(AppearanceSettings::default().home_cards, None);
+    }
+
+    #[test]
+    fn home_widths_stay_within_the_grid() {
+        let s: AppearanceSettings =
+            serde_json::from_str(r#"{"homeWidths":{"music":9,"pc":0,"tasks":2}}"#).unwrap();
+        let s = s.sanitized();
+        assert_eq!(s.home_widths["music"], 4);
+        assert_eq!(s.home_widths["pc"], 1);
+        assert_eq!(s.home_widths["tasks"], 2);
     }
 
     #[test]

@@ -839,6 +839,7 @@ name = "ekko-os"
 version = "0.2.0"
 dependencies = [
  "base64 0.23.1",
+ "ekko-core",
  "serde",
  "serde_json",
  "sysinfo",

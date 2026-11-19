@@ -14,6 +14,10 @@ export interface PillShow {
   timer: boolean
   music: boolean
   event: boolean
+  /** Battery of the laptop and Bluetooth headsets, next to the clock. */
+  battery: boolean
+  /** Quick flashes when Caps Lock, mic, brightness, volume or power change. */
+  system: boolean
 }
 
 /** Panel menu pages (ids from `surfaces/panel/nav.ts`). */
@@ -46,6 +50,8 @@ export interface AppearanceSettings {
   panelMenu: PanelMenu
   /** Home cards in order (`features/home/catalog.ts`); null = default set. */
   homeCards: string[] | null
+  /** Columns each home card takes (1..4); missing = the card's default. */
+  homeWidths: Record<string, number>
 }
 
 export const APPEARANCE_LIMITS = {
@@ -64,7 +70,16 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   notchGlow: 0.25,
   notchScale: 1,
   notchBorder: true,
-  pillShow: { avatar: true, statusDot: true, clock: false, timer: true, music: true, event: true },
+  pillShow: {
+    avatar: true,
+    statusDot: true,
+    clock: false,
+    timer: true,
+    music: true,
+    event: true,
+    battery: true,
+    system: true,
+  },
   pillPriority: ['timer', 'event', 'music'],
   fontScale: 1,
   reduceMotion: 'system',
@@ -72,4 +87,5 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   avatarColor: 'accent',
   panelMenu: { order: [], hidden: [] },
   homeCards: null,
+  homeWidths: {},
 }

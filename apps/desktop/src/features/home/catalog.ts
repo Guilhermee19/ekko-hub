@@ -1,5 +1,6 @@
 import {
   AlarmClock,
+  BatteryMedium,
   CalendarDays,
   Clipboard,
   Cpu,
@@ -12,15 +13,24 @@ import {
 } from 'lucide-react'
 
 export type HomeCardId =
-  'water' | 'tasks' | 'reminders' | 'timers' | 'agenda' | 'pc' | 'clipboard' | 'shelf' | 'music'
+  | 'water'
+  | 'tasks'
+  | 'reminders'
+  | 'timers'
+  | 'agenda'
+  | 'pc'
+  | 'battery'
+  | 'clipboard'
+  | 'shelf'
+  | 'music'
 
 export interface HomeCardMeta {
   id: HomeCardId
   label: string
   hint: string
   icon: LucideIcon
-  /** Takes the whole row (the mini player). */
-  wide?: boolean
+  /** Default columns in the 4-column home (1 when missing). */
+  width?: HomeWidth
 }
 
 /** Every card the home can show, in the order "Adicionar" lists them. */
@@ -31,10 +41,21 @@ export const HOME_CARDS: HomeCardMeta[] = [
   { id: 'timers', label: 'Timers', hint: 'O timer que acaba primeiro', icon: Timer },
   { id: 'agenda', label: 'Agenda', hint: 'Próximo compromisso do Google', icon: CalendarDays },
   { id: 'pc', label: 'Meu PC', hint: 'Processador e memória ao vivo', icon: Cpu },
+  {
+    id: 'battery',
+    label: 'Bateria',
+    hint: 'Notebook, fones, mouse e teclado Bluetooth',
+    icon: BatteryMedium,
+    width: 2,
+  },
   { id: 'clipboard', label: 'Copiados', hint: 'A última coisa copiada', icon: Clipboard },
   { id: 'shelf', label: 'Prateleira', hint: 'Arquivos guardados no notch', icon: Files },
-  { id: 'music', label: 'Tocando agora', hint: 'Mini player com capa', icon: Music2, wide: true },
+  { id: 'music', label: 'Tocando agora', hint: 'Mini player com capa', icon: Music2, width: 2 },
 ]
+
+/** The home is a 4-column grid (2 in the narrow panel). */
+export type HomeWidth = 1 | 2 | 3 | 4
+export const HOME_COLUMNS = 4
 
 export const DEFAULT_HOME: HomeCardId[] = ['water', 'tasks', 'reminders', 'timers', 'music']
 
@@ -50,6 +71,24 @@ export function homeLayout(saved: readonly string[] | null): HomeCardId[] {
     if (META.has(id as HomeCardId) && !out.includes(id as HomeCardId)) out.push(id as HomeCardId)
   }
   return out
+}
+
+/** Columns a card takes: the user's choice, else its default; always 1..4. */
+export function cardWidth(id: HomeCardId, saved: Readonly<Record<string, number>>): HomeWidth {
+  const w = saved[id] ?? cardMeta(id).width ?? 1
+  return Math.min(HOME_COLUMNS, Math.max(1, Math.round(w))) as HomeWidth
+}
+
+/** Grid classes per width; the narrow (2-column) layout caps everything at 2. */
+const SPAN: Record<HomeWidth, string> = {
+  1: 'col-span-1',
+  2: 'col-span-2',
+  3: 'col-span-2 @lg:col-span-3',
+  4: 'col-span-2 @lg:col-span-4',
+}
+
+export function spanClass(width: HomeWidth, compact: boolean): string {
+  return compact ? (width === 1 ? 'col-span-1' : 'col-span-2') : SPAN[width]
 }
 
 /** Cards not on the home yet, for "Adicionar card". */

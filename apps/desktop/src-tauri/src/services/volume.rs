@@ -11,7 +11,8 @@ use tauri::{AppHandle, Emitter, Manager};
 
 /// `VolumeState` whenever the level or mute changes.
 pub const VOLUME_CHANGED: &str = "ekko://volume/changed";
-const POLL: Duration = Duration::from_secs(1);
+// Fast enough that the volume keys flash the notch right away; reading is cheap.
+const POLL: Duration = Duration::from_millis(250);
 
 /// Last value sent to the UI (shared with the commands so they don't echo twice).
 #[derive(Default)]

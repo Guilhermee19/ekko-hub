@@ -14,6 +14,7 @@ import type { ProductivityBackend } from './productivityTypes'
 import type { ClipboardBackend } from './clipboardTypes'
 import type { ShelfBackend } from './shelfTypes'
 import type { CaptureBackend } from './captureTypes'
+import type { HudBackend } from './hudTypes'
 import type { SystemBackend } from './systemTypes'
 
 export * from './appearanceTypes'
@@ -25,6 +26,7 @@ export * from './systemTypes'
 export * from './clipboardTypes'
 export * from './shelfTypes'
 export * from './captureTypes'
+export * from './hudTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
 export type Persona = 'ekko' | 'ultron' | 'eco'
@@ -40,6 +42,10 @@ export interface NotchSettings {
   openOn: NotchOpen
   hoverDelayMs: number
   idle: NotchIdle
+  /** Grow animation from pill to panel, 0..1000 ms. */
+  openMs: number
+  /** Quick alerts (volume, brightness, battery…) in the pill, 1..10 s. */
+  alertSeconds: number
 }
 
 export const DEFAULT_NOTCH: NotchSettings = {
@@ -48,6 +54,8 @@ export const DEFAULT_NOTCH: NotchSettings = {
   openOn: 'hover',
   hoverDelayMs: 180,
   idle: 'pill',
+  openMs: 300,
+  alertSeconds: 5,
 }
 
 export interface MonitorInfo {
@@ -145,7 +153,8 @@ export interface Backend
     SystemBackend,
     ClipboardBackend,
     ShelfBackend,
-    CaptureBackend {
+    CaptureBackend,
+    HudBackend {
   readonly kind: 'tauri' | 'mock'
   getSettings(): Promise<Settings>
   onSettingsChanged(cb: (s: Settings) => void): Promise<Unlisten>

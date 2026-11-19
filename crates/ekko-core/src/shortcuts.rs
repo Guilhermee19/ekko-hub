@@ -208,7 +208,10 @@ mod tests {
         assert_eq!(to_accelerator("Shift+f12").unwrap(), "Shift+F12");
         // Print Screen alone is fine: it never types anything.
         assert_eq!(to_accelerator("PrintScreen").unwrap(), "PrintScreen");
-        assert_eq!(to_accelerator("Shift+printscreen").unwrap(), "Shift+PrintScreen");
+        assert_eq!(
+            to_accelerator("Shift+printscreen").unwrap(),
+            "Shift+PrintScreen"
+        );
     }
 
     #[test]

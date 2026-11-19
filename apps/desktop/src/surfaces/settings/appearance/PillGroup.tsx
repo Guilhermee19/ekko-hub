@@ -14,6 +14,16 @@ const PARTS: { id: keyof PillShow; label: string; hint: string }[] = [
   { id: 'timer', label: 'Timers', hint: 'Contagem regressiva ao vivo.' },
   { id: 'music', label: 'Música', hint: 'O que está tocando agora.' },
   { id: 'event', label: 'Próximo evento', hint: 'Compromisso que está chegando.' },
+  {
+    id: 'battery',
+    label: 'Bateria',
+    hint: 'Avisa por 5 s quando começa a carregar e quando chega a 15%, 10% e 5%.',
+  },
+  {
+    id: 'system',
+    label: 'Reagir ao sistema',
+    hint: 'Mostra por 5 s volume, brilho, Caps Lock, microfone mudo e fones conectados.',
+  },
 ]
 
 const ITEM_LABEL: Record<PillItem, string> = {
