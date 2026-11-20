@@ -34,6 +34,8 @@ export type HudEvent =
   | { kind: 'power'; plugged: boolean; percent: number }
   | { kind: 'lowBattery'; device: string | null; percent: number }
   | { kind: 'device'; name: string; percent: number; connected: boolean }
+  /** The PC was left alone for a while (Ekko gets sleepy), or someone came back. */
+  | { kind: 'rest'; level: 'awake' | 'drowsy' | 'asleep' }
 
 export interface HudBackend {
   powerSnapshot(): Promise<PowerSnapshot>

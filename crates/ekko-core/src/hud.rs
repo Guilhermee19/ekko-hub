@@ -67,6 +67,30 @@ pub struct PowerSnapshot {
     pub devices: Vec<DeviceBattery>,
 }
 
+/// How long the PC has been left alone; Ekko gets sleepy with it.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Rest {
+    #[default]
+    Awake,
+    Drowsy,
+    Asleep,
+}
+
+/// No input for this long: eyes get heavy, then close.
+pub const DROWSY_AFTER_SECS: u32 = 3 * 60;
+pub const ASLEEP_AFTER_SECS: u32 = 8 * 60;
+
+impl Rest {
+    pub fn from_idle(secs: u32) -> Self {
+        match secs {
+            s if s >= ASLEEP_AFTER_SECS => Self::Asleep,
+            s if s >= DROWSY_AFTER_SECS => Self::Drowsy,
+            _ => Self::Awake,
+        }
+    }
+}
+
 /// One reading of the indicators polled often.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Indicators {
@@ -75,6 +99,7 @@ pub struct Indicators {
     pub mic_muted: Option<bool>,
     /// 0..100; None when the screen has no software brightness (most desktops).
     pub brightness: Option<u8>,
+    pub rest: Rest,
 }
 
 /// A change worth a flash in the notch.
@@ -105,6 +130,10 @@ pub enum HudEvent {
         name: String,
         percent: u8,
         connected: bool,
+    },
+    /// The PC was left alone for a while, or someone came back.
+    Rest {
+        level: Rest,
     },
 }
 
@@ -140,6 +169,9 @@ impl HudTracker {
             && level != b
         {
             out.push(HudEvent::Brightness { level });
+        }
+        if now.rest != before.rest {
+            out.push(HudEvent::Rest { level: now.rest });
         }
         out
     }
@@ -223,6 +255,7 @@ mod tests {
             caps_lock: false,
             mic_muted: Some(false),
             brightness: Some(50),
+            rest: Rest::Awake,
         };
         assert!(t.indicators(idle).is_empty());
         assert!(t.indicators(idle).is_empty());
@@ -230,6 +263,7 @@ mod tests {
             caps_lock: true,
             mic_muted: Some(true),
             brightness: Some(60),
+            rest: Rest::Awake,
         };
         assert_eq!(
             t.indicators(changed),
@@ -245,6 +279,31 @@ mod tests {
             ..changed
         };
         assert!(t.indicators(gone).is_empty());
+    }
+
+    #[test]
+    fn rest_follows_idle_time_and_fires_on_change() {
+        assert_eq!(Rest::from_idle(0), Rest::Awake);
+        assert_eq!(Rest::from_idle(DROWSY_AFTER_SECS - 1), Rest::Awake);
+        assert_eq!(Rest::from_idle(DROWSY_AFTER_SECS), Rest::Drowsy);
+        assert_eq!(Rest::from_idle(ASLEEP_AFTER_SECS), Rest::Asleep);
+        let mut t = HudTracker::default();
+        let at = |rest| Indicators {
+            rest,
+            ..Indicators::default()
+        };
+        assert!(t.indicators(at(Rest::Awake)).is_empty());
+        assert_eq!(
+            t.indicators(at(Rest::Drowsy)),
+            vec![HudEvent::Rest {
+                level: Rest::Drowsy
+            }]
+        );
+        assert!(t.indicators(at(Rest::Drowsy)).is_empty());
+        assert_eq!(
+            t.indicators(at(Rest::Awake)),
+            vec![HudEvent::Rest { level: Rest::Awake }]
+        );
     }
 
     #[test]

@@ -5,7 +5,9 @@ import { reactToOsVolume } from '@/features/music/volume'
 import { alertSound } from '@/lib/notifySound'
 import { alertMs, useSettings } from '@/stores/settings'
 import { flashActivity, watchFlashes } from './flash'
+import { feel, setRest } from '@/stores/mood'
 import { hudFlash } from './hudActivity'
+import { hudMood } from './hudMood'
 
 /** Battery levels for the pill chip (laptop + Bluetooth headsets). */
 export const usePower = create<PowerSnapshot>(() => ({ battery: null, devices: [] }))
@@ -23,7 +25,8 @@ export function usePowerFeed() {
 
 /**
  * Makes the pill react to the PC: flashes what changed (Caps Lock, mic, brightness,
- * charger, headsets) and warns on low battery. For the surfaces that have a pill.
+ * charger, headsets), warns on low battery and moves Ekko's mood (sleepy when the PC is
+ * left alone, a hop or a scare with what happens). For the surfaces that have a pill.
  */
 export function useSystemHud() {
   usePowerFeed()
@@ -31,6 +34,9 @@ export function useSystemHud() {
     reactToOsVolume()
     watchFlashes()
     const offHud = backend.onHud((e) => {
+      if (e.kind === 'rest') setRest(e.level)
+      const burst = hudMood(e)
+      if (burst) feel(burst)
       const flash = hudFlash(e)
       if (!flash || !show()[flash.group]) return
       flashActivity(flash.activity, alertMs())

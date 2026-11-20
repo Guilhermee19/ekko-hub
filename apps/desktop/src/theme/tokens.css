@@ -199,21 +199,53 @@ body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel'])
   filter: drop-shadow(0 0 5px currentColor);
 }
 
-/* Ekko's eyes in the notch: two glowing ovals that blink now and then. */
+/* Ekko's eyes in the notch: two glowing capsules. `data-look` is the assistant phase
+   or, while idle, his mood (see ui/EkkoEyes.tsx). Lengths are viewBox units. */
 .ekko-eyes {
   overflow: visible;
   filter: drop-shadow(0 0 2px currentColor)
     drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
 }
-.ekko-eye {
+.ekko-eye,
+.ekko-eyes-body {
   transform-box: fill-box;
   transform-origin: center;
 }
-.animate-ekko-blink .ekko-eye {
+/* Changing look morphs the shape instead of snapping. */
+.ekko-eye {
+  transition:
+    x 0.22s ease-out,
+    y 0.22s ease-out,
+    width 0.22s ease-out,
+    height 0.22s ease-out,
+    rx 0.22s ease-out;
+}
+/* Calm: blinks now and then and glances to the sides. */
+.ekko-eyes:is([data-look='calm'], [data-look='speaking']) .ekko-eye {
   animation: ekko-blink 5.5s ease-in-out infinite;
 }
-.animate-ekko-look {
+.ekko-eyes[data-look='calm'] .ekko-eyes-body {
+  animation: ekko-glance 13s ease-in-out infinite;
+}
+.ekko-eyes[data-look='thinking'] .ekko-eyes-body {
   animation: ekko-look 1.6s ease-in-out infinite;
+}
+/* Drowsy: the lids fall slowly, then he catches himself. */
+.ekko-eyes[data-look='drowsy'] .ekko-eye {
+  transform-origin: bottom;
+  animation: ekko-nod 4.5s ease-in-out infinite;
+}
+.ekko-eyes[data-look='asleep'] .ekko-eyes-body {
+  animation: ekko-breathe 3.6s ease-in-out infinite;
+}
+.ekko-zz {
+  animation: ekko-zz 3.6s ease-out infinite;
+}
+.ekko-eyes[data-look='excited'] .ekko-eyes-body {
+  animation: ekko-hop 0.6s ease-out 4;
+}
+.ekko-eyes[data-look='startled'] .ekko-eyes-body {
+  animation: ekko-jolt 0.5s ease-out;
 }
 @keyframes ekko-blink {
   0%,
@@ -225,22 +257,109 @@ body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel'])
     transform: scaleY(0.12);
   }
 }
+@keyframes ekko-glance {
+  0%,
+  38%,
+  50%,
+  72%,
+  84%,
+  100% {
+    transform: translateX(0);
+  }
+  41%,
+  47% {
+    transform: translateX(-2.2px);
+  }
+  75%,
+  81% {
+    transform: translateX(2.2px);
+  }
+}
 @keyframes ekko-look {
   0%,
   100% {
-    transform: translateX(-1.5px);
+    transform: translateX(-2px);
   }
   50% {
-    transform: translateX(1.5px);
+    transform: translateX(2px);
   }
 }
+@keyframes ekko-nod {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  68% {
+    transform: scaleY(0.3);
+  }
+  76% {
+    transform: scaleY(1.25);
+  }
+  84% {
+    transform: scaleY(1);
+  }
+}
+@keyframes ekko-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.8px);
+  }
+}
+@keyframes ekko-zz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 2px) scale(0.6);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(2px, -4px) scale(1.1);
+  }
+}
+@keyframes ekko-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-2.6px) scaleY(1.06);
+  }
+  70% {
+    transform: translateY(0.5px) scaleY(0.94);
+  }
+}
+@keyframes ekko-jolt {
+  0% {
+    transform: scale(0.6);
+  }
+  30% {
+    transform: scale(1.18) translateY(-1px);
+  }
+  50% {
+    transform: scale(1) translateX(-0.8px);
+  }
+  70% {
+    transform: translateX(0.8px);
+  }
+  100% {
+    transform: none;
+  }
+}
+/* After the animations above (same specificity), so these win. */
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-reduce-motion='off']) :is(.animate-ekko-blink .ekko-eye, .animate-ekko-look) {
+  :root:not([data-reduce-motion='off']) .ekko-eyes * {
     animation: none;
+    transition: none;
   }
 }
-:root[data-reduce-motion='on'] :is(.animate-ekko-blink .ekko-eye, .animate-ekko-look) {
+:root[data-reduce-motion='on'] .ekko-eyes * {
   animation: none;
+  transition: none;
 }
 
 /* --nivel (0..1) vem do áudio: o halo carrega a intensidade, o tamanho só um pouco. */

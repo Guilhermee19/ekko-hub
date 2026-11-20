@@ -16,6 +16,30 @@ pub fn caps_lock() -> bool {
     }
 }
 
+/// Seconds since the last keyboard or mouse input anywhere on the PC.
+pub fn idle_secs() -> u32 {
+    #[cfg(windows)]
+    {
+        use windows::Win32::System::SystemInformation::GetTickCount;
+        use windows::Win32::UI::Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO};
+        let mut info = LASTINPUTINFO {
+            cbSize: size_of::<LASTINPUTINFO>() as u32,
+            dwTime: 0,
+        };
+        // SAFETY: `info` is a valid, correctly sized out parameter.
+        if !unsafe { GetLastInputInfo(&mut info) }.as_bool() {
+            return 0;
+        }
+        // Both tick counts wrap together (~49 days), so the difference stays right.
+        // SAFETY: plain query.
+        unsafe { GetTickCount() }.wrapping_sub(info.dwTime) / 1000
+    }
+    #[cfg(not(windows))]
+    {
+        0
+    }
+}
+
 /// Reads the built-in screen brightness. Holds a WMI connection: create it once on
 /// the thread that polls (COM objects stay on their thread).
 pub struct BrightnessReader {

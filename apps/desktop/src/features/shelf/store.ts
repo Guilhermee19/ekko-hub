@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { backend, type ShelfMode, type ShelfSnapshot } from '@/lib/ipc'
 import { flashToast } from '@/stores/assistant'
+import { feel } from '@/stores/mood'
 
 interface ShelfState extends ShelfSnapshot {
   /** Our own drag out is running (the notch must not "receive" those files). */
@@ -30,6 +31,7 @@ export const useShelf = create<ShelfState>((set, get) => ({
     backend.shelfAdd(paths).then((s) => {
       apply(s)
       const added = s.items.length - before
+      if (added > 0) feel('excited')
       flashToast(
         added > 0
           ? `${added} ${added === 1 ? 'arquivo guardado' : 'arquivos guardados'} na prateleira`

@@ -60,6 +60,9 @@ export function hudFlash(e: HudEvent): HudFlash | null {
         icon: 'headphones',
         label: e.connected ? `${e.name} conectado · ${e.percent}%` : `${e.name} desconectado`,
       })
+    case 'rest':
+      // Only his eyes show it (see hudMood).
+      return null
   }
 }
 

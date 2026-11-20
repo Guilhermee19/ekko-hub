@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { backend } from '@/lib/ipc'
 import { alertSound } from '@/lib/notifySound'
 import { useAssistant } from '@/stores/assistant'
+import { feel } from '@/stores/mood'
 import { useSettings } from '@/stores/settings'
 
 // Notification center. Backend-fired entries (timers, reminders) arrive on `ekko://notify`;
@@ -42,7 +43,10 @@ export const useNotifications = create<NotificationsState>((set) => ({
     set((s) => ({ items: [full, ...s.items] }))
     // "Não perturbe": still listed in the center, but no toast and no sound.
     const quiet = alertSound(useSettings.getState().settings.general)
-    if (!quiet) useAssistant.getState().set({ toast: full.title })
+    if (quiet) return
+    useAssistant.getState().set({ toast: full.title })
+    // A timer or reminder going off makes him jump; other news cheer him up.
+    feel(full.kind === 'timer' || full.kind === 'reminder' ? 'startled' : 'excited')
   },
   markRead: (id) =>
     set((s) => ({ items: s.items.map((n) => (n.id === id ? { ...n, read: true } : n)) })),

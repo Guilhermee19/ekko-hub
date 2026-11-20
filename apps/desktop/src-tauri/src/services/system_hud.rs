@@ -1,4 +1,4 @@
-//! The notch reacts to the PC: polls Caps Lock, mic mute, brightness and batteries on
+//! The notch reacts to the PC: polls Caps Lock, mic mute, brightness, idle time and batteries on
 //! its own thread and broadcasts what changed (`HUD_EVENT`), plus the battery levels
 //! for the pill chip (`POWER_CHANGED`). Volume has its own monitor (`volume.rs`).
 
@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
-use ekko_core::hud::{HudTracker, Indicators, PowerSnapshot};
+use ekko_core::hud::{HudTracker, Indicators, PowerSnapshot, Rest};
 use ekko_os::{indicators, power, volume};
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -53,6 +53,7 @@ fn run(app: &AppHandle) {
         if tick.is_multiple_of(SLOW) {
             now.mic_muted = volume::mic_muted();
             now.brightness = brightness.read();
+            now.rest = Rest::from_idle(indicators::idle_secs());
         }
         let mut events = tracker.indicators(now);
         if tick.is_multiple_of(POWER) {
