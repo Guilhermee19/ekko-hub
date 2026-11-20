@@ -7,6 +7,7 @@ pub mod fullscreen;
 pub mod indicators;
 pub mod loopback;
 pub mod media;
+pub mod peripherals;
 pub mod power;
 pub mod screen;
 pub mod system;

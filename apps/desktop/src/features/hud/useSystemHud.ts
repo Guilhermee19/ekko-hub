@@ -9,7 +9,7 @@ import { feel, setRest } from '@/stores/mood'
 import { hudFlash } from './hudActivity'
 import { hudMood } from './hudMood'
 
-/** Battery levels for the pill chip (laptop + Bluetooth headsets). */
+/** Battery levels for the pill chip (laptop + wireless devices). */
 export const usePower = create<PowerSnapshot>(() => ({ battery: null, devices: [] }))
 
 const show = () => useSettings.getState().settings.appearance.pillShow

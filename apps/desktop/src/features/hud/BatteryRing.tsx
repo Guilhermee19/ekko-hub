@@ -5,7 +5,6 @@ import {
   Keyboard,
   Mouse,
   Smartphone,
-  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import type { DeviceKind } from '@/lib/ipc'
@@ -23,18 +22,16 @@ export const KIND_ICON: Record<DeviceKind, LucideIcon> = {
 const R = 8.5
 const LENGTH = 2 * Math.PI * R
 
-/** Device icon inside a ring of charge; the SVG scales with `size`. */
+/** Device icon inside a donut of charge; the SVG scales with `size`. */
 export function Ring({
   icon: Icon,
   percent,
   low,
-  charging = false,
-  size = 20,
+  size = 36,
 }: {
   icon: LucideIcon
   percent: number
   low: boolean
-  charging?: boolean
   size?: number
 }) {
   const filled = (Math.min(100, Math.max(0, percent)) / 100) * LENGTH
@@ -64,13 +61,6 @@ export function Ring({
         style={{ width: size / 2, height: size / 2 }}
         aria-hidden
       />
-      {charging && (
-        <Zap
-          className="absolute -right-0.5 -bottom-0.5 fill-accent text-accent"
-          style={{ width: size * 0.4, height: size * 0.4 }}
-          aria-hidden
-        />
-      )}
     </span>
   )
 }

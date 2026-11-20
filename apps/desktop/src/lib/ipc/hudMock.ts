@@ -17,8 +17,8 @@ interface Bus {
 const SNAPSHOT: PowerSnapshot = {
   battery: { percent: 76, plugged: false },
   devices: [
-    { name: 'Fone Bluetooth', percent: 60, kind: 'headphones' },
-    { name: 'Mouse', percent: 15, kind: 'mouse' },
+    { name: 'Fone Bluetooth', percent: 60, kind: 'headphones', charging: false },
+    { name: 'Mouse', percent: 15, kind: 'mouse', charging: true },
   ],
 }
 

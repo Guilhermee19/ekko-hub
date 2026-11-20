@@ -1,14 +1,23 @@
-//! Battery levels: the laptop's (GetSystemPowerStatus) and those of connected
+//! Battery levels: the laptop's (GetSystemPowerStatus), those of connected
 //! Bluetooth devices that report one (the same number Windows shows in Settings →
-//! Bluetooth, read from the device property store).
+//! Bluetooth, read from the device property store) and wireless USB dongles
+//! (`peripherals`).
 
 use ekko_core::hud::{Battery, DeviceBattery, DeviceKind, PowerSnapshot};
 
 pub fn snapshot() -> PowerSnapshot {
     PowerSnapshot {
         battery: battery(),
-        devices: bluetooth(),
+        devices: devices(),
     }
+}
+
+/// Bluetooth devices plus wireless USB peripherals, sorted by name.
+pub fn devices() -> Vec<DeviceBattery> {
+    let mut out = bluetooth();
+    out.extend(crate::peripherals::batteries());
+    out.sort_by(|a, b| a.name.cmp(&b.name));
+    out
 }
 
 /// None on PCs without a battery.
@@ -56,6 +65,7 @@ pub fn match_batteries(
                 name: name.clone(),
                 percent: percent.min(100),
                 kind: *kind,
+                charging: false,
             })
         })
         .collect()

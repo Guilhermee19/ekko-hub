@@ -44,7 +44,7 @@ export const HOME_CARDS: HomeCardMeta[] = [
   {
     id: 'battery',
     label: 'Bateria',
-    hint: 'Notebook, fones, mouse e teclado Bluetooth',
+    hint: 'Notebook, fones, mouse e teclado sem fio',
     icon: BatteryMedium,
     width: 2,
   },

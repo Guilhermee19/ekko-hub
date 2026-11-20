@@ -1,5 +1,5 @@
 //! System HUD: the notch reacts to what changes on the PC (Caps Lock, mic mute,
-//! brightness, power, Bluetooth headsets) and warns on low battery. The shell polls
+//! brightness, power, wireless headsets and mice) and warns on low battery. The shell polls
 //! the OS; this decides what is worth telling the UI. The first reading never fires,
 //! so starting Ekko does not flash everything at once.
 
@@ -16,13 +16,15 @@ pub struct Battery {
     pub plugged: bool,
 }
 
-/// A connected Bluetooth device that reports its battery.
+/// A connected device that reports its battery (Bluetooth, or a wireless USB dongle).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceBattery {
     pub name: String,
     pub percent: u8,
     pub kind: DeviceKind,
+    /// On the cable or dock; Bluetooth does not say, so it stays false there.
+    pub charging: bool,
 }
 
 /// What the device is, for its icon in the pill.
@@ -205,7 +207,7 @@ impl HudTracker {
             out.extend(self.low(String::new(), b.percent, b.plugged));
         }
         for d in &now.devices {
-            out.extend(self.low(d.name.clone(), d.percent, false));
+            out.extend(self.low(d.name.clone(), d.percent, d.charging));
         }
         out
     }
@@ -357,6 +359,7 @@ mod tests {
                 name: "Fone".into(),
                 percent: p,
                 kind: DeviceKind::Headphones,
+                charging: false,
             }],
         };
         assert!(t.power(&PowerSnapshot::default()).is_empty());

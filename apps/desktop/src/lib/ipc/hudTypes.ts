@@ -17,12 +17,14 @@ export interface DeviceBattery {
   name: string
   percent: number
   kind: DeviceKind
+  /** On the cable or dock (Bluetooth does not say, so false there). */
+  charging: boolean
 }
 
 export interface PowerSnapshot {
   /** null on desktops. */
   battery: Battery | null
-  /** Connected Bluetooth devices that report a battery. */
+  /** Bluetooth devices and wireless USB dongles that report a battery. */
   devices: DeviceBattery[]
 }
 

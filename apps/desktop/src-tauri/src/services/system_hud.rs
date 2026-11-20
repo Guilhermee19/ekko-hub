@@ -16,7 +16,7 @@ pub const HUD_EVENT: &str = "ekko://hud";
 pub const POWER_CHANGED: &str = "ekko://power/changed";
 
 const TICK: Duration = Duration::from_millis(120);
-/// Mic and brightness every ~0.4 s, laptop battery every ~3 s, Bluetooth every ~12 s.
+/// Mic and brightness every ~0.4 s, laptop battery every ~3 s, devices every ~12 s.
 const SLOW: u32 = 3;
 const POWER: u32 = 25;
 const BLUETOOTH: u32 = 100;
@@ -60,7 +60,7 @@ fn run(app: &AppHandle) {
             let next = PowerSnapshot {
                 battery: power::battery(),
                 devices: if tick.is_multiple_of(BLUETOOTH) {
-                    power::bluetooth()
+                    power::devices()
                 } else {
                     snapshot.devices.clone()
                 },
