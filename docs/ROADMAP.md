@@ -24,7 +24,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.3.0; release automático pela branch `production` |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.4.0 publicado pela branch `production` |
 | V2 | Servidor + app no celular | `[ ]` |
 
 ## Releases
@@ -33,31 +33,31 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
-| **v0.3.2** | a publicar | Agenda como calendário: o mês inteiro com os eventos em cada dia, navegação entre meses e a lista do dia escolhido; card Agenda do Início com a folha do dia e os próximos eventos; Google Agenda pronto para conectar com um clique (quando o instalador levar o cliente OAuth do Ekko). Correções: os avisos rápidos (Caps Lock, microfone, brilho, bateria, fones, volume) não ficam mais presos no notch; os avisos de texto ("Copiado!", notificações) seguem o mesmo tempo configurado; Configurações, Central e painel não cortam mais o conteúdo quando a escala da interface é diferente de 100%. A v0.3.1 não chegou a ser publicada e entrou nesta. Falta escrever as notas (`docs/releases/v0.3.2.md`) e fazer o merge na `production`. |
+| **v0.4.0** | 20/11/2026 | Agenda como calendário (o mês inteiro com os eventos em cada dia, navegação entre meses e a lista do dia escolhido) e card Agenda do Início com a folha do dia; Google Agenda pronto para conectar com um clique; olhos do Ekko em cápsula, com humor (sono, dormindo, susto, animado); Copiados guarda imagens e arquivos, com limite de 20 a 200 itens; Configurações reorganizadas em telas próprias (Notificações, Copiados, Modo de exibição, Notch, Pílula e avisos, Menu do painel). Correções: avisos rápidos que ficavam presos no notch, avisos de texto seguindo o tempo configurado e janelas cortadas com a escala da interface diferente de 100%. Primeira versão publicada pela branch `production`; as v0.3.1 e v0.3.2 não chegaram a ser publicadas e entraram nesta. |
 | **v0.3.0** | 19/11/2026 | Print de uma área (Alt Gr + Print Screen) que vai para o notch; notch que reage ao sistema (volume, brilho, Caps Lock, microfone, fones) com tempo ajustável; avisos de bateria do notebook e de aparelhos Bluetooth; Início personalizável (adicionar, mover, remover, largura de 1 a 4 colunas, mesma altura) com card Bateria; menu do painel configurável; barras da música que seguem o som do PC; prévia das imagens na prateleira; Verificar meu PC com nota de saúde; contorno e velocidade de abrir do notch. Correções no arrastar para reordenar e nos avisos que ficavam presos no notch. A v0.2.0 não chegou a ser publicada e entrou nesta. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.3.0)
+## O que já funciona de verdade (v0.4.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
 | Notch, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
-| Aparência | Real | Contorno do notch (linha, brilho ou sombra, com força), velocidade da animação de abrir o notch, cor livre, persona, formato/tamanho/transparência/brilho do notch, o que a pílula mostra e em que ordem, fonte e tom do painel, páginas do menu e a ordem delas |
+| Configurações | Real | Separadas por assunto: Geral (nomes, inicialização), Notificações (som, não perturbe), Copiados, Aparência (persona, cor, escala, tom, movimento), Modo de exibição (modo, monitor, lado do dock), Notch (posição, abrir, tamanho, visual com contorno), Pílula e avisos (o que mostra, prioridade, tempo dos avisos), Menu do painel, Atalhos, Privacidade, Conexões |
 | Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover, largura de 1 a 4 colunas, todos da mesma altura): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Bateria, Copiados, Prateleira, Tocando agora |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
 | Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som; com Spotify: fila, dispositivos, aleatório, repetir |
-| Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch; na v0.3.2, calendário do mês com os eventos em cada dia e card do Início com a folha do dia |
+| Agenda (Google) | Real | Calendário do mês com os eventos em cada dia e a lista do dia escolhido, aviso 10 min antes, evento no notch, card do Início com a folha do dia; conecta com um clique quando o instalador leva o cliente OAuth do Ekko (senão, com o seu Client ID) |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
-| Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
 | Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
-| Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
+| Copiados | Real | Histórico de textos, imagens (salvas em PNG) e arquivos, copiar de volta como estava, fixar, buscar, pausar, guardar os últimos 20, 50, 100 ou 200; senhas de gerenciadores ficam de fora |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
-| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos, que na v0.3.2 passa a valer também para os avisos de texto); liga e desliga em Aparência → Pílula |
+| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Pílula e avisos, que vale também para os avisos de texto); liga e desliga em Pílula e avisos |
+| Olhos do Ekko | Real | Cápsulas que piscam e olham em volta; ficam com sono após 3 min sem mexer no PC e dormem após 8 min; levam susto (acordar, Caps Lock, bateria fraca, timer tocando) e ficam animados (carregador, fone conectado, arquivos na prateleira) |
 | Bateria | Real | Aviso no notch quando começa a carregar e em 15%, 10% e 5% (com som); card no Início com notebook e aparelhos Bluetooth (fone, mouse, teclado, celular, controle), cada um com seu ícone num anel de carga |
 | Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali (imagens com prévia) e saem juntos arrastando para outro lugar (copiar ou mover) |
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
@@ -137,6 +137,7 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Instalador Windows **v0.1.0** (NSIS) no GitHub Releases
 - [x] **v0.1.3**: notch novo, prateleira de arquivos, Copiados real e protótipos escondidos dos menus
 - [x] **v0.3.0**: Início e menu personalizáveis, barras da música reais, prévia de imagens, Meu PC novo, print de uma área, notch que reage ao sistema e avisos de bateria
+- [x] **v0.4.0**: calendário na Agenda, humores do Ekko, Copiados com imagens e arquivos, Configurações reorganizadas e Google Agenda com um clique
 - [~] Comandos de voz: interpretador pt-BR pronto e testado (`ekko-core/intents.rs`); falta microfone (reconhecimento do Windows), executar e responder com a voz do Windows
 - [x] Spotify na página Música (fila, volume, dispositivos reais quando conectado) + volume do Windows
 - [x] Finalizar tudo que estava "Em parte": Início, Notificações, Música, Geral, Atalhos, Conexões (+ Tarefas e Hábitos reais)
@@ -153,9 +154,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Atalho do print trocável nas Configurações, inclusive Print Screen sozinho e atalhos prontos
 - [x] Notch reage ao sistema: volume pelas teclas, brilho, Caps Lock, microfone mudo e carregador
 - [x] Bateria do notebook e dos fones Bluetooth na pílula, com aviso de bateria fraca
-- [x] Avisos rápidos somem sempre no tempo configurado, inclusive com eco atrasado ou outra janela reagindo; avisos de texto usam o mesmo tempo (v0.3.2)
-- [x] Escala da interface sem cortar Configurações, Central e painel (v0.3.2)
-- [x] Agenda como calendário: mês inteiro com os eventos em cada dia, navegar entre meses, eventos do dia escolhido; card do Início com a data e os próximos eventos (v0.3.2)
+- [x] Avisos rápidos somem sempre no tempo configurado, inclusive com eco atrasado ou outra janela reagindo; avisos de texto usam o mesmo tempo (v0.4.0)
+- [x] Escala da interface sem cortar Configurações, Central e painel (v0.4.0)
+- [x] Agenda como calendário: mês inteiro com os eventos em cada dia, navegar entre meses, eventos do dia escolhido; card do Início com a data e os próximos eventos (v0.4.0)
 - [x] Olhos do Ekko em cápsula, com humor: fica com sono (3 min sem mexer no PC) e dorme (8 min), leva susto ao acordar, com Caps Lock ligado, bateria fraca e timer tocando, e fica animado ao conectar o carregador ou um fone e ao guardar arquivos na prateleira
 - [x] Copiados guarda imagens (PNG em `clipboard\`) e arquivos, além de texto, e copia de volta como estavam; limite de 20, 50, 100 ou 200 itens em Configurações → Geral, apagando as imagens que saem do histórico
 - [ ] Confirmar no app: copiar imagem (navegador, print) e arquivos (Explorador) e colar de volta pelo Copiados
@@ -236,7 +237,7 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 
 - [ ] Spotify completo (OAuth: capa, fila, dispositivos, tocar em outro aparelho)
 - [ ] Google Calendar
-- [~] Google Agenda com um clique: o app já aceita o cliente OAuth do próprio Ekko embutido no build (`EKKO_GOOGLE_CLIENT_ID`/`_SECRET`) e mostra só o botão Conectar; falta criar o projeto no Google Cloud, cadastrar os secrets no GitHub e passar pela verificação do Google
+- [~] Google Agenda com um clique: o instalador leva o cliente OAuth do próprio Ekko (secrets `EKKO_GOOGLE_CLIENT_ID`/`_SECRET` no GitHub) e mostra só o botão Conectar; falta passar pela verificação do Google para sair do modo de teste
 - [ ] Mandar tarefa pesada para o Claude Code
 - [ ] **Cliente MCP**: plugar qualquer servidor MCP como tools
 - [ ] Memória de longo prazo (notas markdown + busca vetorial, portada do Jarvis)
@@ -259,7 +260,7 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 ## F9: Polimento v1
 
 - [ ] Autostart com o Windows
-- [x] Release automático: merge na `production` compila o instalador, cria a tag e publica (falta criar a branch e rodar a primeira vez)
+- [x] Release automático: merge na `production` compila o instalador, cria a tag e publica (primeira vez na v0.4.0)
 - [ ] Instalador (NSIS/MSI) + auto-update (plugin updater do Tauri)
 - [ ] Multi-monitor (lembrar monitor e posição)
 - [ ] "Modo desempenho" e consumo de RAM otimizado
