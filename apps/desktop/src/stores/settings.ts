@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { backend, DEFAULT_SETTINGS, type Settings } from '@/lib/ipc'
 
-/** How long quick alerts and toasts stay in the pill (Notch → Avisos rápidos, 1..10 s). */
+/** How long quick alerts and toasts stay in the pill (Pílula e avisos → Tempo dos avisos, 1..10 s). */
 export function alertMs(): number {
   const s = useSettings.getState().settings.notch.alertSeconds
   return Math.min(10, Math.max(1, s || 5)) * 1000

@@ -100,7 +100,7 @@ export function notchAura(accent: string, glow: number): string {
 }
 
 /**
- * Box-shadow that marks the notch's edges (Aparência → Notch → Contorno); a no-op
+ * Box-shadow that marks the notch's edges (Configurações → Notch → Visual → Contorno); a no-op
  * shadow when off, so it can always be listed with other shadows.
  */
 export function notchOutline(kind: AppearanceSettings['notchOutline'], strength: number): string {

@@ -4,138 +4,188 @@ import { useSettings } from '@/stores/settings'
 import { Button, Segmented, Slider } from '@/ui/primitives'
 import { Field } from './Field'
 
+// One field per notch setting, so each lands on the page it belongs to (Modo de
+// exibição, Notch, Pílula e avisos).
+
 const PRESETS = [
   { label: 'Esquerda', offset: 0.18 },
   { label: 'Centro', offset: 0.5 },
   { label: 'Direita', offset: 0.82 },
 ]
 
-/** Notch customization: monitor, position on the top edge, size and how it opens. */
-export function NotchSettingsPanel() {
-  const { notch, monitor } = useSettings((s) => s.settings)
-  const set = (patch: Partial<NotchSettings>) => void backend.setNotch({ ...notch, ...patch })
-  const [monitors, setMonitors] = useState<MonitorInfo[]>([])
+/** Merges into the freshest settings, so fast slider ticks never resurrect old values. */
+function setNotch(patch: Partial<NotchSettings>) {
+  const notch = useSettings.getState().settings.notch
+  void backend.setNotch({ ...notch, ...patch })
+}
 
+const useNotch = () => useSettings((s) => s.settings.notch)
+
+export function NotchPositionField() {
+  const notch = useNotch()
+  return (
+    <Field
+      title="Posição"
+      hint="Arraste na prévia, use os atalhos, ou arraste a barra de cima do próprio notch."
+    >
+      <PositionPreview offset={notch.offset} onChange={(offset) => setNotch({ offset })} />
+      <div className="mt-3 flex max-w-xl flex-wrap items-center gap-2">
+        {PRESETS.map((p) => (
+          <Button key={p.label} variant="subtle" onClick={() => setNotch({ offset: p.offset })}>
+            {p.label}
+          </Button>
+        ))}
+        <span className="ml-auto font-mono text-[12px] text-muted">
+          {Math.round(notch.offset * 100)}%
+        </span>
+      </div>
+    </Field>
+  )
+}
+
+/** Which screen the notch and the dock live on; hidden with a single monitor. */
+export function MonitorField() {
+  const monitor = useSettings((s) => s.settings.monitor)
+  const [monitors, setMonitors] = useState<MonitorInfo[]>([])
   useEffect(() => {
     void backend.listMonitors().then(setMonitors)
   }, [])
-
+  if (monitors.length < 2) return null
   return (
-    <>
-      <Field
-        title="Posição do notch"
-        hint="Arraste na prévia, use os atalhos, ou arraste a barra de cima do próprio notch."
-      >
-        <PositionPreview offset={notch.offset} onChange={(offset) => set({ offset })} />
-        <div className="mt-3 flex max-w-xl flex-wrap items-center gap-2">
-          {PRESETS.map((p) => (
-            <Button key={p.label} variant="subtle" onClick={() => set({ offset: p.offset })}>
-              {p.label}
-            </Button>
-          ))}
-          <span className="ml-auto font-mono text-[12px] text-muted">
-            {Math.round(notch.offset * 100)}%
-          </span>
-        </div>
-      </Field>
+    <Field title="Monitor" hint="Em qual tela o notch (e o dock) fica.">
+      <Segmented
+        value={String(monitor)}
+        options={monitors.map((m) => ({
+          value: String(m.index),
+          label: `${m.primary ? '★ ' : ''}${m.name} · ${m.width}×${m.height}`,
+        }))}
+        onChange={(v) => void backend.setMonitor(Number(v))}
+      />
+    </Field>
+  )
+}
 
-      {monitors.length > 1 && (
-        <Field title="Monitor" hint="Em qual tela o notch (e o dock) fica.">
-          <Segmented
-            value={String(monitor)}
-            options={monitors.map((m) => ({
-              value: String(m.index),
-              label: `${m.primary ? '★ ' : ''}${m.name} · ${m.width}×${m.height}`,
-            }))}
-            onChange={(v) => void backend.setMonitor(Number(v))}
-          />
-        </Field>
-      )}
+export function NotchSizeField() {
+  const notch = useNotch()
+  return (
+    <Field title="Tamanho do painel" hint="Tamanho do notch quando ele abre.">
+      <Segmented
+        value={notch.size}
+        options={[
+          { value: 'compact', label: 'Compacto' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'large', label: 'Grande' },
+        ]}
+        onChange={(size) => setNotch({ size })}
+      />
+    </Field>
+  )
+}
 
-      <Field title="Tamanho do painel" hint="Tamanho do notch quando ele abre.">
+export function NotchOpenField() {
+  const notch = useNotch()
+  return (
+    <Field title="Como abrir" hint="Com o mouse em cima, ou só quando você clicar nele.">
+      <div className="flex flex-col items-start gap-3">
         <Segmented
-          value={notch.size}
+          value={notch.openOn}
           options={[
-            { value: 'compact', label: 'Compacto' },
-            { value: 'normal', label: 'Normal' },
-            { value: 'large', label: 'Grande' },
+            { value: 'hover', label: 'Passar o mouse' },
+            { value: 'click', label: 'Clicar' },
           ]}
-          onChange={(size) => set({ size })}
+          onChange={(openOn) => setNotch({ openOn })}
         />
-      </Field>
-
-      <Field title="Como abrir" hint="Com o mouse em cima, ou só quando você clicar nele.">
-        <div className="flex flex-col items-start gap-3">
-          <Segmented
-            value={notch.openOn}
-            options={[
-              { value: 'hover', label: 'Passar o mouse' },
-              { value: 'click', label: 'Clicar' },
-            ]}
-            onChange={(openOn) => set({ openOn })}
-          />
-          <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
-            <span className="w-28 shrink-0">Atraso do hover</span>
-            <Slider
-              label="Atraso do hover"
-              value={notch.hoverDelayMs}
-              min={0}
-              max={800}
-              step={20}
-              disabled={notch.openOn === 'click'}
-              onChange={(hoverDelayMs) => set({ hoverDelayMs })}
-            />
-            <span className="w-14 shrink-0 text-right font-mono">{notch.hoverDelayMs} ms</span>
-          </label>
-          <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
-            <span className="w-28 shrink-0">Animação de abrir</span>
-            <Slider
-              label="Duração da animação de abrir"
-              value={notch.openMs}
-              min={0}
-              max={1000}
-              step={50}
-              onChange={(openMs) => set({ openMs })}
-            />
-            <span className="w-14 shrink-0 text-right font-mono">
-              {notch.openMs === 0 ? 'sem' : `${notch.openMs} ms`}
-            </span>
-          </label>
-        </div>
-      </Field>
-
-      <Field
-        title="Avisos rápidos"
-        hint="Quanto tempo avisos, volume, brilho, bateria, Caps Lock e microfone ficam no notch antes de sumir."
-      >
-        <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
-          <span className="w-28 shrink-0">Tempo na tela</span>
-          <Slider
-            label="Tempo dos avisos rápidos"
-            value={notch.alertSeconds}
-            min={1}
-            max={10}
-            step={1}
-            onChange={(alertSeconds) => set({ alertSeconds })}
-          />
-          <span className="w-14 shrink-0 text-right font-mono">{notch.alertSeconds} s</span>
-        </label>
-      </Field>
-
-      <Field
-        title="Em repouso"
-        hint="Mínimo vira só uma linha fina quando não tem nada acontecendo."
-      >
-        <Segmented
-          value={notch.idle}
-          options={[
-            { value: 'pill', label: 'Pílula' },
-            { value: 'minimal', label: 'Mínimo' },
-          ]}
-          onChange={(idle) => set({ idle })}
+        <SliderLine
+          label="Atraso do hover"
+          value={notch.hoverDelayMs}
+          max={800}
+          step={20}
+          disabled={notch.openOn === 'click'}
+          shown={`${notch.hoverDelayMs} ms`}
+          onChange={(hoverDelayMs) => setNotch({ hoverDelayMs })}
         />
-      </Field>
-    </>
+        <SliderLine
+          label="Animação de abrir"
+          value={notch.openMs}
+          max={1000}
+          step={50}
+          shown={notch.openMs === 0 ? 'sem' : `${notch.openMs} ms`}
+          onChange={(openMs) => setNotch({ openMs })}
+        />
+      </div>
+    </Field>
+  )
+}
+
+export function NotchIdleField() {
+  const notch = useNotch()
+  return (
+    <Field title="Em repouso" hint="Mínimo vira só uma linha fina quando não tem nada acontecendo.">
+      <Segmented
+        value={notch.idle}
+        options={[
+          { value: 'pill', label: 'Pílula' },
+          { value: 'minimal', label: 'Mínimo' },
+        ]}
+        onChange={(idle) => setNotch({ idle })}
+      />
+    </Field>
+  )
+}
+
+export function AlertTimeField() {
+  const notch = useNotch()
+  return (
+    <Field
+      title="Tempo dos avisos"
+      hint="Quanto tempo avisos, volume, brilho, bateria, Caps Lock e microfone ficam no notch antes de sumir."
+    >
+      <SliderLine
+        label="Tempo na tela"
+        value={notch.alertSeconds}
+        min={1}
+        max={10}
+        step={1}
+        shown={`${notch.alertSeconds} s`}
+        onChange={(alertSeconds) => setNotch({ alertSeconds })}
+      />
+    </Field>
+  )
+}
+
+function SliderLine({
+  label,
+  value,
+  min = 0,
+  max,
+  step,
+  disabled,
+  shown,
+  onChange,
+}: {
+  label: string
+  value: number
+  min?: number
+  max: number
+  step: number
+  disabled?: boolean
+  shown: string
+  onChange: (v: number) => void
+}) {
+  return (
+    <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
+      <span className="w-28 shrink-0">{label}</span>
+      <Slider
+        label={label}
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        disabled={disabled}
+        onChange={onChange}
+      />
+      <span className="w-14 shrink-0 text-right font-mono">{shown}</span>
+    </label>
   )
 }
 

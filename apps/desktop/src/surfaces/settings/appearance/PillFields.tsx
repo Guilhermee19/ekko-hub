@@ -5,7 +5,7 @@ import { movePillItem } from '@/lib/pillPriority'
 import { useSortable } from '@/lib/useSortable'
 import { Card, IconButton } from '@/ui/primitives'
 import { Field } from '../Field'
-import { Group, setAppearance, ToggleRow, useAppearance } from './controls'
+import { setAppearance, ToggleRow, useAppearance } from './controls'
 
 const PARTS: { id: keyof PillShow; label: string; hint: string }[] = [
   { id: 'avatar', label: 'Avatar', hint: 'O rostinho do assistente à esquerda.' },
@@ -33,13 +33,13 @@ const ITEM_LABEL: Record<PillItem, string> = {
 }
 
 /** What the collapsed pill may show and which activity wins when several happen. */
-export function PillGroup() {
+export function PillFields() {
   const look = useAppearance()
   const setShow = (patch: Partial<PillShow>) =>
     setAppearance({ pillShow: { ...look.pillShow, ...patch } })
 
   return (
-    <Group title="Pílula" hint="O que aparece no notch fechado.">
+    <>
       <Field title="O que mostrar" hint="Desligado aqui, nunca aparece na pílula.">
         <Card className="max-w-xl divide-y divide-border-soft px-4 py-0.5">
           {PARTS.map((p) => (
@@ -60,7 +60,7 @@ export function PillGroup() {
       >
         <PriorityList priority={look.pillPriority} />
       </Field>
-    </Group>
+    </>
   )
 }
 

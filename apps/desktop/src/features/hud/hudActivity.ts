@@ -1,7 +1,7 @@
 import type { HudEvent } from '@/lib/ipc'
 import type { Activity } from '@/stores/assistant'
 
-/** Battery news and system reactions, each with its own toggle in Aparência → Pílula. */
+/** Battery news and system reactions, each with its own toggle in Configurações → Pílula e avisos. */
 export type HudGroup = 'battery' | 'system'
 
 export interface HudFlash {

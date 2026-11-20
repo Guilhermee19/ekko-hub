@@ -57,7 +57,7 @@ body,
   --notch-opacity: 1;
   --notch-glow: 0.25;
   --notch-scale: 1;
-  /* Edge marker (Aparência → Notch → Contorno); off by default. */
+  /* Edge marker (Configurações → Notch → Visual → Contorno); off by default. */
   --notch-outline: 0 0 #0000;
   /* The screen bezel's own black: the notch grows out of the edge (spec P1). */
   --notch-ink: #000000;

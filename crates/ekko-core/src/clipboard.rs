@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// History sizes the user can pick (Configurações → Geral → Copiados).
+/// History sizes the user can pick (Configurações → Copiados).
 pub const LIMITS: [usize; 4] = [20, 50, 100, 200];
 /// Unpinned items kept by default; the oldest ones fall off.
 pub const DEFAULT_LIMIT: usize = 50;

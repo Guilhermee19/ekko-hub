@@ -8,10 +8,10 @@ import type { PageId } from '@/surfaces/panel/nav'
 import { Toggle } from '@/ui/forms'
 import { Button, IconButton } from '@/ui/primitives'
 import { Field } from '../Field'
-import { Group, setAppearance, useAppearance } from './controls'
+import { setAppearance, useAppearance } from './controls'
 
 /** Which pages the panel menu shows (Início, Música, Timers...) and in what order. */
-export function MenuGroup() {
+export function MenuFields() {
   const menu = useAppearance().panelMenu
   const rows = menuRows(menu)
   const save = (panelMenu: PanelMenu) => setAppearance({ panelMenu })
@@ -22,7 +22,7 @@ export function MenuGroup() {
   const custom = menu.order.length > 0 || menu.hidden.length > 0
 
   return (
-    <Group title="Menu" hint="As páginas do painel, na lateral do notch, do dock e da central.">
+    <>
       <Field
         title="Páginas e ordem"
         hint="Desligue o que não usa e arraste para mudar a ordem. Na bandeja e na bolha, as 5 primeiras ficam à vista e o resto vai para Mais."
@@ -86,6 +86,6 @@ export function MenuGroup() {
           </Button>
         )}
       </Field>
-    </Group>
+    </>
   )
 }

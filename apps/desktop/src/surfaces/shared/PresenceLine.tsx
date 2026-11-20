@@ -90,7 +90,7 @@ export function PresenceLine({
   )
 }
 
-/** HH:MM on the right of the pill (optional in Aparência → Pílula). */
+/** HH:MM on the right of the pill (optional in Configurações → Pílula e avisos). */
 function Clock() {
   const now = useNow(true, 15_000)
   const d = new Date(now)

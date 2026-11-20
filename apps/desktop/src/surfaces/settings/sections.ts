@@ -10,10 +10,22 @@ import { PrivacyPage } from './sections/PrivacyPage'
 import { ConnectionsPage } from './sections/ConnectionsPage'
 import { DiagnosticsPage } from './sections/DiagnosticsPage'
 import { AboutPage } from './sections/AboutPage'
+import { ClipboardSettingsPage } from './sections/ClipboardSettingsPage'
+import { DisplayPage } from './sections/DisplayPage'
+import { MenuPage } from './sections/MenuPage'
+import { NotchPage } from './sections/NotchPage'
+import { NotificationsSettingsPage } from './sections/NotificationsSettingsPage'
+import { PillPage } from './sections/PillPage'
 
 export type SectionId =
   | 'general'
+  | 'notifications'
+  | 'clipboard'
   | 'appearance'
+  | 'display'
+  | 'notch'
+  | 'pill'
+  | 'menu'
   | 'avatar'
   | 'brain'
   | 'voice'
@@ -25,8 +37,14 @@ export type SectionId =
   | 'about'
 
 export const SECTIONS: Record<SectionId, ComponentType> = {
-  appearance: AppearancePage,
   general: GeneralPage,
+  notifications: NotificationsSettingsPage,
+  clipboard: ClipboardSettingsPage,
+  appearance: AppearancePage,
+  display: DisplayPage,
+  notch: NotchPage,
+  pill: PillPage,
+  menu: MenuPage,
   avatar: AvatarPage,
   brain: BrainPage,
   voice: VoicePage,

@@ -31,7 +31,7 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
   agenda: { status: 'live', note: 'Conecte o Google Agenda em Configurações → Conexões.' },
   clipboard: {
     status: 'live',
-    note: 'Guarda o texto que você copiar (imagens ainda não). Senhas de gerenciadores ficam de fora. Os atalhos dos snippets ainda não expandem sozinhos.',
+    note: 'Guarda textos, imagens e arquivos que você copiar. Senhas de gerenciadores ficam de fora. Os atalhos dos snippets ainda não expandem sozinhos.',
   },
   routines: {
     status: 'soon',
@@ -52,7 +52,13 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
 
 export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
   general: { status: 'live', note: 'Idioma e tema claro ainda não estão disponíveis.' },
+  notifications: { status: 'live' },
+  clipboard: { status: 'live' },
   appearance: { status: 'live' },
+  display: { status: 'live' },
+  notch: { status: 'live' },
+  pill: { status: 'live' },
+  menu: { status: 'live' },
   avatar: {
     status: 'soon',
     phase: 'F8',

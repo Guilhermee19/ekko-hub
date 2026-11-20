@@ -144,7 +144,7 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Prateleira de arquivos no notch (soltar, guardar, arrastar todos ou um a um, copiar/mover)
 - [x] Copiados real: histórico do clipboard do Windows salvo em `clipboard.json`
 - [x] Barras da música seguem o som de verdade (captura do que o PC toca, 4 faixas: grave a agudo)
-- [x] Menu do painel configurável: mostrar/esconder páginas e mudar a ordem (*Aparência → Menu*)
+- [x] Menu do painel configurável: mostrar/esconder páginas e mudar a ordem (*Configurações → Menu do painel*)
 - [x] Início personalizável: adicionar, mover e remover cards (Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Copiados, Prateleira, Tocando agora)
 - [x] Prateleira mostra a prévia das imagens soltas no notch
 - [x] Verificar meu PC com nota de saúde, cartões por verificação e animações

@@ -1,11 +1,17 @@
 import {
+  Bell,
   Bot,
   Brain,
   Cable,
+  Clipboard,
   Info,
   Keyboard,
+  ListOrdered,
   Mic,
+  Monitor,
   Palette,
+  PanelTop,
+  RectangleHorizontal,
   Settings2,
   ShieldCheck,
   Stethoscope,
@@ -25,7 +31,18 @@ const ALL_GROUPS: { title: string; items: { id: SectionId; label: string; icon: 
       title: 'Geral',
       items: [
         { id: 'general', label: 'Geral', icon: Settings2 },
+        { id: 'notifications', label: 'Notificações', icon: Bell },
+        { id: 'clipboard', label: 'Copiados', icon: Clipboard },
+      ],
+    },
+    {
+      title: 'Visual',
+      items: [
         { id: 'appearance', label: 'Aparência', icon: Palette },
+        { id: 'display', label: 'Modo de exibição', icon: Monitor },
+        { id: 'notch', label: 'Notch', icon: PanelTop },
+        { id: 'pill', label: 'Pílula e avisos', icon: RectangleHorizontal },
+        { id: 'menu', label: 'Menu do painel', icon: ListOrdered },
         { id: 'avatar', label: 'Avatar', icon: Bot },
       ],
     },
@@ -56,7 +73,7 @@ const GROUPS = ALL_GROUPS.map((g) => ({
 })).filter((g) => g.items.length > 0)
 
 export function SettingsSurface() {
-  const [section, setSection] = useState<SectionId>('appearance')
+  const [section, setSection] = useState<SectionId>('general')
   const Section = SECTIONS[section]
   return (
     <div className="flex h-full flex-col bg-base">

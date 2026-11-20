@@ -1,16 +1,14 @@
 import { Volume2 } from 'lucide-react'
-import { useClipboard } from '@/features/clipboard/store'
-import { backend, CLIPBOARD_LIMITS, type GeneralSettings, type NotifySound } from '@/lib/ipc'
+import { backend, type GeneralSettings, type NotifySound } from '@/lib/ipc'
 import { playTone } from '@/lib/notifySound'
 import { dndActive, parseHhmm } from '@/lib/quietHours'
 import { useSettings } from '@/stores/settings'
 import { Input, Toggle } from '@/ui/forms'
-import { Button, Card, Segmented, Slider } from '@/ui/primitives'
+import { Button, Card, Slider } from '@/ui/primitives'
 import { Field } from '../Field'
 import { Chip } from './GeneralControls'
 
-// "Não perturbe" + notification sound (saved in `Settings.general`) and how much of
-// Copiados is kept (saved with the history, in clipboard.json).
+// "Não perturbe" + notification sound, saved in `Settings.general` (Notificações page).
 
 const SOUNDS: { id: NotifySound; label: string }[] = [
   { id: 'chime', label: 'Sininho' },
@@ -110,27 +108,6 @@ export function SoundField() {
             Testar
           </Button>
         </Card>
-      </div>
-    </Field>
-  )
-}
-
-/** How many copies Copiados keeps; older ones (and their saved images) are deleted. */
-export function ClipboardField() {
-  const limit = useClipboard((s) => s.limit)
-  const setLimit = useClipboard((s) => s.setLimit)
-  return (
-    <Field
-      title="Copiados"
-      hint="Quantos itens o histórico guarda. Os mais antigos (e as imagens deles) são apagados do PC; os fixados ficam sempre."
-    >
-      <div className="flex items-center gap-3 text-[12px] text-muted">
-        <span>Guardar os últimos</span>
-        <Segmented
-          value={String(limit)}
-          options={CLIPBOARD_LIMITS.map((n) => ({ value: String(n), label: String(n) }))}
-          onChange={(v) => setLimit(Number(v))}
-        />
       </div>
     </Field>
   )

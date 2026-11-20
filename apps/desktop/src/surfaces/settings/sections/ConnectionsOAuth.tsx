@@ -49,12 +49,7 @@ export function OAuthConnectionCard({ guide }: { guide: OAuthGuide }) {
             Desconectar
           </Button>
         ) : oneClick ? (
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={connecting}
-            onClick={() => void connect()}
-          >
+          <Button size="sm" variant="primary" disabled={connecting} onClick={() => void connect()}>
             {connecting && <LoaderCircle className="size-3.5 animate-spin" aria-hidden />}
             Conectar
           </Button>

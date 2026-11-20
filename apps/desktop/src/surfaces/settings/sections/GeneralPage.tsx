@@ -6,8 +6,8 @@ import { Badge } from '@/ui/data'
 import { Toggle } from '@/ui/forms'
 import { Button, Card } from '@/ui/primitives'
 import { Field } from '../Field'
-import { ClipboardField, DndField, SoundField } from './GeneralAlerts'
 import { Chip, PageFrame, Row } from './GeneralControls'
+import { NamesField } from './NamesField'
 import { toast, usePrefs } from './prefsAssistant'
 import { DEFAULT_SHORTCUTS } from './shortcutsCombo'
 import { useShortcuts } from './shortcutsStore'
@@ -32,7 +32,9 @@ export function GeneralPage() {
   }
 
   return (
-    <PageFrame title="Geral" subtitle={`Como o ${name} se comporta no seu Windows.`}>
+    <PageFrame title="Geral" subtitle={`Quem é quem e como o ${name} se comporta no seu Windows.`}>
+      <NamesField />
+
       <Field title="Inicialização" hint="Ligar junto com o PC e sair da frente quando você joga.">
         <Card className="divide-y divide-border-soft py-0.5">
           <Row title="Iniciar com o Windows" hint="Abre sozinho ao entrar no Windows.">
@@ -66,7 +68,7 @@ export function GeneralPage() {
         </div>
       </Field>
 
-      <Field title="Tema" hint="Cores por persona ficam em Aparência.">
+      <Field title="Claro ou escuro" hint="As cores (persona e destaque) ficam em Aparência.">
         <div className="flex flex-wrap items-center gap-2">
           <Chip active onClick={() => {}}>
             <Moon className="size-3.5" /> Escuro HUD
@@ -79,10 +81,6 @@ export function GeneralPage() {
           Por enquanto só o escuro: o visual HUD foi pensado para ele.
         </p>
       </Field>
-
-      <DndField />
-      <SoundField />
-      <ClipboardField />
 
       <Field title="Boas-vindas" hint="Passa de novo pelo tour inicial e pela escolha de modo.">
         <Button onClick={() => void backend.openOnboarding()}>

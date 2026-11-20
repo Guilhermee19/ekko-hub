@@ -4,7 +4,7 @@ import type { Unlisten } from './types'
 
 export const CLIPBOARD_CHANGED = 'ekko://clipboard/changed'
 
-/** How many unpinned items Copiados may keep (Configurações → Geral). */
+/** How many unpinned items Copiados may keep (Configurações → Copiados). */
 export const CLIPBOARD_LIMITS = [20, 50, 100, 200] as const
 
 export type ClipKind = 'text' | 'link' | 'code' | 'image' | 'files'
