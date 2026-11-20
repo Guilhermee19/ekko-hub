@@ -137,12 +137,14 @@ body[data-opaque='true'] {
   background-color: var(--color-base);
 }
 
-/* Interface scale for the full windows: zoom the root and shrink its box back so the
-   page still fills the window (text, spacing and icons grow together). */
+/* Interface scale for the full windows: zoom the root (text, spacing and icons grow
+   together). Pinned to the window edges instead of sized in %, because how zoom scales
+   a percentage changed between WebView2 versions and the page got cut. */
 body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel']) #root {
   zoom: var(--font-scale);
-  width: calc(100% / var(--font-scale));
-  height: calc(100% / var(--font-scale));
+  position: fixed;
+  inset: 0;
+  height: auto;
 }
 
 .no-select {

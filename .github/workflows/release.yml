@@ -1,12 +1,14 @@
-# Publishes a GitHub Release with the Windows installer attached whenever a version tag
-# is pushed (git tag -a v0.1.0 -m "..." && git push origin v0.1.0).
+# Publishes a GitHub Release with the Windows installer attached whenever `production`
+# receives a merge. Nothing is built or released from any other branch.
+# The version comes from tauri.conf.json: the job creates the tag v<version> itself, so
+# a merge that does not bump the version publishes nothing (it only warns).
 # GitHub always adds "Source code (zip/tar.gz)" on its own; what people download is the
 # Ekko_<version>_x64-setup.exe asset this job uploads.
 name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [production]
   # Re-run for an existing tag from the Actions tab (e.g. to re-upload the installer).
   workflow_dispatch:
     inputs:
@@ -17,48 +19,75 @@ on:
 permissions:
   contents: write
 
+# Two merges in a row: the second waits instead of racing for the same tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   windows-installer:
     runs-on: windows-latest
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.TAG }}
+          # Manual re-run builds the tag; a merge builds the production commit.
+          ref: ${{ github.event.inputs.tag || github.sha }}
+          fetch-depth: 0
+
+      - name: Ler a versão e decidir se publica
+        id: version
+        shell: pwsh
+        env:
+          MANUAL_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          $version = (Get-Content apps/desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          $tag = "v$version"
+          if ($env:MANUAL_TAG -and $env:MANUAL_TAG -ne $tag) {
+            throw "A tag $env:MANUAL_TAG não bate com a versão $version do tauri.conf.json"
+          }
+          if (-not (Test-Path "docs/releases/$tag.md")) { throw "Faltam as notas em docs/releases/$tag.md" }
+          $publish = 'true'
+          if (-not $env:MANUAL_TAG -and (git tag --list $tag)) {
+            Write-Output "::warning::A versão $version já foi publicada ($tag). Aumente a versão para gerar um release novo."
+            $publish = 'false'
+          }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "publish=$publish" >> $env:GITHUB_OUTPUT
 
       - uses: actions/setup-node@v4
+        if: steps.version.outputs.publish == 'true'
         with:
           node-version: 24
           cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
+        if: steps.version.outputs.publish == 'true'
 
       - uses: Swatinem/rust-cache@v2
+        if: steps.version.outputs.publish == 'true'
 
       - name: Instalar dependências
+        if: steps.version.outputs.publish == 'true'
         run: npm ci
 
-      - name: Conferir a tag contra a versão do app
-        shell: pwsh
-        run: |
-          $version = (Get-Content apps/desktop/src-tauri/tauri.conf.json | ConvertFrom-Json).version
-          if ("v$version" -ne $env:TAG) { throw "A tag $env:TAG não bate com a versão $version do tauri.conf.json" }
-          if (-not (Test-Path "docs/releases/$env:TAG.md")) { throw "Faltam as notas em docs/releases/$env:TAG.md" }
-
       - name: Checar (lint, tipos, testes)
+        if: steps.version.outputs.publish == 'true'
         run: |
           npm run check
           cargo test --workspace
 
       - name: Gerar o instalador
+        if: steps.version.outputs.publish == 'true'
         run: npm run tauri build
 
       - name: Publicar o release com o .exe
+        if: steps.version.outputs.publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG }}
-          name: Ekko Hub ${{ env.TAG }}
-          body_path: docs/releases/${{ env.TAG }}.md
+          # Creates the tag on the built commit when it does not exist yet.
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Ekko Hub ${{ steps.version.outputs.tag }}
+          body_path: docs/releases/${{ steps.version.outputs.tag }}.md
           files: target/release/bundle/nsis/*-setup.exe
           fail_on_unmatched_files: true

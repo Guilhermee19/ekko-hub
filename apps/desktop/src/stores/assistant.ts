@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { backend } from '@/lib/ipc'
+import { alertMs } from '@/stores/settings'
 
 // Assistant presence shown by every surface. In F1 it is driven by the demo controls;
 // from F2 on, by backend events, with the same shape.
@@ -45,8 +46,8 @@ const BACKEND_TOAST = 'ekko://toast'
 let connected = false
 let toastTimer: number | undefined
 
-/** Toasts are short news: they clear themselves unless replaced first. */
-export const TOAST_MS = 3000
+// Toasts are short news: they clear themselves after the configured time (`alertMs`)
+// unless replaced first.
 
 export const IDLE: Presence = { phase: 'idle', caption: '', toast: null, activity: null }
 
@@ -61,7 +62,7 @@ export const useAssistant = create<AssistantState>((set, get) => ({
       window.clearTimeout(toastTimer)
       toastTimer = window.setTimeout(() => {
         if (get().toast === toast) get().set({ toast: null })
-      }, TOAST_MS)
+      }, alertMs())
     }
   },
   connect: async () => {
@@ -73,12 +74,12 @@ export const useAssistant = create<AssistantState>((set, get) => ({
       set({ toast })
       window.setTimeout(() => {
         if (get().toast === toast) set({ toast: null })
-      }, TOAST_MS)
+      }, alertMs())
     })
   },
 }))
 
-/** Short toast in the notch (every window); clears itself after TOAST_MS. */
+/** Short toast in the notch (every window); clears itself after the configured time. */
 export function flashToast(text: string) {
   useAssistant.getState().set({ toast: text })
 }

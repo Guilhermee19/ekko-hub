@@ -150,12 +150,18 @@ npm run e2e:onboarding
 
 ### Release
 
-Quem publica é o GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)). Basta empurrar uma tag com a mesma versão do `tauri.conf.json` e ter as notas em `docs/releases/<tag>.md`:
+Quem publica é o GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)), e só quando a branch `production` recebe um merge. Em qualquer outra branch (inclusive a `main`) nada é compilado nem publicado.
+
+1. Na `main`, aumente a versão (`Cargo.toml`, `apps/desktop/package.json` e `tauri.conf.json`) e escreva as notas em `docs/releases/v<versão>.md`.
+2. Faça o merge da `main` na `production` (por PR ou direto):
 
 ```bash
-git tag -a v0.1.0 -m "Ekko Hub v0.1.0"
-git push origin v0.1.0       # o Actions compila e publica o release com o Ekko_0.1.0_x64-setup.exe anexado
+git checkout production
+git merge main
+git push origin production   # o Actions compila, cria a tag v<versão> e publica o release com o .exe anexado
 ```
+
+A tag é criada pelo próprio Actions. Se a versão do `tauri.conf.json` já tiver sido publicada, o merge não gera release (fica só um aviso no Actions).
 
 O GitHub sempre adiciona "Source code (zip/tar.gz)" sozinho. O que as pessoas baixam é o `.exe` em *Assets*.
 

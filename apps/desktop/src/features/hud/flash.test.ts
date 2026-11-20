@@ -30,4 +30,23 @@ describe('flashActivity', () => {
     vi.advanceTimersByTime(2100)
     expect(useAssistant.getState().activity).toBeNull()
   })
+
+  it('never goes back to another flash', () => {
+    // Another window flashed first; ours must not restore it when it leaves.
+    useAssistant.setState({ activity: { kind: 'hud', icon: 'caps', label: 'Caps Lock ligado' } })
+    vi.advanceTimersByTime(1000)
+    flashActivity({ kind: 'hud', icon: 'capsOff', label: 'Caps Lock desligado' }, 5000)
+    vi.advanceTimersByTime(5100)
+    expect(useAssistant.getState().activity).toBeNull()
+  })
+
+  it('clears a flash that arrives late, with no timer running here', () => {
+    flashActivity({ kind: 'volume', level: 0.4 }, 5000)
+    vi.advanceTimersByTime(5100)
+    expect(useAssistant.getState().activity).toBeNull()
+    // Late echo of an older broadcast.
+    useAssistant.setState({ activity: { kind: 'hud', icon: 'caps', label: 'Caps Lock ligado' } })
+    vi.advanceTimersByTime(5100)
+    expect(useAssistant.getState().activity).toBeNull()
+  })
 })

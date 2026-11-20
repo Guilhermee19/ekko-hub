@@ -106,7 +106,7 @@ export function NotchSettingsPanel() {
 
       <Field
         title="Avisos rápidos"
-        hint="Quanto tempo volume, brilho, bateria, Caps Lock e microfone ficam no notch antes de sumir."
+        hint="Quanto tempo avisos, volume, brilho, bateria, Caps Lock e microfone ficam no notch antes de sumir."
       >
         <label className="flex w-full max-w-md items-center gap-3 text-[12px] text-muted">
           <span className="w-28 shrink-0">Tempo na tela</span>

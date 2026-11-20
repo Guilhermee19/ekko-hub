@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import { backend, type PowerSnapshot } from '@/lib/ipc'
 import { reactToOsVolume } from '@/features/music/volume'
 import { alertSound } from '@/lib/notifySound'
-import { useSettings } from '@/stores/settings'
-import { alertMs, flashActivity } from './flash'
+import { alertMs, useSettings } from '@/stores/settings'
+import { flashActivity, watchFlashes } from './flash'
 import { hudFlash } from './hudActivity'
 
 /** Battery levels for the pill chip (laptop + Bluetooth headsets). */
@@ -29,6 +29,7 @@ export function useSystemHud() {
   usePowerFeed()
   useEffect(() => {
     reactToOsVolume()
+    watchFlashes()
     const offHud = backend.onHud((e) => {
       const flash = hudFlash(e)
       if (!flash || !show()[flash.group]) return

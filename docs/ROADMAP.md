@@ -24,13 +24,16 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.3.0 |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.3.0; release automático pela branch `production` |
 | V2 | Servidor + app no celular | `[ ]` |
 
 ## Releases
 
+Um release sai quando a branch `production` recebe um merge: o GitHub Actions compila o instalador, cria a tag `v<versão>` e publica. Nas outras branches nada é compilado nem publicado (passo a passo no README, seção Release).
+
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.3.1** | a publicar | Só correções: os avisos rápidos (Caps Lock, microfone, brilho, bateria, fones, volume) não ficam mais presos no notch; os avisos de texto ("Copiado!", notificações) seguem o mesmo tempo configurado; Configurações, Central e painel não cortam mais o conteúdo quando a escala da interface é diferente de 100%. Falta escrever as notas (`docs/releases/v0.3.1.md`) e fazer o merge na `production`. |
 | **v0.3.0** | 19/11/2026 | Print de uma área (Alt Gr + Print Screen) que vai para o notch; notch que reage ao sistema (volume, brilho, Caps Lock, microfone, fones) com tempo ajustável; avisos de bateria do notebook e de aparelhos Bluetooth; Início personalizável (adicionar, mover, remover, largura de 1 a 4 colunas, mesma altura) com card Bateria; menu do painel configurável; barras da música que seguem o som do PC; prévia das imagens na prateleira; Verificar meu PC com nota de saúde; contorno e velocidade de abrir do notch. Correções no arrastar para reordenar e nos avisos que ficavam presos no notch. A v0.2.0 não chegou a ser publicada e entrou nesta. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
@@ -54,7 +57,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
-| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos); liga e desliga em Aparência → Pílula |
+| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos, que na v0.3.1 passa a valer também para os avisos de texto); liga e desliga em Aparência → Pílula |
 | Bateria | Real | Aviso no notch quando começa a carregar e em 15%, 10% e 5% (com som); card no Início com notebook e aparelhos Bluetooth (fone, mouse, teclado, celular, controle), cada um com seu ícone num anel de carga |
 | Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali (imagens com prévia) e saem juntos arrastando para outro lugar (copiar ou mover) |
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
@@ -150,6 +153,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Atalho do print trocável nas Configurações, inclusive Print Screen sozinho e atalhos prontos
 - [x] Notch reage ao sistema: volume pelas teclas, brilho, Caps Lock, microfone mudo e carregador
 - [x] Bateria do notebook e dos fones Bluetooth na pílula, com aviso de bateria fraca
+- [x] Avisos rápidos somem sempre no tempo configurado, inclusive com eco atrasado ou outra janela reagindo; avisos de texto usam o mesmo tempo (v0.3.1)
+- [x] Escala da interface sem cortar Configurações, Central e painel (v0.3.1)
+- [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%
 - [ ] Confirmar no app: reações do notch e bateria de um fone Bluetooth conectado
 - [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print
 - [ ] Confirmar no app instalado: soltar arquivos no notch e arrastar da prateleira para fora
@@ -224,6 +230,7 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 
 - [ ] Spotify completo (OAuth: capa, fila, dispositivos, tocar em outro aparelho)
 - [ ] Google Calendar
+- [ ] Google Agenda com um clique: Client ID do próprio Ekko embutido no app e verificado no Google, para ninguém precisar criar credenciais (hoje cada pessoa cadastra o seu Client ID/secret)
 - [ ] Mandar tarefa pesada para o Claude Code
 - [ ] **Cliente MCP**: plugar qualquer servidor MCP como tools
 - [ ] Memória de longo prazo (notas markdown + busca vetorial, portada do Jarvis)
@@ -246,6 +253,7 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 ## F9: Polimento v1
 
 - [ ] Autostart com o Windows
+- [x] Release automático: merge na `production` compila o instalador, cria a tag e publica (falta criar a branch e rodar a primeira vez)
 - [ ] Instalador (NSIS/MSI) + auto-update (plugin updater do Tauri)
 - [ ] Multi-monitor (lembrar monitor e posição)
 - [ ] "Modo desempenho" e consumo de RAM otimizado
