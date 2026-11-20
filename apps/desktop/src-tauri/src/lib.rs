@@ -140,6 +140,8 @@ pub fn run() {
             commands::system::audit_recent,
             commands::clipboard::clipboard_list,
             commands::clipboard::clipboard_copy,
+            commands::clipboard::clipboard_copy_item,
+            commands::clipboard::clipboard_set_limit,
             commands::clipboard::clipboard_pin,
             commands::clipboard::clipboard_remove,
             commands::clipboard::clipboard_clear,

@@ -18,7 +18,7 @@ export function HistoryTab({ query }: { query: string }) {
       <EmptyState
         icon={ClipboardX}
         title="Nada copiado ainda"
-        hint="O que você copiar aparece aqui."
+        hint="Textos, imagens e arquivos que você copiar aparecem aqui."
       />
     )
   }

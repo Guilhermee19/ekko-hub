@@ -6,7 +6,7 @@ import { Badge } from '@/ui/data'
 import { Toggle } from '@/ui/forms'
 import { Button, Card } from '@/ui/primitives'
 import { Field } from '../Field'
-import { DndField, SoundField } from './GeneralAlerts'
+import { ClipboardField, DndField, SoundField } from './GeneralAlerts'
 import { Chip, PageFrame, Row } from './GeneralControls'
 import { toast, usePrefs } from './prefsAssistant'
 import { DEFAULT_SHORTCUTS } from './shortcutsCombo'
@@ -82,6 +82,7 @@ export function GeneralPage() {
 
       <DndField />
       <SoundField />
+      <ClipboardField />
 
       <Field title="Boas-vindas" hint="Passa de novo pelo tour inicial e pela escolha de modo.">
         <Button onClick={() => void backend.openOnboarding()}>

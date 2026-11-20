@@ -34,6 +34,26 @@ const CLIPS: Clip[] = [
     pinned: false,
   },
   {
+    id: 'c6',
+    kind: 'image',
+    content: 'Imagem 1280×720',
+    source: 'Ferramenta de Captura',
+    at: min(14),
+    pinned: false,
+  },
+  {
+    id: 'c7',
+    kind: 'files',
+    content: 'Relatório de vendas.pdf, foto-praia.jpg',
+    source: 'Explorador de Arquivos',
+    at: min(20),
+    pinned: false,
+    files: [
+      'C:\\Users\\Ana\\Documentos\\Relatório de vendas.pdf',
+      'C:\\Users\\Ana\\Imagens\\foto-praia.jpg',
+    ],
+  },
+  {
     id: 'c3',
     kind: 'code',
     content: 'const total = items.reduce((acc, i) => acc + i.price * i.qty, 0)',
@@ -65,7 +85,7 @@ const SNIPPETS: Snippet[] = [
 ]
 
 export function mockClipboard({ on, fire }: Bus): ClipboardBackend {
-  let state: ClipboardSnapshot = { paused: false, clips: CLIPS, snippets: SNIPPETS }
+  let state: ClipboardSnapshot = { paused: false, limit: 50, clips: CLIPS, snippets: SNIPPETS }
   const commit = (next: Partial<ClipboardSnapshot>) => {
     state = { ...state, ...next }
     fire(CLIPBOARD_CHANGED, state)
@@ -90,6 +110,21 @@ export function mockClipboard({ on, fire }: Bus): ClipboardBackend {
         () => {},
       )
     },
+    clipboardCopyItem: (id) => {
+      const clip = state.clips.find((c) => c.id === id)
+      if (!clip) return Promise.reject(new Error('esse item não está mais no histórico'))
+      const moved = { ...clip, at: Date.now() }
+      return commit({ clips: [moved, ...state.clips.filter((c) => c.id !== id)] }).then(() => {})
+    },
+    clipboardSetLimit: (limit) => {
+      let unpinned = 0
+      return commit({
+        limit,
+        clips: state.clips.filter((c) => c.pinned || ++unpinned <= limit),
+      })
+    },
+    // No files in the browser: the list shows a placeholder thumbnail.
+    clipboardImageUrl: () => null,
     clipboardPin: (id) =>
       commit({ clips: state.clips.map((c) => (c.id === id ? { ...c, pinned: !c.pinned } : c)) }),
     clipboardRemove: (id) => commit({ clips: state.clips.filter((c) => c.id !== id) }),

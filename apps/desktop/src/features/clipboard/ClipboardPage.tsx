@@ -22,11 +22,16 @@ export function ClipboardPage({ compact }: PageProps) {
   const history = tab === 'history'
   const paused = useClipboard((s) => s.paused)
   const setPaused = useClipboard((s) => s.setPaused)
+  const limit = useClipboard((s) => s.limit)
   return (
     <div className="animate-rise-in flex flex-col gap-3">
       <PageHeader
         title="Copiados"
-        hint={compact ? undefined : 'Histórico da área de transferência e textos prontos.'}
+        hint={
+          compact
+            ? undefined
+            : `Textos, imagens e arquivos que você copia (guardo os últimos ${limit}) e textos prontos.`
+        }
         actions={
           <div className="flex items-center gap-1.5">
             <IconButton

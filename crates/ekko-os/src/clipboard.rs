@@ -1,18 +1,30 @@
 //! Windows clipboard for Copiados: a cheap change counter to poll (no hidden window),
-//! read/write Unicode text and the friendly name of the app that copied.
+//! read/write text, images and files, and the friendly name of the app that copied.
 //! Copies flagged private by password managers are reported as `Read::Private`, the
 //! same rule Windows' own clipboard history follows.
 
 /// Longest text read, in UTF-16 units; bigger copies are not history material.
 const READ_LIMIT: usize = 200_000;
+/// Biggest image read, in bytes (40 megapixels at 32 bits).
+const IMAGE_LIMIT: usize = 160_000_000;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Read {
     Text(String),
-    /// No text (an image, files…), too big, or the clipboard was busy.
+    Image(Image),
+    /// Paths copied in Explorer (or any app that copies files).
+    Files(Vec<String>),
+    /// Nothing Copiados keeps, too big, or the clipboard was busy.
     Nothing,
     /// The app asked not to be recorded (passwords).
     Private,
+}
+
+/// A copied image as the app put it: PNG keeps transparency, DIB is what most apps use.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Image {
+    Png(Vec<u8>),
+    Dib(Vec<u8>),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -31,10 +43,12 @@ pub fn sequence() -> u32 {
     }
 }
 
-pub fn read_text() -> Read {
+/// What is on the clipboard: files first (Explorer also puts their names as text),
+/// then text (Office puts a picture of the cells too), then an image.
+pub fn read() -> Read {
     #[cfg(windows)]
     {
-        win::read_text()
+        win::read()
     }
     #[cfg(not(windows))]
     {
@@ -50,6 +64,20 @@ pub fn write_text(text: &str) -> Result<(), Busy> {
     #[cfg(not(windows))]
     {
         let _ = text;
+        Err(Busy)
+    }
+}
+
+/// Puts files on the clipboard, as Explorer's "Copiar" does (paste them anywhere).
+pub fn write_files(paths: &[String]) -> Result<(), Busy> {
+    #[cfg(windows)]
+    {
+        // 15 = CF_HDROP.
+        win::write_bytes(15, &crate::drop_files::encode(paths))
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = paths;
         Err(Busy)
     }
 }
@@ -105,7 +133,7 @@ mod win {
     use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowThreadProcessId};
     use windows::core::{PWSTR, w};
 
-    use super::{Busy, READ_LIMIT, Read};
+    use super::{Busy, IMAGE_LIMIT, Image, READ_LIMIT, Read};
 
     /// The clipboard while open; closed on drop. Another app may hold it for a moment.
     struct Open;
@@ -165,22 +193,59 @@ mod win {
         }
     }
 
-    pub fn read_text() -> Read {
+    pub fn read() -> Read {
         let Some(_open) = Open::new() else {
             return Read::Nothing;
         };
         if private() {
             return Read::Private;
         }
+        // 15 = CF_HDROP, 8 = CF_DIB (Windows also makes it from CF_BITMAP/CF_DIBV5).
+        let files = bytes(15, IMAGE_LIMIT)
+            .map(|b| crate::drop_files::decode(&b))
+            .unwrap_or_default();
+        if !files.is_empty() {
+            return Read::Files(files);
+        }
+        if let Some(text) = text() {
+            return Read::Text(text);
+        }
+        // SAFETY: registering a format name is idempotent.
+        let png = unsafe { RegisterClipboardFormatW(w!("PNG")) };
+        if let Some(b) = bytes(png, IMAGE_LIMIT) {
+            return Read::Image(Image::Png(b));
+        }
+        bytes(8, IMAGE_LIMIT).map_or(Read::Nothing, |b| Read::Image(Image::Dib(b)))
+    }
+
+    /// A copy of `format`'s data (None when missing or bigger than `limit`).
+    fn bytes(format: u32, limit: usize) -> Option<Vec<u8>> {
         // SAFETY: the handle belongs to the open clipboard; reads stay inside GlobalSize.
         unsafe {
-            let Ok(handle) = GetClipboardData(u32::from(CF_UNICODETEXT.0)) else {
-                return Read::Nothing;
-            };
+            let handle = GetClipboardData(format).ok()?;
+            let global = HGLOBAL(handle.0);
+            let size = GlobalSize(global);
+            if size == 0 || size > limit {
+                return None;
+            }
+            let ptr = GlobalLock(global) as *const u8;
+            if ptr.is_null() {
+                return None;
+            }
+            let out = std::slice::from_raw_parts(ptr, size).to_vec();
+            let _ = GlobalUnlock(global);
+            Some(out)
+        }
+    }
+
+    fn text() -> Option<String> {
+        // SAFETY: the handle belongs to the open clipboard; reads stay inside GlobalSize.
+        unsafe {
+            let handle = GetClipboardData(u32::from(CF_UNICODETEXT.0)).ok()?;
             let global = HGLOBAL(handle.0);
             let ptr = GlobalLock(global) as *const u16;
             if ptr.is_null() {
-                return Read::Nothing;
+                return None;
             }
             let units = (GlobalSize(global) / 2).min(READ_LIMIT);
             let slice = std::slice::from_raw_parts(ptr, units);
@@ -189,7 +254,7 @@ mod win {
                 .position(|&u| u == 0)
                 .map(|len| String::from_utf16_lossy(&slice[..len]));
             let _ = GlobalUnlock(global);
-            text.map_or(Read::Nothing, Read::Text)
+            text
         }
     }
 

@@ -59,10 +59,10 @@ fn keeps_pinned_beyond_the_cap() {
     c.record("fixo", "App", 0);
     let id = c.clips[0].id.clone();
     c.toggle_pin(&id);
-    for i in 1..=(MAX_CLIPS as u64 + 5) {
+    for i in 1..=(DEFAULT_LIMIT as u64 + 5) {
         c.record(&format!("item {i}"), "App", i);
     }
-    assert_eq!(c.clips.len(), MAX_CLIPS + 1);
+    assert_eq!(c.clips.len(), DEFAULT_LIMIT + 1);
     assert!(c.clips.iter().any(|c| c.id == id));
     assert!(!c.clips.iter().any(|c| c.content == "item 1"));
 }
@@ -108,4 +108,67 @@ fn json_is_camel_case_and_tolerates_missing_fields() {
     assert_eq!(json["clips"][0]["at"], 7);
     let back: Clipboard = serde_json::from_str(r#"{"clips":[]}"#).unwrap();
     assert!(!back.paused && back.snippets.is_empty());
+}
+
+#[test]
+fn images_and_files_are_recorded_and_deduplicated() {
+    let mut c = Clipboard::default();
+    let image = || Copied::Image {
+        path: r"C:\ekko\clipboard\img-1.png".into(),
+        width: 1280,
+        height: 720,
+    };
+    assert!(c.record_copy(image(), "Chrome", 1));
+    assert_eq!(c.clips[0].kind, ClipKind::Image);
+    assert_eq!(c.clips[0].content, "Imagem 1280×720");
+    let files = || Copied::Files(vec![r"C:\docs\relatorio.pdf".into(), r"C:\fotos\".into()]);
+    assert!(c.record_copy(files(), "Explorador de Arquivos", 2));
+    assert_eq!(c.clips[0].kind, ClipKind::Files);
+    assert_eq!(c.clips[0].content, "relatorio.pdf, fotos");
+    // The same image again moves up instead of duplicating.
+    assert!(c.record_copy(image(), "Paint", 3));
+    assert_eq!(c.clips.len(), 2);
+    assert_eq!(
+        (c.clips[0].kind, c.clips[0].source.as_str()),
+        (ClipKind::Image, "Chrome")
+    );
+    assert_eq!(
+        c.images().collect::<Vec<_>>(),
+        [r"C:\ekko\clipboard\img-1.png"]
+    );
+    assert!(!c.record_copy(Copied::Files(vec![]), "App", 4));
+    // A text equal to an image's description is a different clip.
+    assert!(c.record("Imagem 1280×720", "Notepad", 5));
+    assert_eq!(c.clips.len(), 3);
+}
+
+#[test]
+fn limit_snaps_to_the_options_and_trims_at_once() {
+    let mut c = Clipboard::default();
+    assert_eq!(c.limit, DEFAULT_LIMIT);
+    for i in 0..40 {
+        c.record(&format!("item {i}"), "App", i);
+    }
+    assert!(c.set_limit(20));
+    assert_eq!((c.limit, c.clips.len()), (20, 20));
+    assert_eq!(c.clips[0].content, "item 39");
+    assert!(c.set_limit(90));
+    assert_eq!(c.limit, 100);
+    assert!(!c.set_limit(100));
+    // Files saved before the limit existed get the default.
+    let old: Clipboard = serde_json::from_str(r#"{"paused":false,"clips":[]}"#).unwrap();
+    assert_eq!(old.limit, DEFAULT_LIMIT);
+}
+
+#[test]
+fn touch_moves_a_clip_up_and_hash_is_stable() {
+    let mut c = Clipboard::default();
+    c.record("a", "App", 1);
+    c.record("b", "App", 2);
+    let id = c.clips[1].id.clone();
+    assert!(c.touch(&id, 3));
+    assert_eq!((c.clips[0].content.as_str(), c.clips[0].at), ("a", 3));
+    assert!(!c.touch("nope", 4));
+    assert_eq!(content_hash(b""), 0xcbf2_9ce4_8422_2325);
+    assert_ne!(content_hash(b"a"), content_hash(b"b"));
 }

@@ -157,6 +157,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Escala da interface sem cortar Configurações, Central e painel (v0.3.2)
 - [x] Agenda como calendário: mês inteiro com os eventos em cada dia, navegar entre meses, eventos do dia escolhido; card do Início com a data e os próximos eventos (v0.3.2)
 - [x] Olhos do Ekko em cápsula, com humor: fica com sono (3 min sem mexer no PC) e dorme (8 min), leva susto ao acordar, com Caps Lock ligado, bateria fraca e timer tocando, e fica animado ao conectar o carregador ou um fone e ao guardar arquivos na prateleira
+- [x] Copiados guarda imagens (PNG em `clipboard\`) e arquivos, além de texto, e copia de volta como estavam; limite de 20, 50, 100 ou 200 itens em Configurações → Geral, apagando as imagens que saem do histórico
+- [ ] Confirmar no app: copiar imagem (navegador, print) e arquivos (Explorador) e colar de volta pelo Copiados
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%

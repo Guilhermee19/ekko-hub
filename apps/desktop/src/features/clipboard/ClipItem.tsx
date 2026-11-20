@@ -1,4 +1,18 @@
-import { Code2, Copy, Image, Link2, Pin, PinOff, Trash2, Type, type LucideIcon } from 'lucide-react'
+import {
+  Code2,
+  Copy,
+  File,
+  Files,
+  Image,
+  Link2,
+  Pin,
+  PinOff,
+  Trash2,
+  Type,
+  type LucideIcon,
+} from 'lucide-react'
+import { useState } from 'react'
+import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/primitives'
 import { useClipboard, type Clip, type ClipKind } from './store'
@@ -9,10 +23,11 @@ const KIND: Record<ClipKind, { icon: LucideIcon; label: string }> = {
   link: { icon: Link2, label: 'Link' },
   code: { icon: Code2, label: 'Código' },
   image: { icon: Image, label: 'Imagem' },
+  files: { icon: Files, label: 'Arquivos' },
 }
 
 export function ClipItem({ clip, now }: { clip: Clip; now: number }) {
-  const { copy, togglePin, remove } = useClipboard.getState()
+  const { copyItem, togglePin, remove } = useClipboard.getState()
   const { icon: Icon, label } = KIND[clip.kind]
   return (
     <li
@@ -37,7 +52,7 @@ export function ClipItem({ clip, now }: { clip: Clip; now: number }) {
         </div>
       </div>
       <div className="flex shrink-0 items-center opacity-70 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
-        <IconButton label="Copiar" onClick={() => copy(clip.content)}>
+        <IconButton label="Copiar de novo" onClick={() => copyItem(clip.id)}>
           <Copy className="size-3.5" />
         </IconButton>
         <IconButton
@@ -55,16 +70,28 @@ export function ClipItem({ clip, now }: { clip: Clip; now: number }) {
   )
 }
 
+/** Last part of a Windows path ("C:\\a\\b.pdf" → "b.pdf"). */
+const baseName = (path: string) => path.split(/[\\/]/).filter(Boolean).pop() ?? path
+
 function Preview({ clip }: { clip: Clip }) {
-  if (clip.kind === 'image') {
+  if (clip.kind === 'image') return <ImagePreview clip={clip} />
+  if (clip.kind === 'files') {
+    const files = clip.files ?? []
+    const extra = files.length - 3
     return (
-      <div className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="hud-grid h-10 w-16 shrink-0 rounded-md border border-border-soft bg-base"
-        />
-        <span className="truncate text-[13px]">{clip.content}</span>
-      </div>
+      <ul className="flex flex-col gap-0.5">
+        {files.slice(0, 3).map((f) => (
+          <li key={f} className="flex min-w-0 items-center gap-1.5 text-[13px]" title={f}>
+            <File className="size-3 shrink-0 text-muted" aria-hidden />
+            <span className="truncate">{baseName(f)}</span>
+          </li>
+        ))}
+        {extra > 0 && (
+          <li className="text-[11px] text-muted">
+            +{extra} {extra === 1 ? 'arquivo' : 'arquivos'}
+          </li>
+        )}
+      </ul>
     )
   }
   if (clip.kind === 'code') {
@@ -83,5 +110,30 @@ function Preview({ clip }: { clip: Clip }) {
     >
       {clip.content}
     </p>
+  )
+}
+
+/** Thumbnail of the saved PNG; a grid placeholder when it cannot be shown. */
+function ImagePreview({ clip }: { clip: Clip }) {
+  const url = backend.clipboardImageUrl(clip)
+  const [broken, setBroken] = useState(false)
+  return (
+    <div className="flex items-center gap-2">
+      {url && !broken ? (
+        <img
+          src={url}
+          alt={clip.content}
+          loading="lazy"
+          onError={() => setBroken(true)}
+          className="h-14 max-w-32 shrink-0 rounded-md border border-border-soft bg-base object-contain"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="hud-grid h-10 w-16 shrink-0 rounded-md border border-border-soft bg-base"
+        />
+      )}
+      <span className="truncate text-[13px]">{clip.content}</span>
+    </div>
   )
 }
