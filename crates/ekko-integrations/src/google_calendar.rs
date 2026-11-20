@@ -68,14 +68,20 @@ pub fn account(s: &Session) -> Result<Option<String>> {
 
 /// Events overlapping `[now, now + hours]`, sorted by start, from selected calendars.
 pub fn upcoming(s: &Session, now_ms: i64, hours: i64) -> Result<Vec<CalendarEvent>> {
+    let mut events = between(s, now_ms, now_ms + hours * 3_600_000)?;
+    events.retain(|e| e.end_ms > now_ms);
+    Ok(events)
+}
+
+/// Events overlapping `[from, to]` (past ones included), sorted by start, from selected
+/// calendars. For the month view.
+pub fn between(s: &Session, from_ms: i64, to_ms: i64) -> Result<Vec<CalendarEvent>> {
     let mut events = Vec::new();
     for (id, name) in calendars(s)? {
-        let url = events_url(&id, now_ms, now_ms + hours * 3_600_000);
-        let v = s.get(&url)?.unwrap_or_default();
+        let v = s.get(&events_url(&id, from_ms, to_ms))?.unwrap_or_default();
         let items = v["items"].as_array().cloned().unwrap_or_default();
         events.extend(items.iter().filter_map(|e| parse_event(e, &name)));
     }
-    events.retain(|e| e.end_ms > now_ms);
     events.sort_by_key(|e| (e.start_ms, e.end_ms));
     Ok(events)
 }
@@ -120,7 +126,8 @@ pub fn events_url(calendar_id: &str, from_ms: i64, to_ms: i64) -> String {
         .append_pair("timeMax", &rfc3339(to_ms))
         .append_pair("singleEvents", "true")
         .append_pair("orderBy", "startTime")
-        .append_pair("maxResults", "50");
+        // Enough for a busy month in one page.
+        .append_pair("maxResults", "250");
     url.into()
 }
 

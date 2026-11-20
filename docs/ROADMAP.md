@@ -33,7 +33,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
-| **v0.3.1** | a publicar | Só correções: os avisos rápidos (Caps Lock, microfone, brilho, bateria, fones, volume) não ficam mais presos no notch; os avisos de texto ("Copiado!", notificações) seguem o mesmo tempo configurado; Configurações, Central e painel não cortam mais o conteúdo quando a escala da interface é diferente de 100%. Falta escrever as notas (`docs/releases/v0.3.1.md`) e fazer o merge na `production`. |
+| **v0.3.2** | a publicar | Agenda como calendário: o mês inteiro com os eventos em cada dia, navegação entre meses e a lista do dia escolhido; card Agenda do Início com a folha do dia e os próximos eventos; Google Agenda pronto para conectar com um clique (quando o instalador levar o cliente OAuth do Ekko). Correções: os avisos rápidos (Caps Lock, microfone, brilho, bateria, fones, volume) não ficam mais presos no notch; os avisos de texto ("Copiado!", notificações) seguem o mesmo tempo configurado; Configurações, Central e painel não cortam mais o conteúdo quando a escala da interface é diferente de 100%. A v0.3.1 não chegou a ser publicada e entrou nesta. Falta escrever as notas (`docs/releases/v0.3.2.md`) e fazer o merge na `production`. |
 | **v0.3.0** | 19/11/2026 | Print de uma área (Alt Gr + Print Screen) que vai para o notch; notch que reage ao sistema (volume, brilho, Caps Lock, microfone, fones) com tempo ajustável; avisos de bateria do notebook e de aparelhos Bluetooth; Início personalizável (adicionar, mover, remover, largura de 1 a 4 colunas, mesma altura) com card Bateria; menu do painel configurável; barras da música que seguem o som do PC; prévia das imagens na prateleira; Verificar meu PC com nota de saúde; contorno e velocidade de abrir do notch. Correções no arrastar para reordenar e nos avisos que ficavam presos no notch. A v0.2.0 não chegou a ser publicada e entrou nesta. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
@@ -49,7 +49,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
 | Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som; com Spotify: fila, dispositivos, aleatório, repetir |
-| Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch |
+| Agenda (Google) | Real (precisa de Client ID/secret) | Próximos eventos, aviso 10 min antes, evento no notch; na v0.3.2, calendário do mês com os eventos em cada dia e card do Início com a folha do dia |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Geral | Real | Iniciar com o Windows, esconder em tela cheia, não perturbe, sons |
 | Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
@@ -57,7 +57,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico do que você copia (texto), fixar, buscar, pausar; senhas de gerenciadores ficam de fora |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
-| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos, que na v0.3.1 passa a valer também para os avisos de texto); liga e desliga em Aparência → Pílula |
+| Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Notch → Avisos rápidos, que na v0.3.2 passa a valer também para os avisos de texto); liga e desliga em Aparência → Pílula |
 | Bateria | Real | Aviso no notch quando começa a carregar e em 15%, 10% e 5% (com som); card no Início com notebook e aparelhos Bluetooth (fone, mouse, teclado, celular, controle), cada um com seu ícone num anel de carga |
 | Prateleira de arquivos | Real | Solte arquivos no notch; eles esperam ali (imagens com prévia) e saem juntos arrastando para outro lugar (copiar ou mover) |
 | Conversa, Rotinas, Memória | **Escondidas** | Telas prontas, fora dos menus até a fase chegar (`src/lib/availability.ts`: status `soon` = escondido) |
@@ -153,8 +153,10 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Atalho do print trocável nas Configurações, inclusive Print Screen sozinho e atalhos prontos
 - [x] Notch reage ao sistema: volume pelas teclas, brilho, Caps Lock, microfone mudo e carregador
 - [x] Bateria do notebook e dos fones Bluetooth na pílula, com aviso de bateria fraca
-- [x] Avisos rápidos somem sempre no tempo configurado, inclusive com eco atrasado ou outra janela reagindo; avisos de texto usam o mesmo tempo (v0.3.1)
-- [x] Escala da interface sem cortar Configurações, Central e painel (v0.3.1)
+- [x] Avisos rápidos somem sempre no tempo configurado, inclusive com eco atrasado ou outra janela reagindo; avisos de texto usam o mesmo tempo (v0.3.2)
+- [x] Escala da interface sem cortar Configurações, Central e painel (v0.3.2)
+- [x] Agenda como calendário: mês inteiro com os eventos em cada dia, navegar entre meses, eventos do dia escolhido; card do Início com a data e os próximos eventos (v0.3.2)
+- [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%
 - [ ] Confirmar no app: reações do notch e bateria de um fone Bluetooth conectado
 - [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print

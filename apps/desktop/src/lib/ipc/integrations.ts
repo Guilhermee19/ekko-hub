@@ -93,6 +93,8 @@ export interface IntegrationsBackend extends ConnectorsBackend {
   connectGoogle(): Promise<IntegrationStatus>
   disconnectIntegration(provider: IntegrationProvider): Promise<IntegrationStatus>
   calendarUpcoming(): Promise<CalendarEvent[]>
+  /** Events between two instants (epoch ms), past ones included: the month view. */
+  calendarRange(fromMs: number, toMs: number): Promise<CalendarEvent[]>
   onCalendarChanged(cb: (events: CalendarEvent[]) => void): Promise<Unlisten>
   onCalendarSoon(cb: (reminder: CalendarReminder) => void): Promise<Unlisten>
   spotifyState(): Promise<SpotifyPlayback | null>

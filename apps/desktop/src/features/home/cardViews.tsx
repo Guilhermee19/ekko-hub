@@ -1,6 +1,5 @@
 import {
   AlarmClock,
-  CalendarDays,
   Clipboard,
   Cpu,
   Droplets,
@@ -9,8 +8,7 @@ import {
   Timer,
 } from 'lucide-react'
 import { useEffect, type ComponentType } from 'react'
-import { nextEvent, relative } from '@/features/calendar/agenda'
-import { useCalendar } from '@/features/calendar/store'
+import { AgendaCard as AgendaView } from '@/features/calendar/AgendaCard'
 import { BatteryCard } from '@/features/hud/BatteryCard'
 import { useClipboard } from '@/features/clipboard/store'
 import { useHabits } from '@/features/habits/store'
@@ -122,23 +120,7 @@ function TimersCard({ go }: CardProps) {
 }
 
 function AgendaCard({ go }: CardProps) {
-  const events = useCalendar((s) => s.events)
-  const connected = useCalendar((s) => s.connected)
-  const now = useNow(true)
-  const event = nextEvent(events, now)
-  return (
-    <StatCard
-      icon={CalendarDays}
-      label="Agenda"
-      value={event ? relative(event, now) : '—'}
-      sub={
-        <span className="line-clamp-1">
-          {event ? event.title : connected ? 'nada nas próximas 24 h' : 'conecte o Google Agenda'}
-        </span>
-      }
-      onClick={() => go('agenda')}
-    />
-  )
+  return <AgendaView onOpen={() => go('agenda')} />
 }
 
 function PcCard({ go }: CardProps) {

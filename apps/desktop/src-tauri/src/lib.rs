@@ -112,6 +112,7 @@ pub fn run() {
             commands::integrations::connect_google,
             commands::integrations::disconnect_integration,
             commands::integrations::calendar_upcoming,
+            commands::integrations::calendar_range,
             commands::integrations::spotify_state,
             commands::integrations::spotify_devices,
             commands::integrations::spotify_queue,

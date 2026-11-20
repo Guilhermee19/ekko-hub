@@ -158,6 +158,25 @@ pub async fn calendar_upcoming(app: AppHandle) -> Result<Vec<CalendarEvent>, Str
     blocking(&app, calendar::refresh).await
 }
 
+/// Longest range the month view may ask for (6 weeks on screen, with slack).
+const MAX_RANGE_MS: i64 = 62 * 24 * 3_600_000;
+
+/// Events between two instants (epoch ms), past ones included: the month view.
+#[tauri::command]
+pub async fn calendar_range(
+    app: AppHandle,
+    from_ms: i64,
+    to_ms: i64,
+) -> Result<Vec<CalendarEvent>, String> {
+    if to_ms <= from_ms || to_ms - from_ms > MAX_RANGE_MS {
+        return Err("período inválido para a agenda".into());
+    }
+    blocking(&app, move |app| {
+        google_calendar::between(&session(app, Provider::Google)?, from_ms, to_ms)
+    })
+    .await
+}
+
 #[tauri::command]
 pub async fn spotify_state(app: AppHandle) -> Result<Option<SpotifyPlayback>, String> {
     blocking(&app, |app| {

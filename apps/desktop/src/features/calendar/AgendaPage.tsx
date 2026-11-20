@@ -1,31 +1,53 @@
-import { CalendarDays, CalendarOff, MapPin, RefreshCw, Video } from 'lucide-react'
-import { useEffect } from 'react'
+import { CalendarOff, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { backend, type CalendarEvent } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { useIntegrations } from '@/features/integrations/store'
-import type { PageProps } from '@/surfaces/panel/pages'
 import { useNow } from '@/surfaces/shared/useNow'
-import { Badge, EmptyState, PageHeader } from '@/ui/data'
+import { EmptyState, PageHeader } from '@/ui/data'
 import { Button, IconButton } from '@/ui/primitives'
-import { clock, dayFraction, isOngoing, nextEvent, relative, splitByDay } from './agenda'
+import { clock, isOngoing, nextEvent, relative } from './agenda'
+import { DayEvents, JoinButton } from './DayEvents'
+import { eventsOn, monthLabel, monthOf, sameMonth, shiftMonth, startOfDay } from './month'
+import { MonthGrid } from './MonthGrid'
 import { useCalendar } from './store'
 
-const FROM_HOUR = 7
-const TO_HOUR = 23
-
-export function AgendaPage({ compact }: PageProps) {
-  const { events, connected, loading, error, refresh } = useCalendar()
+/** The agenda as a wall calendar: the month, and the selected day's events beside it. */
+export function AgendaPage() {
+  const { events, month, monthEvents, connected, loading, error, refresh, showMonth } =
+    useCalendar()
   const now = useNow(true, 30_000)
+  const today = startOfDay(now)
+  const [selected, setSelected] = useState(today)
 
   useEffect(() => {
     void useIntegrations.getState().refresh()
   }, [])
+  // Opening the page always starts on the current month, fresh.
+  useEffect(() => {
+    if (connected) void useCalendar.getState().showMonth(monthOf(Date.now()))
+  }, [connected])
 
   const next = nextEvent(events, now)
-  const { allDay, today, later } = splitByDay(events, now)
+  const go = (delta: number) => {
+    const target = shiftMonth(month, delta)
+    // Keep a day selected in the month on screen: today when it is there, else the 1st.
+    const first = new Date(target.year, target.month, 1).getTime()
+    setSelected(sameMonth(target, monthOf(today)) ? today : first)
+    void showMonth(target)
+  }
+  const goToday = () => {
+    setSelected(today)
+    void showMonth(monthOf(today))
+  }
+  const select = (day: number) => {
+    setSelected(day)
+    // A dimmed day of the neighbour month takes you there.
+    if (!sameMonth(monthOf(day), month)) void showMonth(monthOf(day))
+  }
 
   return (
-    <div className="animate-rise-in flex flex-col gap-3">
+    <div className="animate-rise-in @container flex flex-col gap-3">
       <PageHeader
         title="Agenda"
         hint={
@@ -46,28 +68,40 @@ export function AgendaPage({ compact }: PageProps) {
 
       {!connected ? (
         <Disconnected />
-      ) : events.length === 0 ? (
-        <EmptyState
-          icon={CalendarDays}
-          title={error ? 'Não consegui ler a agenda' : 'Agenda livre'}
-          hint={error ?? 'Nenhum evento nas próximas 24 horas. Aproveite.'}
-        />
       ) : (
         <>
           {next && <NextCard event={next} now={now} />}
-          {allDay.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {allDay.map((e) => (
-                <Badge key={e.id} tone="accent">
-                  {e.title}
-                </Badge>
-              ))}
+          <div className="flex items-center gap-1">
+            <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold" aria-live="polite">
+              {monthLabel(month)}
+            </h2>
+            {!(sameMonth(month, monthOf(today)) && selected === today) && (
+              <Button size="sm" variant="subtle" onClick={goToday}>
+                Hoje
+              </Button>
+            )}
+            <IconButton label="Mês anterior" onClick={() => go(-1)}>
+              <ChevronLeft className="size-4" aria-hidden />
+            </IconButton>
+            <IconButton label="Próximo mês" onClick={() => go(1)}>
+              <ChevronRight className="size-4" aria-hidden />
+            </IconButton>
+          </div>
+          <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start">
+            <div className="min-w-0 @3xl:flex-1">
+              <MonthGrid
+                month={month}
+                events={monthEvents}
+                today={today}
+                selected={selected}
+                onSelect={select}
+              />
             </div>
-          )}
-          {!compact && today.length > 0 && <DayBar events={today} now={now} />}
-          <EventList title="Hoje" events={today} now={now} />
-          <EventList title="Amanhã" events={later} now={now} />
-          {error && <p className="text-[11px] text-danger">{error}</p>}
+            <div className="min-w-0 @3xl:w-72 @3xl:shrink-0">
+              <DayEvents day={selected} events={eventsOn(monthEvents, selected)} now={now} />
+            </div>
+          </div>
+          {error && <p className="text-[11px] text-danger">Não consegui ler a agenda: {error}</p>}
         </>
       )}
     </div>
@@ -89,90 +123,20 @@ function Disconnected() {
   )
 }
 
-function JoinButton({ event }: { event: CalendarEvent }) {
-  if (!event.meetLink) return null
-  const link = event.meetLink
-  return (
-    <Button size="sm" variant="primary" onClick={() => void backend.openExternal(link)}>
-      <Video className="size-3.5" aria-hidden /> Entrar na reunião
-    </Button>
-  )
-}
-
 function NextCard({ event, now }: { event: CalendarEvent; now: number }) {
   const ongoing = isOngoing(event, now)
   return (
-    <section className="flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/10 p-3">
+    <section className="flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/10 px-3 py-2">
       <div className="min-w-0 flex-1">
         <div className="text-[11px] font-medium text-accent">
           {ongoing ? 'Acontecendo agora' : `Próximo, ${relative(event, now)}`}
         </div>
         <div className="truncate text-[14px] font-semibold">{event.title}</div>
-        <div className="text-[12px] text-muted">
+        <div className="truncate text-[12px] text-muted">
           {clock(event.startMs)} – {clock(event.endMs)} · {event.calendarName}
         </div>
       </div>
       <JoinButton event={event} />
-    </section>
-  )
-}
-
-/** Today from 7h to 23h: event blocks plus a "now" marker. */
-function DayBar({ events, now }: { events: CalendarEvent[]; now: number }) {
-  const pct = (ms: number) => `${dayFraction(ms, FROM_HOUR, TO_HOUR) * 100}%`
-  return (
-    <div aria-hidden className="relative mb-3 h-6 rounded-md border border-border-soft bg-base/40">
-      {events.map((e) => (
-        <span
-          key={e.id}
-          title={e.title}
-          className="absolute inset-y-1 rounded-sm bg-accent/50"
-          style={{
-            left: pct(e.startMs),
-            width: `max(4px, calc(${pct(e.endMs)} - ${pct(e.startMs)}))`,
-          }}
-        />
-      ))}
-      <span className="absolute inset-y-0 w-px bg-danger" style={{ left: pct(now) }} />
-      <span className="absolute -bottom-4 left-0 text-[10px] text-muted">{FROM_HOUR}h</span>
-      <span className="absolute right-0 -bottom-4 text-[10px] text-muted">{TO_HOUR}h</span>
-    </div>
-  )
-}
-
-function EventList({
-  title,
-  events,
-  now,
-}: {
-  title: string
-  events: CalendarEvent[]
-  now: number
-}) {
-  if (events.length === 0) return null
-  return (
-    <section className="mt-2 flex flex-col gap-1">
-      <h2 className="text-[11px] font-medium tracking-wide text-muted uppercase">{title}</h2>
-      <ul className="divide-y divide-border-soft rounded-xl border border-border-soft bg-surface">
-        {events.map((e) => (
-          <li
-            key={e.id}
-            className={cn('flex items-center gap-3 px-3 py-2', e.endMs <= now && 'opacity-50')}
-          >
-            <div className="w-11 shrink-0 font-mono text-[12px] tabular-nums">
-              {clock(e.startMs)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-medium">{e.title}</div>
-              <div className="flex items-center gap-1 truncate text-[11px] text-muted">
-                {e.location && <MapPin className="size-3 shrink-0" aria-hidden />}
-                {e.location ?? e.calendarName}
-              </div>
-            </div>
-            <JoinButton event={e} />
-          </li>
-        ))}
-      </ul>
     </section>
   )
 }

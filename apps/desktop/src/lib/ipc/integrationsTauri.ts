@@ -17,6 +17,7 @@ export const tauriIntegrations: IntegrationsBackend = {
   connectGoogle: () => invoke('connect_google'),
   disconnectIntegration: (provider) => invoke('disconnect_integration', { provider }),
   calendarUpcoming: () => invoke('calendar_upcoming'),
+  calendarRange: (fromMs, toMs) => invoke('calendar_range', { fromMs, toMs }),
   onCalendarChanged: (cb) => listen<CalendarEvent[]>(EVENTS.calendarChanged, (e) => cb(e.payload)),
   onCalendarSoon: (cb) => listen<CalendarReminder>(EVENTS.calendarSoon, (e) => cb(e.payload)),
   spotifyState: () => invoke('spotify_state'),

@@ -72,6 +72,35 @@ export function mockEvents(now = Date.now()): CalendarEvent[] {
     .sort((a, b) => a.startMs - b.startMs)
 }
 
+/** Fake month: today's agenda plus a few repeating things on the other days. */
+export function mockRange(fromMs: number, toMs: number, now = Date.now()): CalendarEvent[] {
+  const ev = (id: string, title: string, startMs: number, minutes: number, allDay = false) => ({
+    id,
+    title,
+    startMs,
+    endMs: startMs + minutes * MIN,
+    allDay,
+    location: null,
+    meetLink: null,
+    calendarName: 'Pessoal',
+  })
+  const today = new Date(now).setHours(0, 0, 0, 0)
+  const out: CalendarEvent[] = []
+  for (const d = new Date(fromMs); d.getTime() < toMs; d.setDate(d.getDate() + 1)) {
+    const day = new Date(d).setHours(0, 0, 0, 0)
+    if (day === today) continue
+    const [n, week] = [d.getDate(), d.getDay()]
+    const hour = (h: number, m = 0) => new Date(day).setHours(h, m)
+    if (week >= 1 && week <= 5) out.push(ev(`daily-${day}`, 'Daily do time', hour(9, 30), 15))
+    if (week === 2 || week === 4) out.push(ev(`gym-${day}`, 'Academia', hour(19), 60))
+    if (n === 5) out.push(ev(`pay-${day}`, 'Pagamento', day, 24 * 60, true))
+    if (n % 9 === 3) out.push(ev(`doc-${day}`, 'Dentista', hour(14), 45))
+    if (n === 12) out.push(ev(`trip-${day}`, 'Viagem a Curitiba', hour(8), 2 * 24 * 60 + 600))
+  }
+  // Today keeps the same events the notch and the Início show.
+  return [...out, ...mockEvents(now)].filter((e) => e.startMs < toMs && e.endMs > fromMs)
+}
+
 const track = (id: string, title: string, artist: string, album: string): SpotifyTrack => ({
   id,
   title,
@@ -132,6 +161,8 @@ export const mockIntegrations: IntegrationsBackend = {
     return Promise.resolve(snapshot())
   },
   calendarUpcoming: () => Promise.resolve(status.google.connected ? mockEvents() : []),
+  calendarRange: (fromMs, toMs) =>
+    Promise.resolve(status.google.connected ? mockRange(fromMs, toMs) : []),
   onCalendarChanged: (cb) => {
     calendarListeners.add(cb)
     return Promise.resolve(() => calendarListeners.delete(cb))

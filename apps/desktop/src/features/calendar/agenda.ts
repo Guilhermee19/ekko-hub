@@ -16,21 +16,14 @@ export function isOngoing(e: CalendarEvent, now: number): boolean {
   return e.startMs <= now && now < e.endMs
 }
 
-function endOfDay(now: number): number {
-  const d = new Date(now)
-  d.setHours(24, 0, 0, 0)
-  return d.getTime()
-}
-
-/** Splits into today (still relevant) and later (tomorrow, inside the 24 h window). */
-export function splitByDay(events: CalendarEvent[], now: number) {
-  const midnight = endOfDay(now)
-  const live = events.filter((e) => e.endMs > now)
-  return {
-    allDay: live.filter((e) => e.allDay && e.startMs < midnight),
-    today: live.filter((e) => !e.allDay && e.startMs < midnight),
-    later: live.filter((e) => !e.allDay && e.startMs >= midnight),
-  }
+/**
+ * What the Início card lists: what is happening or still to come, timed events first
+ * (they have an hour to catch), all-day ones after.
+ */
+export function comingUp(events: CalendarEvent[], now: number): CalendarEvent[] {
+  return events
+    .filter((e) => e.endMs > now)
+    .sort((a, b) => Number(a.allDay) - Number(b.allDay) || a.startMs - b.startMs)
 }
 
 export function clock(ms: number): string {
@@ -48,11 +41,4 @@ export function relative(e: CalendarEvent, now: number): string {
     return m ? `em ${h} h ${m} min` : `em ${h} h`
   }
   return `às ${clock(e.startMs)}`
-}
-
-/** Position of `ms` on a day timeline from `fromHour` to `toHour`, 0..1 (clamped). */
-export function dayFraction(ms: number, fromHour: number, toHour: number): number {
-  const d = new Date(ms)
-  const hours = d.getHours() + d.getMinutes() / 60
-  return Math.min(1, Math.max(0, (hours - fromHour) / (toHour - fromHour)))
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { CalendarEvent } from '@/lib/ipc'
-import { mockEvents } from '@/lib/ipc/integrationsMock'
-import { dayFraction, nextEvent, relative, splitByDay } from './agenda'
+import { mockEvents, mockRange } from '@/lib/ipc/integrationsMock'
+import { comingUp, nextEvent, relative } from './agenda'
 
 const MIN = 60_000
 const base = new Date(2026, 10, 15, 9, 0).getTime()
@@ -41,21 +41,23 @@ describe('relative', () => {
   })
 })
 
-describe('splitByDay', () => {
-  it('separates all-day, today and tomorrow', () => {
-    const events = [ev('day', -540, 1440, true), ev('today', 60, 30), ev('tomorrow', 16 * 60, 30)]
-    const { allDay, today, later } = splitByDay(events, base)
-    expect([allDay, today, later].map((l) => l.map((e) => e.id))).toEqual([
-      ['day'],
-      ['today'],
-      ['tomorrow'],
-    ])
-  })
+it('comingUp drops what ended and lists timed events before all-day ones', () => {
+  const events = [
+    ev('day', -540, 1440, true),
+    ev('done', -60, 30),
+    ev('later', 60, 30),
+    ev('now', -10, 30),
+  ]
+  expect(comingUp(events, base).map((e) => e.id)).toEqual(['now', 'later', 'day'])
 })
 
-it('dayFraction clamps to the timeline', () => {
-  expect(dayFraction(base, 7, 23)).toBeCloseTo(2 / 16)
-  expect(dayFraction(base - 8 * 60 * MIN, 7, 23)).toBe(0)
+it('mock month has events on other days and keeps today in sync with the notch', () => {
+  const from = new Date(2026, 10, 1).getTime()
+  const to = new Date(2026, 11, 6).getTime()
+  const month = mockRange(from, to, base)
+  expect(month.some((e) => e.id === 'daily')).toBe(true)
+  expect(month.some((e) => e.allDay && e.title === 'Pagamento')).toBe(true)
+  expect(month.every((e) => e.startMs < to && e.endMs > from)).toBe(true)
 })
 
 it('mock agenda always has a meeting with a Meet link ahead', () => {
