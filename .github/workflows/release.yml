@@ -78,7 +78,18 @@ jobs:
 
       - name: Gerar o instalador
         if: steps.version.outputs.publish == 'true'
-        run: npm run tauri build
+        shell: pwsh
+        # Ekko's own Google client, so people connect the Agenda with one click
+        # (Settings → Secrets and variables → Actions). Without them the build still
+        # works, but each person has to bring their own Client ID.
+        env:
+          EKKO_GOOGLE_CLIENT_ID: ${{ secrets.EKKO_GOOGLE_CLIENT_ID }}
+          EKKO_GOOGLE_CLIENT_SECRET: ${{ secrets.EKKO_GOOGLE_CLIENT_SECRET }}
+        run: |
+          if (-not $env:EKKO_GOOGLE_CLIENT_ID -or -not $env:EKKO_GOOGLE_CLIENT_SECRET) {
+            Write-Output "::warning::Sem EKKO_GOOGLE_CLIENT_ID/SECRET: o Google Agenda sai sem o login de um clique."
+          }
+          npm run tauri build
 
       - name: Publicar o release com o .exe
         if: steps.version.outputs.publish == 'true'

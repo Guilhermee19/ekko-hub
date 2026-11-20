@@ -13,8 +13,9 @@ import { mockConnectors } from './connectorsMock'
 // Gallery stand-in: fake login after a short delay, agenda with events around "now".
 
 const status: IntegrationStatus = {
-  spotify: { connected: false, account: null, clientId: null, hasSecret: false },
-  google: { connected: false, account: null, clientId: null, hasSecret: false },
+  spotify: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
+  // Like a published build: Google connects with one click.
+  google: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: true },
 }
 const ACCOUNTS: Record<IntegrationProvider, string> = {
   spotify: 'Ana',
@@ -103,7 +104,7 @@ function requireConnected(provider: IntegrationProvider) {
 }
 
 async function connect(provider: IntegrationProvider): Promise<IntegrationStatus> {
-  if (!status[provider].clientId) throw new Error('configure o Client ID antes de conectar')
+  if (!status[provider].clientId && !status[provider].builtIn) throw new Error('configure o Client ID antes de conectar')
   await wait(1200)
   status[provider] = { ...status[provider], connected: true, account: ACCOUNTS[provider] }
   if (provider === 'google') calendarListeners.forEach((cb) => cb(mockEvents()))

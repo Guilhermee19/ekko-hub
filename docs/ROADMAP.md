@@ -230,7 +230,7 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 
 - [ ] Spotify completo (OAuth: capa, fila, dispositivos, tocar em outro aparelho)
 - [ ] Google Calendar
-- [ ] Google Agenda com um clique: Client ID do próprio Ekko embutido no app e verificado no Google, para ninguém precisar criar credenciais (hoje cada pessoa cadastra o seu Client ID/secret)
+- [~] Google Agenda com um clique: o app já aceita o cliente OAuth do próprio Ekko embutido no build (`EKKO_GOOGLE_CLIENT_ID`/`_SECRET`) e mostra só o botão Conectar; falta criar o projeto no Google Cloud, cadastrar os secrets no GitHub e passar pela verificação do Google
 - [ ] Mandar tarefa pesada para o Claude Code
 - [ ] **Cliente MCP**: plugar qualquer servidor MCP como tools
 - [ ] Memória de longo prazo (notas markdown + busca vetorial, portada do Jarvis)

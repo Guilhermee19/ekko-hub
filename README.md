@@ -163,6 +163,8 @@ git push origin production   # o Actions compila, cria a tag v<versão> e public
 
 A tag é criada pelo próprio Actions. Se a versão do `tauri.conf.json` já tiver sido publicada, o merge não gera release (fica só um aviso no Actions).
 
+**Google Agenda com um clique.** O instalador publicado leva o cliente OAuth do próprio Ekko, lido na hora do build das variáveis `EKKO_GOOGLE_CLIENT_ID` e `EKKO_GOOGLE_CLIENT_SECRET` (cadastradas como *secrets* do repositório, em *Settings → Secrets and variables → Actions*). Com elas, a pessoa só clica em **Conectar**. Sem elas o build funciona, mas cada um precisa cadastrar o seu Client ID em *Configurações → Conexões*. Para testar localmente, copie [`.env.example`](.env.example) para `.env` na raiz, preencha os dois valores e rode `npm run tauri dev` (o `.env` fica fora do git).
+
 O GitHub sempre adiciona "Source code (zip/tar.gz)" sozinho. O que as pessoas baixam é o `.exe` em *Assets*.
 
 Para testar o instalador localmente antes de publicar:

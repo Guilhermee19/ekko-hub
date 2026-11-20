@@ -15,11 +15,16 @@ export function OAuthConnectionCard({ guide }: { guide: OAuthGuide }) {
   const connecting = useIntegrations((s) => s.connecting === guide.provider)
   const error = useIntegrations((s) => s.error[guide.provider])
   const [open, setOpen] = useState(false)
-  const expanded = !status.connected && (open || connecting)
+  // The build ships its own client and the user has not brought theirs: no setup.
+  const oneClick = status.builtIn && !status.clientId && !open
+  const expanded = !status.connected && !oneClick && (open || connecting)
 
   const disconnect = async () => {
     await useIntegrations.getState().disconnect(guide.provider)
     toast(`${guide.name} desconectado`)
+  }
+  const connect = async () => {
+    if (await useIntegrations.getState().connect(guide.provider)) toast(`${guide.name} conectado`)
   }
 
   return (
@@ -43,6 +48,16 @@ export function OAuthConnectionCard({ guide }: { guide: OAuthGuide }) {
           <Button size="sm" variant="ghost" onClick={() => void disconnect()}>
             Desconectar
           </Button>
+        ) : oneClick ? (
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={connecting}
+            onClick={() => void connect()}
+          >
+            {connecting && <LoaderCircle className="size-3.5 animate-spin" aria-hidden />}
+            Conectar
+          </Button>
         ) : (
           !expanded && (
             <Button size="sm" variant="primary" onClick={() => setOpen(true)}>
@@ -52,6 +67,25 @@ export function OAuthConnectionCard({ guide }: { guide: OAuthGuide }) {
         )
       }
     >
+      {oneClick && !status.connected && (
+        <div className="flex flex-col gap-1.5 text-[12px]">
+          {connecting && (
+            <p className="text-muted">
+              Abri o navegador. Escolha a sua conta e autorize o Ekko por lá; espero até 3 minutos.
+            </p>
+          )}
+          {error && !connecting && <p className="text-danger">{error}</p>}
+          {!connecting && (
+            <button
+              type="button"
+              className="w-fit text-[11px] text-muted hover:text-content hover:underline"
+              onClick={() => setOpen(true)}
+            >
+              Usar minhas próprias credenciais (avançado)
+            </button>
+          )}
+        </div>
+      )}
       {expanded && (
         <div className="flex flex-col gap-3 border-t border-border-soft pt-3">
           <ol className="flex flex-col gap-2">

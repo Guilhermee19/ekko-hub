@@ -5,8 +5,8 @@ import { backend, type IntegrationProvider, type IntegrationStatus } from '@/lib
 // Tokens never reach the UI: only "connected" and the account name.
 
 const EMPTY: IntegrationStatus = {
-  spotify: { connected: false, account: null, clientId: null, hasSecret: false },
-  google: { connected: false, account: null, clientId: null, hasSecret: false },
+  spotify: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
+  google: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
 }
 
 interface IntegrationsState {

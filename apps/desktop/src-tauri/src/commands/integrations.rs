@@ -27,6 +27,8 @@ pub struct ProviderStatus {
     client_id: Option<String>,
     /// Google only: a client secret is saved in the Credential Manager.
     has_secret: bool,
+    /// This build ships its own client: connecting is one click, no setup.
+    built_in: bool,
 }
 
 #[derive(Serialize)]
@@ -63,6 +65,7 @@ fn status_of(app: &AppHandle, provider: Provider) -> Result<ProviderStatus, Erro
         account: saved.and_then(|t| t.account),
         client_id,
         has_secret,
+        built_in: provider == Provider::Google && google_calendar::builtin_client().is_some(),
     })
 }
 

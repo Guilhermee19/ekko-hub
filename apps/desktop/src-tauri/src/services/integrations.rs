@@ -42,10 +42,15 @@ impl Integrations {
     pub fn session(&self, provider: Provider, ids: &IntegrationsSettings) -> Result<Session> {
         let oauth = match provider {
             Provider::Spotify => spotify::oauth(client_id(&ids.spotify_client_id, provider)?),
-            Provider::Google => google_calendar::oauth(
-                client_id(&ids.google_client_id, provider)?,
-                self.store.get(GOOGLE_CLIENT_SECRET)?,
-            ),
+            // The user's own client wins; otherwise the one this build ships with.
+            Provider::Google => match (
+                client_id(&ids.google_client_id, provider),
+                google_calendar::builtin_client(),
+            ) {
+                (Ok(id), _) => google_calendar::oauth(id, self.store.get(GOOGLE_CLIENT_SECRET)?),
+                (Err(_), Some((id, secret))) => google_calendar::oauth(id, Some(secret.into())),
+                (Err(err), None) => return Err(err),
+            },
         };
         Ok(Session::new(
             provider,

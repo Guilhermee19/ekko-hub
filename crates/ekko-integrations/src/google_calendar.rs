@@ -12,6 +12,26 @@ use crate::session::Session;
 pub const SCOPES: &[&str] = &["https://www.googleapis.com/auth/calendar.readonly"];
 const API: &str = "https://www.googleapis.com/calendar/v3";
 
+/// Ekko's own Google client (id, secret), baked in at build time from
+/// `EKKO_GOOGLE_CLIENT_ID` / `EKKO_GOOGLE_CLIENT_SECRET`, so people connect with one
+/// click. None in builds without them: the user brings their own client. A "Desktop
+/// app" secret is not confidential for Google, but it stays out of the repo anyway.
+pub fn builtin_client() -> Option<(&'static str, &'static str)> {
+    builtin(
+        option_env!("EKKO_GOOGLE_CLIENT_ID"),
+        option_env!("EKKO_GOOGLE_CLIENT_SECRET"),
+    )
+}
+
+/// CI passes unset secrets as empty strings, so empty counts as missing.
+fn builtin(
+    id: Option<&'static str>,
+    secret: Option<&'static str>,
+) -> Option<(&'static str, &'static str)> {
+    let (id, secret) = (id?.trim(), secret?.trim());
+    (!id.is_empty() && !secret.is_empty()).then_some((id, secret))
+}
+
 /// "Desktop app" clients accept any loopback port and need the client secret.
 pub fn oauth(client_id: &str, client_secret: Option<String>) -> OAuthClient {
     OAuthClient {
@@ -157,6 +177,14 @@ mod tests {
         {"id":"team@group.calendar.google.com","summary":"Time","selected":true},
         {"id":"gui@gmail.com","summary":"gui@gmail.com","summaryOverride":"Pessoal","primary":true,"selected":true},
         {"id":"hidden","summary":"Oculta","selected":false}]}"#;
+
+    #[test]
+    fn builtin_client_needs_both_values() {
+        assert_eq!(builtin(Some(" id "), Some("sec")), Some(("id", "sec")));
+        assert_eq!(builtin(Some("id"), None), None);
+        assert_eq!(builtin(Some(""), Some("sec")), None);
+        assert_eq!(builtin(Some("id"), Some("  ")), None);
+    }
 
     #[test]
     fn parses_timed_and_all_day_events() {

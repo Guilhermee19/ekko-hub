@@ -15,6 +15,8 @@ export interface ProviderStatus {
   clientId: string | null
   /** Google only: client secret saved in the Credential Manager. */
   hasSecret: boolean
+  /** This build ships its own client: connecting is one click, no setup. */
+  builtIn: boolean
 }
 
 export interface IntegrationStatus {
