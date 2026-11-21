@@ -24,7 +24,7 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.4.0 publicado pela branch `production` |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.5.0 pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
 ## Releases
@@ -33,12 +33,13 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.5.0** | 21/11/2026 | Atualizar com um clique (Sobre verifica o GitHub, baixa, confere e instala); bateria do fone HyperX Cloud Stinger Core Wireless e dos mouses Attack Shark pelo dongle USB; temas de época no notch (Natal, Ano Novo, Carnaval, Páscoa, Dia dos Namorados, Halloween) com aba própria; todos os modos de exibição com o visual do notch; trocas de humor suaves; timer com qualquer tempo; persona Eco virou Tobby; o nível de mentira saiu do painel. |
 | **v0.4.0** | 20/11/2026 | Agenda como calendário (o mês inteiro com os eventos em cada dia, navegação entre meses e a lista do dia escolhido) e card Agenda do Início com a folha do dia; Google Agenda pronto para conectar com um clique; olhos do Ekko em cápsula, com humor (sono, dormindo, susto, animado); Copiados guarda imagens e arquivos, com limite de 20 a 200 itens; Configurações reorganizadas em telas próprias (Notificações, Copiados, Modo de exibição, Notch, Pílula e avisos, Menu do painel). Correções: avisos rápidos que ficavam presos no notch, avisos de texto seguindo o tempo configurado e janelas cortadas com a escala da interface diferente de 100%. Primeira versão publicada pela branch `production`; as v0.3.1 e v0.3.2 não chegaram a ser publicadas e entraram nesta. |
 | **v0.3.0** | 19/11/2026 | Print de uma área (Alt Gr + Print Screen) que vai para o notch; notch que reage ao sistema (volume, brilho, Caps Lock, microfone, fones) com tempo ajustável; avisos de bateria do notebook e de aparelhos Bluetooth; Início personalizável (adicionar, mover, remover, largura de 1 a 4 colunas, mesma altura) com card Bateria; menu do painel configurável; barras da música que seguem o som do PC; prévia das imagens na prateleira; Verificar meu PC com nota de saúde; contorno e velocidade de abrir do notch. Correções no arrastar para reordenar e nos avisos que ficavam presos no notch. A v0.2.0 não chegou a ser publicada e entrou nesta. |
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.4.0)
+## O que já funciona de verdade (v0.5.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
