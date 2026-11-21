@@ -1,4 +1,5 @@
-//! Third-party integrations (Spotify, Google Calendar) over OAuth 2 + PKCE.
+//! Third-party integrations (Spotify, Google Calendar) over OAuth 2 + PKCE, plus app
+//! updates from GitHub Releases.
 //!
 //! Everything here is blocking (`reqwest::blocking`): callers on an async runtime must
 //! wrap calls in `spawn_blocking`. Users bring their own developer app IDs; tokens and
@@ -15,6 +16,7 @@ pub mod reminders;
 pub mod session;
 pub mod spotify;
 pub mod tokens;
+pub mod updates;
 
 use serde::{Deserialize, Serialize};
 

@@ -14,6 +14,7 @@ import type { ProductivityBackend } from './productivityTypes'
 import type { ClipboardBackend } from './clipboardTypes'
 import type { ShelfBackend } from './shelfTypes'
 import type { CaptureBackend } from './captureTypes'
+import type { UpdateBackend } from './updateTypes'
 import type { HudBackend } from './hudTypes'
 import type { SystemBackend } from './systemTypes'
 
@@ -26,6 +27,7 @@ export * from './systemTypes'
 export * from './clipboardTypes'
 export * from './shelfTypes'
 export * from './captureTypes'
+export * from './updateTypes'
 export * from './hudTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
@@ -154,6 +156,7 @@ export interface Backend
     ClipboardBackend,
     ShelfBackend,
     CaptureBackend,
+    UpdateBackend,
     HudBackend {
   readonly kind: 'tauri' | 'mock'
   getSettings(): Promise<Settings>

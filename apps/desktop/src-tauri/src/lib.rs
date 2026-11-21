@@ -51,6 +51,9 @@ pub fn run() {
         .on_window_event(on_window_event)
         .invoke_handler(tauri::generate_handler![
             commands::settings::get_settings,
+            commands::updates::app_version,
+            commands::updates::update_check,
+            commands::updates::update_install,
             commands::general::set_autostart,
             commands::general::set_general,
             commands::general::set_shortcuts,

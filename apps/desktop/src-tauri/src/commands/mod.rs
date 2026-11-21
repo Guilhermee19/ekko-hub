@@ -16,4 +16,5 @@ pub mod settings;
 pub mod shelf;
 pub mod system;
 pub mod timers;
+pub mod updates;
 pub mod volume;

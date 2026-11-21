@@ -7,6 +7,7 @@ import { tauriIntegrations } from './integrationsTauri'
 import { tauriProductivity } from './productivityTauri'
 import { tauriShelf } from './shelfTauri'
 import { tauriCapture } from './captureTauri'
+import { tauriUpdate } from './updateTauri'
 import { tauriHud } from './hudTauri'
 import { tauriSystem } from './systemTauri'
 import type { Backend, Settings } from './types'
@@ -39,6 +40,7 @@ export const tauriBackend: Backend = {
   ...tauriClipboard,
   ...tauriShelf,
   ...tauriCapture,
+  ...tauriUpdate,
   ...tauriHud,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),

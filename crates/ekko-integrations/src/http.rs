@@ -79,6 +79,8 @@ impl ReqwestTransport {
     pub fn new() -> Result<Self> {
         reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(20))
+            // GitHub's API refuses requests without one.
+            .user_agent(concat!("ekko-hub/", env!("CARGO_PKG_VERSION")))
             .build()
             .map(Self)
             .map_err(|e| Error::Network(e.to_string()))

@@ -166,6 +166,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Timer com qualquer tempo (horas, minutos e segundos, até 99 h), além dos atalhos de 1, 5, 10, 25 e 60 min
 - [x] Temas de época no notch, com aba própria nas Configurações (os olhos do Ekko não mudam; o fundo ganha enfeites e o brilho de baixo a cor da data, puxada para a cor de destaque da persona): Natal (pisca-pisca, neve e presentes), Ano Novo (fogos de artifício), Carnaval (máscara e confete), Páscoa (ovos nos cantos e coelho pulando), Dia dos Namorados (corações, brilho roxo) e Halloween (abóbora, morcegos, brilho laranja)
 - [x] Todos os modos de exibição com o visual do notch: bandeja, bolha, dock, central e só voz no preto da moldura, com os olhos do Ekko, o brilho de baixo e os temas de época (sai o rosto com anel e o núcleo estilo Jarvis)
+- [x] Atualizar com um clique (Configurações → Sobre): consulta o último release no GitHub, baixa o instalador, confere tamanho e SHA-256, instala em modo passivo e reabre o Ekko; a aba Sobre mostra a versão real e quem fez o Ekko
+- [ ] Confirmar no app instalado: a atualização de uma versão para a seguinte (precisa de um release mais novo publicado)
 - [x] Persona Eco virou Tobby (quem tinha Eco salvo passa para Tobby sozinho)
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
