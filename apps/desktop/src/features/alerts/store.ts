@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { snoozeMs } from '@/features/notifications/AlarmOverlay'
-import { backend } from '@/lib/ipc'
+import { backend, type PickedColor } from '@/lib/ipc'
 
 // Alerts the notch grows into for a few seconds (a new song, a timer going off, a
 // meeting soon, low battery…), one at a time. Only the notch window renders them; it
 // flips `live` on, so other windows keep their old text toast instead.
 
-export type AlertKind = 'music' | 'timer' | 'reminder' | 'event' | 'battery' | 'device' | 'notice'
+export type AlertKind =
+  'music' | 'timer' | 'reminder' | 'event' | 'battery' | 'device' | 'notice' | 'color'
 
 export interface Alert {
   id: string
@@ -22,6 +23,8 @@ export interface Alert {
   /** Timer/reminder that can be snoozed from the card. */
   snooze?: { kind: 'timer' | 'reminder'; title: string }
   meetLink?: string
+  /** A color just picked with the eyedropper (copy buttons). */
+  color?: PickedColor
   /** How long it stays when nobody hovers it. */
   ms: number
 }
@@ -37,6 +40,8 @@ const DEFAULT_MS: Record<AlertKind, number> = {
   battery: 6000,
   device: 5000,
   notice: 6000,
+  // Time to choose a format and copy it.
+  color: 12000,
 }
 const MAX_QUEUE = 4
 

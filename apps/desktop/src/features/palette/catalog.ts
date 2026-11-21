@@ -3,6 +3,7 @@ import {
   Droplets,
   FolderInput,
   Palette,
+  Pipette,
   Play,
   Settings,
   Timer,
@@ -14,6 +15,7 @@ import { useAssistant } from '@/stores/assistant'
 import { requestConfirm, type Risk } from '@/stores/confirm'
 import { VISIBLE_NAV, type PageId } from '@/surfaces/panel/nav'
 import { MODES } from '@/surfaces/settings/DisplayModePicker'
+import { pickColor } from '../colors/store'
 import { useHabits } from '../habits/store'
 import { useMusic } from '../music/store'
 import { endTask } from '../mypc/actions'
@@ -54,6 +56,15 @@ function actions({ onNavigate }: CatalogContext): PaletteCommand[] {
         useTimers.getState().addTimer('5 min', 300)
         toast('Timer de 5 minutos iniciado')
       },
+    },
+    {
+      id: 'pick-color',
+      group: 'actions',
+      label: 'Pegar uma cor da tela',
+      keywords: ['conta-gotas', 'contagotas', 'color picker', 'hex', 'rgb', 'pipeta'],
+      icon: Pipette,
+      // After the palette closes, so it is not in the frozen screen.
+      run: () => pickColor(350),
     },
     {
       id: 'music-toggle',

@@ -38,6 +38,15 @@ export function useAlertSources() {
         snooze: { kind: a.kind, title: a.title },
       }),
     )
+    const offColor = backend.onColorPicked((c) =>
+      showAlert({
+        kind: 'color',
+        label: 'Cor escolhida',
+        title: c.hex.toUpperCase(),
+        detail: `${c.rgb} · ${c.hsl}`,
+        color: c,
+      }),
+    )
     const offHud = backend.onHud((e) => {
       if (quiet()) return
       if (e.kind === 'lowBattery') {
@@ -62,6 +71,7 @@ export function useAlertSources() {
       useAlerts.setState({ live: false })
       offs.forEach((off) => off())
       void offAlarm.then((f) => f())
+      void offColor.then((f) => f())
       void offHud.then((f) => f())
     }
   }, [])

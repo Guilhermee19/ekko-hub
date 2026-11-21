@@ -2,6 +2,7 @@
 //! another app may own a combo, so each action reports ok / taken / invalid and a
 //! missing hotkey never stops Ekko (the tray menu still works).
 
+use crate::services::capture::CaptureMode;
 use std::sync::Mutex;
 
 use ekko_core::{ShortcutAction, ShortcutSettings};
@@ -119,8 +120,13 @@ fn run(app: &AppHandle, action: ShortcutAction) {
             let _ = display::flows::toggle_palette(app);
         }
         ShortcutAction::Capture => {
-            if let Err(err) = crate::services::capture::start(app) {
+            if let Err(err) = crate::services::capture::start(app, CaptureMode::Print) {
                 let _ = app.emit(TOAST_EVENT, format!("Não deu para tirar o print: {err}"));
+            }
+        }
+        ShortcutAction::Color => {
+            if let Err(err) = crate::services::capture::start(app, CaptureMode::Color) {
+                let _ = app.emit(TOAST_EVENT, format!("Não deu para pegar a cor: {err}"));
             }
         }
         // Not registered while pending (see `register`); kept for when they are.

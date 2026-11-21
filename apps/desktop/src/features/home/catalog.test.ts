@@ -28,6 +28,6 @@ describe('home cards', () => {
 
   it('offers only the cards that are not on the home', () => {
     const ids = missingCards(DEFAULT_HOME).map((c) => c.id)
-    expect(ids).toEqual(['agenda', 'pc', 'battery', 'clipboard', 'shelf'])
+    expect(ids).toEqual(['agenda', 'pc', 'battery', 'clipboard', 'shelf', 'colors'])
   })
 })

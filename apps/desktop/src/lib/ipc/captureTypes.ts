@@ -11,6 +11,8 @@ export interface CaptureFrame {
   url: string
   width: number
   height: number
+  /** Cutting a print, or the eyedropper (Pegar uma cor). */
+  mode: 'print' | 'color'
 }
 
 /** Area picked in the overlay, in frame pixels. */

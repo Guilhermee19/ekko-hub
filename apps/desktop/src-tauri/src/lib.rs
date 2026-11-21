@@ -31,6 +31,7 @@ pub fn run() {
             services::clipboard::init(&handle);
             services::shelf::init(&handle);
             services::capture::init(&handle);
+            services::colors::init(&handle);
             services::media::spawn(&handle);
             services::audio_levels::spawn(&handle);
             services::system_hud::spawn(&handle);
@@ -164,6 +165,13 @@ pub fn run() {
             commands::capture::capture_cancel,
             commands::capture::capture_start,
             commands::capture::shelf_copy_image,
+            commands::colors::color_start,
+            commands::colors::color_loupe,
+            commands::colors::color_pick,
+            commands::colors::color_copy,
+            commands::colors::color_history,
+            commands::colors::color_remove,
+            commands::colors::color_clear,
             commands::hud::power_snapshot,
         ])
         .build(tauri::generate_context!())

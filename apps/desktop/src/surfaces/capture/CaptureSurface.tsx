@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { flight, isClick, rectFrom, toFrame, type Point } from '@/features/capture/selection'
 import { backend, type CaptureFrame, type CaptureRegion } from '@/lib/ipc'
 import { reducedMotion } from '@/lib/motion'
+import { ColorPicker } from './ColorPicker'
 import './capture.css'
 
 type Phase = 'pick' | 'saving' | 'error'
@@ -9,7 +10,8 @@ type Phase = 'pick' | 'saving' | 'error'
 /**
  * Print overlay: the frozen monitor, dimmed; drag to pick an area (a click takes the
  * whole screen). On release the screen flashes, the print is saved and flies up to
- * the notch, where it waits to be copied or dragged. Esc cancels.
+ * the notch, where it waits to be copied or dragged. Esc cancels. In color mode it is
+ * the eyedropper instead (ColorPicker).
  */
 export function CaptureSurface() {
   const [frame, setFrame] = useState<CaptureFrame | null>(null)
@@ -89,6 +91,7 @@ export function CaptureSurface() {
   }
 
   if (!frame) return null
+  if (frame.mode === 'color') return <ColorPicker key={frame.url} frame={frame} />
   const scale = frame.width / window.innerWidth
   const label = rect && !isClick(rect) && toFrame(rect, scale)
 

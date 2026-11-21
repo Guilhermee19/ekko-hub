@@ -5,6 +5,7 @@ pub mod audit;
 pub mod capture;
 pub mod clipboard;
 pub mod clock;
+pub mod colors;
 pub mod dib;
 pub mod general;
 pub mod habits;

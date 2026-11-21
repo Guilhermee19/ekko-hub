@@ -1,6 +1,7 @@
 pub mod appearance;
 pub mod capture;
 pub mod clipboard;
+pub mod colors;
 pub mod connectors;
 pub mod display;
 pub mod flows;

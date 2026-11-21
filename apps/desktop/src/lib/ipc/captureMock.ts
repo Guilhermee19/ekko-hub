@@ -19,9 +19,16 @@ interface Bus {
 const W = 1920
 const H = 1080
 
-function fakeScreen(): CaptureFrame {
+/** The drawn desktop; `?mode=color` opens it in eyedropper mode. */
+export function fakeScreen(mode?: CaptureFrame['mode']): CaptureFrame {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#1b2a4a"/><stop offset="1" stop-color="#5a3a6e"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#g)"/><rect x="240" y="160" width="900" height="600" rx="12" fill="#f4f4f5"/><rect x="240" y="160" width="900" height="44" rx="12" fill="#d4d4d8"/><rect x="290" y="250" width="520" height="28" rx="6" fill="#a1a1aa"/><rect x="290" y="300" width="760" height="18" rx="5" fill="#d4d4d8"/><rect x="290" y="336" width="700" height="18" rx="5" fill="#d4d4d8"/><rect x="1220" y="300" width="460" height="420" rx="12" fill="#0f172a"/><circle cx="1450" cy="470" r="90" fill="#38bdf8"/></svg>`
-  return { url: `data:image/svg+xml,${encodeURIComponent(svg)}`, width: W, height: H }
+  const asked = new URLSearchParams(location.search).get('mode') === 'color' ? 'color' : 'print'
+  return {
+    url: `data:image/svg+xml,${encodeURIComponent(svg)}`,
+    width: W,
+    height: H,
+    mode: mode ?? asked,
+  }
 }
 
 export function mockCapture({ on, fire, shelve }: Bus): CaptureBackend {

@@ -3,7 +3,7 @@
 use ekko_core::capture::Region;
 use tauri::{AppHandle, Manager};
 
-use crate::services::capture::{self, Frozen, Saved};
+use crate::services::capture::{self, CaptureMode, Frozen, Saved};
 use crate::services::shelf::ShelfService;
 
 #[tauri::command]
@@ -23,7 +23,7 @@ pub fn capture_cancel(app: AppHandle) {
 
 #[tauri::command]
 pub fn capture_start(app: AppHandle) -> Result<(), String> {
-    capture::start(&app)
+    capture::start(&app, CaptureMode::Print)
 }
 
 /// Copies a shelved image (a print) to the clipboard as a picture.

@@ -191,6 +191,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Avisos no próprio notch: ele cresce num cartão por alguns segundos com música nova, timer e lembrete (com Adiar 5 min, no lugar da janela de alarme), agenda (com Entrar), bateria fraca, aparelho conectado e notificações; passar o mouse segura o cartão, clicar abre o painel
 - [x] Paleta de comandos e painel flutuante abrem e fecham com animação
 - [ ] Confirmar no app: cartão de música trocando de faixa no Spotify/navegador e alarme de timer no notch
+- [x] Pegar uma cor da tela (Win+Shift+C, ou Ctrl+Alt+C se estiver ocupado): conta-gotas sobre a tela congelada com lupa de 11×11 pixels e setas para ajustar 1 px; o notch mostra a cor com HEX, RGB e HSL para copiar; card Cores no Início com as últimas 16 cores (`colors.json`); nos outros modos o HEX é copiado direto
+- [ ] Confirmar no app: o atalho Win+Shift+C (o PowerToys usa o mesmo) e o conta-gotas num monitor com escala diferente de 100%
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%

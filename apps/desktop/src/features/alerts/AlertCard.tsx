@@ -9,14 +9,15 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
-import type { MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
+import { copyColor } from '@/features/colors/store'
 import { useMusic } from '@/features/music/store'
 import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { EkkoEyes } from '@/ui/EkkoEyes'
 import { dismissAlert, holdAlert, snoozeAlert, type Alert, type AlertKind } from './store'
 
-const ICON: Record<Exclude<AlertKind, 'music'>, LucideIcon> = {
+const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
   timer: Timer,
   reminder: AlarmClock,
   event: CalendarDays,
@@ -64,6 +65,15 @@ export function AlertCard({ alert, onOpen }: { alert: Alert; onOpen: () => void 
 }
 
 function Art({ alert }: { alert: Alert }) {
+  if (alert.kind === 'color') {
+    return (
+      <span
+        className="size-14 shrink-0 rounded-xl border border-white/15 shadow-lg"
+        style={{ background: alert.color?.hex }}
+        aria-hidden
+      />
+    )
+  }
   if (alert.kind === 'music') {
     return (
       <span
@@ -112,6 +122,7 @@ function Actions({ alert }: { alert: Alert }) {
     'rounded-full px-3 py-1 text-[12px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none'
   return (
     <div className="flex shrink-0 items-center gap-1.5">
+      {alert.color && <CopyFormats color={alert.color} />}
       {alert.snooze && (
         <button
           type="button"
@@ -142,6 +153,41 @@ function Actions({ alert }: { alert: Alert }) {
       >
         <X className="size-3.5" aria-hidden />
       </button>
+    </div>
+  )
+}
+
+/** HEX / RGB / HSL buttons: each copies its format and shows a check for a moment. */
+function CopyFormats({ color }: { color: NonNullable<Alert['color']> }) {
+  const [done, setDone] = useState<string | null>(null)
+  const formats = [
+    ['HEX', color.hex.toUpperCase()],
+    ['RGB', color.rgb],
+    ['HSL', color.hsl],
+  ] as const
+  return (
+    <div className="flex items-center gap-1">
+      {formats.map(([name, text]) => (
+        <button
+          key={name}
+          type="button"
+          title={`Copiar ${text}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            copyColor(text)
+            setDone(name)
+            window.setTimeout(() => setDone((d) => (d === name ? null : d)), 1200)
+          }}
+          className={cn(
+            'rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none',
+            done === name
+              ? 'bg-accent text-(--color-base)'
+              : 'bg-surface-hover text-content hover:bg-border-soft',
+          )}
+        >
+          {done === name ? 'Copiado' : name}
+        </button>
+      ))}
     </div>
   )
 }

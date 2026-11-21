@@ -7,6 +7,7 @@ import { mockProductivity } from './mockProductivity'
 import { mockShelf } from './shelfMock'
 import { mockCapture } from './captureMock'
 import { mockUpdate } from './updateMock'
+import { mockColor } from './colorMock'
 import { mockHud } from './hudMock'
 import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
@@ -163,6 +164,7 @@ export const mockBackend: Backend = {
   ...mockShelf({ on, fire }),
   ...mockHud({ on }),
   ...mockUpdate(),
+  ...mockColor({ on, fire }),
   ...mockCapture({
     on,
     fire,

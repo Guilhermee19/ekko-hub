@@ -27,6 +27,12 @@ const ROWS: {
     // Alt Gr = Ctrl+Alt on Windows.
     presets: ['Ctrl+Alt+PrintScreen', 'PrintScreen', 'Ctrl+Shift+S', 'Ctrl+Alt+P'],
   },
+  {
+    id: 'color',
+    title: 'Pegar uma cor da tela',
+    hint: 'Abre o conta-gotas: clique em qualquer lugar e o notch mostra o código da cor para copiar.',
+    presets: ['Win+Shift+C', 'Ctrl+Alt+C', 'Ctrl+Shift+C'],
+  },
   { id: 'ptt', title: 'Apertar para falar', hint: 'Segure enquanto fala.', later: 'F3' },
   {
     id: 'selection',

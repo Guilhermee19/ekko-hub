@@ -8,6 +8,7 @@ import {
   Files,
   ListChecks,
   Music2,
+  Pipette,
   Timer,
   type LucideIcon,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ export type HomeCardId =
   | 'clipboard'
   | 'shelf'
   | 'music'
+  | 'colors'
 
 export interface HomeCardMeta {
   id: HomeCardId
@@ -51,6 +53,13 @@ export const HOME_CARDS: HomeCardMeta[] = [
   { id: 'clipboard', label: 'Copiados', hint: 'A última coisa copiada', icon: Clipboard },
   { id: 'shelf', label: 'Prateleira', hint: 'Arquivos guardados no notch', icon: Files },
   { id: 'music', label: 'Tocando agora', hint: 'Mini player com capa', icon: Music2, width: 2 },
+  {
+    id: 'colors',
+    label: 'Cores',
+    hint: 'Conta-gotas e as últimas cores pegas da tela',
+    icon: Pipette,
+    width: 2,
+  },
 ]
 
 /** The home is a 4-column grid (2 in the narrow panel). */

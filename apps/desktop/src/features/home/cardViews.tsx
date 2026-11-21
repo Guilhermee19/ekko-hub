@@ -2,6 +2,7 @@ import { AlarmClock, Clipboard, Cpu, Droplets, Files, ListChecks, Timer } from '
 import { useEffect, type ComponentType } from 'react'
 import { AgendaCard as AgendaView } from '@/features/calendar/AgendaCard'
 import { BatteryCard } from '@/features/hud/BatteryCard'
+import { ColorsCard } from '@/features/colors/ColorsCard'
 import { useClipboard } from '@/features/clipboard/store'
 import { useHabits } from '@/features/habits/store'
 import { connectSystem, useMyPc } from '@/features/mypc/store'
@@ -174,4 +175,5 @@ export const CARD_VIEW: Record<HomeCardId, ComponentType<CardProps>> = {
   clipboard: ClipboardCard,
   shelf: ShelfCard,
   music: MusicCard,
+  colors: ColorsCard,
 }

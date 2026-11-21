@@ -12,12 +12,14 @@ interface Frozen {
   path: string
   width: number
   height: number
+  mode: CaptureFrame['mode']
 }
 
 const frame = (f: Frozen): CaptureFrame => ({
   url: convertFileSrc(f.path),
   width: f.width,
   height: f.height,
+  mode: f.mode,
 })
 
 export const tauriCapture: CaptureBackend = {

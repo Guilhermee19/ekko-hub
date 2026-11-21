@@ -4,6 +4,7 @@ pub mod audio_levels;
 pub mod calendar;
 pub mod capture;
 pub mod clipboard;
+pub mod colors;
 pub mod fullscreen;
 pub mod integrations;
 pub mod media;

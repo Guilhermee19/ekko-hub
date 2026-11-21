@@ -1,6 +1,7 @@
 //! Prints ("Alt Gr + Print Screen"): freezes the monitor under the cursor, shows it in
 //! the full-screen `capture` window to pick an area, then saves the PNG in
 //! Pictures\Ekko and puts it on the shelf, where the notch offers copy and drag.
+//! The color picker reuses the same frozen screen in `Color` mode (services/colors.rs).
 
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -23,6 +24,16 @@ pub const CAPTURE_SAVED: &str = "ekko://capture/saved";
 #[derive(Default)]
 pub struct CaptureService {
     frozen: Mutex<Option<(Frame, PathBuf)>>,
+    mode: Mutex<CaptureMode>,
+}
+
+/// What the overlay is for: cutting a print or picking a color.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CaptureMode {
+    #[default]
+    Print,
+    Color,
 }
 
 /// What the overlay shows: the frozen screen as a file the webview may read.
@@ -32,6 +43,7 @@ pub struct Frozen {
     pub path: String,
     pub width: u32,
     pub height: u32,
+    pub mode: CaptureMode,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -49,8 +61,8 @@ pub fn init(app: &AppHandle) {
     app.manage(CaptureService::default());
 }
 
-/// Freezes the screen under the cursor and opens the selection overlay.
-pub fn start(app: &AppHandle) -> Result<(), String> {
+/// Freezes the screen under the cursor and opens the overlay (area or eyedropper).
+pub fn start(app: &AppHandle, mode: CaptureMode) -> Result<(), String> {
     let window = windows::ensure(app, CAPTURE).map_err(|e| e.to_string())?;
     if window.is_visible().unwrap_or(false) {
         return Ok(());
@@ -84,8 +96,13 @@ pub fn start(app: &AppHandle) -> Result<(), String> {
         path: path.to_string_lossy().into_owned(),
         width: frame.width,
         height: frame.height,
+        mode,
     };
     *service(app) = Some((frame, path));
+    *app.state::<CaptureService>()
+        .mode
+        .lock()
+        .expect("capture lock") = mode;
     windows::place(&window, rect).map_err(|e| e.to_string())?;
     let _ = window.emit_to(CAPTURE, CAPTURE_START, &info);
     window.show().map_err(|e| e.to_string())?;
@@ -95,11 +112,22 @@ pub fn start(app: &AppHandle) -> Result<(), String> {
 
 /// The frame the overlay is showing (it asks on mount, in case it missed the event).
 pub fn frozen(app: &AppHandle) -> Option<Frozen> {
+    let mode = *app
+        .state::<CaptureService>()
+        .mode
+        .lock()
+        .expect("capture lock");
     service(app).as_ref().map(|(f, p)| Frozen {
         path: p.to_string_lossy().into_owned(),
         width: f.width,
         height: f.height,
+        mode,
     })
+}
+
+/// Reads the frozen frame without ending the capture (the eyedropper's loupe).
+pub fn with_frame<T>(app: &AppHandle, read: impl FnOnce(&Frame) -> T) -> Option<T> {
+    service(app).as_ref().map(|(f, _)| read(f))
 }
 
 /// Crops the frozen frame to `region` (frame pixels), saves it and shelves it.

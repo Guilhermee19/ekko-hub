@@ -13,10 +13,12 @@ pub enum ShortcutAction {
     Dictation,
     Interrupt,
     Capture,
+    /// Eyedropper: pick a color anywhere on the screen.
+    Color,
 }
 
 impl ShortcutAction {
-    pub const ALL: [ShortcutAction; 7] = [
+    pub const ALL: [ShortcutAction; 8] = [
         ShortcutAction::Summon,
         ShortcutAction::Palette,
         ShortcutAction::Ptt,
@@ -24,6 +26,7 @@ impl ShortcutAction {
         ShortcutAction::Dictation,
         ShortcutAction::Interrupt,
         ShortcutAction::Capture,
+        ShortcutAction::Color,
     ];
 
     /// pt-BR name for logs and toasts.
@@ -36,13 +39,17 @@ impl ShortcutAction {
             ShortcutAction::Dictation => "Ditado",
             ShortcutAction::Interrupt => "Interromper fala",
             ShortcutAction::Capture => "Print de uma área",
+            ShortcutAction::Color => "Pegar uma cor da tela",
         }
     }
 
     /// Roadmap phase that gives the action a real behavior; `None` = already real.
     pub fn arrives_in(self) -> Option<&'static str> {
         match self {
-            ShortcutAction::Summon | ShortcutAction::Palette | ShortcutAction::Capture => None,
+            ShortcutAction::Summon
+            | ShortcutAction::Palette
+            | ShortcutAction::Capture
+            | ShortcutAction::Color => None,
             ShortcutAction::Ptt | ShortcutAction::Dictation | ShortcutAction::Interrupt => {
                 Some("F3")
             }
@@ -56,6 +63,7 @@ impl ShortcutAction {
             ShortcutAction::Summon => &["Alt+Shift+E"],
             ShortcutAction::Palette => &["Alt+Shift+Space"],
             ShortcutAction::Capture => &["Ctrl+Alt+P"],
+            ShortcutAction::Color => &["Ctrl+Alt+C"],
             _ => &[],
         }
     }
@@ -72,6 +80,8 @@ pub struct ShortcutSettings {
     pub interrupt: String,
     /// Alt Gr is Ctrl+Alt on Windows, so this is "Alt Gr + Print Screen".
     pub capture: String,
+    /// Win+Shift+C, like PowerToys' color picker.
+    pub color: String,
 }
 
 impl Default for ShortcutSettings {
@@ -85,6 +95,7 @@ impl Default for ShortcutSettings {
             // Never a bare Esc: a global Esc would be stolen from every app.
             interrupt: "Alt+Shift+X".into(),
             capture: "Ctrl+Alt+PrintScreen".into(),
+            color: "Win+Shift+C".into(),
         }
     }
 }
@@ -99,6 +110,7 @@ impl ShortcutSettings {
             ShortcutAction::Dictation => &self.dictation,
             ShortcutAction::Interrupt => &self.interrupt,
             ShortcutAction::Capture => &self.capture,
+            ShortcutAction::Color => &self.color,
         }
     }
 
@@ -265,9 +277,11 @@ mod tests {
             vec![
                 ShortcutAction::Summon,
                 ShortcutAction::Palette,
-                ShortcutAction::Capture
+                ShortcutAction::Capture,
+                ShortcutAction::Color
             ]
         );
+        assert_eq!(to_accelerator("Win+Shift+C").unwrap(), "Super+Shift+C");
         assert_eq!(
             to_accelerator("Ctrl+Alt+PrintScreen").unwrap(),
             "Ctrl+Alt+PrintScreen"
