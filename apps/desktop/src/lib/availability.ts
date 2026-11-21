@@ -58,6 +58,7 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
   display: { status: 'live' },
   notch: { status: 'live' },
   pill: { status: 'live' },
+  seasons: { status: 'live' },
   menu: { status: 'live' },
   avatar: {
     status: 'soon',

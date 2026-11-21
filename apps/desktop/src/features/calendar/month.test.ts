@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CalendarEvent } from '@/lib/ipc'
 import { eventsOn, monthDays, monthLabel, monthRange, shiftMonth, startOfDay } from './month'
 
-const at = (y: number, m: number, d: number, h = 0, min = 0) =>
-  new Date(y, m, d, h, min).getTime()
+const at = (y: number, m: number, d: number, h = 0, min = 0) => new Date(y, m, d, h, min).getTime()
 
 const ev = (id: string, startMs: number, endMs: number, allDay = false): CalendarEvent => ({
   id,

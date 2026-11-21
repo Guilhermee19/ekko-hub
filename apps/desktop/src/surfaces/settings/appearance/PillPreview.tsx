@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react'
 import type { PillItem } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { pickPillItem } from '@/lib/pillPriority'
+import { useSeason } from '@/features/season/useSeason'
 import { useSettings } from '@/stores/settings'
 import { EkkoEyes } from '@/ui/EkkoEyes'
 import { Segmented } from '@/ui/primitives'
@@ -38,6 +39,7 @@ export function PillPreview() {
   const look = useAppearance()
   const name = useSettings((s) => s.settings.assistantName)
   const [scene, setScene] = useState<Scene>('all')
+  const season = useSeason()
   const item = pickPillItem(ACTIVE[scene], look.pillShow, look.pillPriority)
   const show = look.pillShow
   const extra = show.clock ? 48 : 0
@@ -52,6 +54,7 @@ export function PillPreview() {
             item === null && show.avatar && 'justify-center',
           )}
           style={{ width: WIDTH[item ?? 'idle'] + extra, height: 38, zoom: look.notchScale }}
+          data-season={season ?? undefined}
         >
           {show.avatar && (
             <EkkoEyes

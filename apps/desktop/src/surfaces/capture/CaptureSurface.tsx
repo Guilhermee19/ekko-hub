@@ -19,7 +19,7 @@ export function CaptureSurface() {
   const flyer = useRef<HTMLDivElement>(null)
 
   // Hoisted (function) so the Esc listener below can use it.
-  async function close (cancel: boolean) {
+  async function close(cancel: boolean) {
     setFrame(null)
     if (cancel) await backend.captureCancel()
     await backend.hideSelf()

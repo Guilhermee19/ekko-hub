@@ -19,74 +19,107 @@ import { useNow } from './useNow'
 export function PresenceLine({
   compact = false,
   eyes = false,
+  center = false,
 }: {
   compact?: boolean
   /** Notch look: bare glowing eyes instead of the ringed face; centered when idle. */
   eyes?: boolean
+  /** Keep the eyes in the middle even with something going on (the open notch). */
+  center?: boolean
 }) {
   const p = usePresence()
   const name = useSettings((s) => s.settings.assistantName)
   const show = useSettings((s) => s.settings.appearance.pillShow)
-
-  if (eyes && show.avatar && p.phase === 'idle' && !p.toast && !p.activity) {
-    return (
-      <div className="relative flex h-full min-w-0 flex-1 items-center justify-center px-3">
-        <EkkoEyes phase="idle" className="h-4.5 w-10" />
-        {show.clock && (
-          <span className="absolute right-3">
-            <Clock />
-          </span>
-        )}
-      </div>
-    )
-  }
+  const quiet = p.phase === 'idle' && !p.toast && !p.activity
+  const glide = eyes && show.avatar
+  // Centered eyes say it all; the readout only shows next to eyes on the left.
+  const centered = glide && (center || quiet)
+  const what = p.phase !== 'idle' ? p.phase : p.toast ? 'toast' : (p.activity?.kind ?? 'quiet')
 
   return (
-    <div className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3">
-      {show.avatar &&
-        (eyes ? (
-          <EkkoEyes phase={p.phase} className="h-3.5 w-8 shrink-0" />
-        ) : (
-          <EkkoFace phase={p.phase} className="size-6 shrink-0" />
-        ))}
-      {p.phase === 'listening' && (
-        <>
-          <span className="size-1.5 shrink-0 rounded-full bg-danger" />
-          <Caption text={p.caption} />
-          <Waveform tone="danger" />
-        </>
-      )}
-      {p.phase === 'thinking' && (
-        <>
-          <Caption text="Pensando" />
-          <Dots />
-          <StopButton label="Cancelar" icon="x" />
-        </>
-      )}
-      {p.phase === 'speaking' && (
-        <>
-          <Caption text={p.caption} />
-          <Waveform />
-          <StopButton label="Interromper" icon="square" />
-        </>
-      )}
-      {p.phase === 'idle' && p.toast && (
-        <>
-          <span className="label-hud shrink-0 text-accent!">{name}</span>
-          <Caption text={p.toast} />
-        </>
-      )}
-      {p.phase === 'idle' && !p.toast && p.activity && <ActivityChip activity={p.activity} />}
-      {p.phase === 'idle' && !p.toast && !p.activity && (
-        <>
-          {show.statusDot && (
-            <span className="animate-hud-breathe size-1.5 shrink-0 rounded-full bg-accent" />
+    // Not `relative` in the notch: the eyes center on the whole bar (the parent).
+    <div
+      className={cn('flex h-full min-w-0 flex-1 items-center gap-2.5 px-3', !glide && 'relative')}
+    >
+      {glide && (
+        // Same element in both spots, so it glides (and keeps blinking) instead of jumping.
+        <span
+          className={cn(
+            'pointer-events-none absolute top-1/2 transition-[left,translate,width,height] duration-[450ms] ease-out-soft',
+            centered
+              ? 'left-1/2 h-4.5 w-10 -translate-x-1/2 -translate-y-1/2'
+              : 'left-3 h-3.5 w-8 translate-x-0 -translate-y-1/2',
           )}
-          {!compact && <span className="label-hud">{name}</span>}
-        </>
+        >
+          <EkkoEyes phase={p.phase} className="size-full" />
+        </span>
+      )}
+      {!centered && (
+        <span key={what} className="animate-fade-in flex min-w-0 flex-1 items-center gap-2.5">
+          {glide && <span className="w-8 shrink-0" aria-hidden />}
+          {show.avatar && !eyes && <EkkoFace phase={p.phase} className="size-6 shrink-0" />}
+          <Readout compact={compact} name={name} statusDot={show.statusDot} />
+        </span>
       )}
       {show.clock && p.phase === 'idle' && <Clock />}
     </div>
+  )
+}
+
+/** What is going on, next to the avatar: phase, toast, live activity or the name. */
+function Readout({
+  compact,
+  name,
+  statusDot,
+}: {
+  compact: boolean
+  name: string
+  statusDot: boolean
+}) {
+  const p = usePresence()
+  if (p.phase === 'listening') {
+    return (
+      <>
+        <span className="size-1.5 shrink-0 rounded-full bg-danger" />
+        <Caption text={p.caption} />
+        <Waveform tone="danger" />
+      </>
+    )
+  }
+  if (p.phase === 'thinking') {
+    return (
+      <>
+        <Caption text="Pensando" />
+        <Dots />
+        <StopButton label="Cancelar" icon="x" />
+      </>
+    )
+  }
+  if (p.phase === 'speaking') {
+    return (
+      <>
+        <Caption text={p.caption} />
+        <Waveform />
+        <StopButton label="Interromper" icon="square" />
+      </>
+    )
+  }
+  if (p.toast) {
+    return (
+      <>
+        <span className="label-hud shrink-0 text-accent!">{name}</span>
+        <Caption text={p.toast} />
+      </>
+    )
+  }
+  if (p.activity) return <ActivityChip activity={p.activity} />
+  return (
+    <>
+      {statusDot && (
+        <span className="animate-hud-breathe size-1.5 shrink-0 rounded-full bg-accent" />
+      )}
+      {!compact && <span className="label-hud">{name}</span>}
+    </>
   )
 }
 

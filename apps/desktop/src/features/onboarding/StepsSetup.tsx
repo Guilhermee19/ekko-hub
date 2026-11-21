@@ -84,7 +84,7 @@ export function VoiceStep() {
 
 const PERSONAS: { id: Persona; label: string; hint: string }[] = [
   { id: 'ekko', label: 'Ekko', hint: 'Ciano HUD' },
-  { id: 'eco', label: 'Eco', hint: 'Verde-água' },
+  { id: 'tobby', label: 'Tobby', hint: 'Verde-água' },
   { id: 'ultron', label: 'Ultron', hint: 'Âmbar' },
 ]
 

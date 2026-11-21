@@ -58,6 +58,8 @@ export interface AppearanceSettings {
   homeCards: string[] | null
   /** Columns each home card takes (1..4); missing = the card's default. */
   homeWidths: Record<string, number>
+  /** Holiday looks on Ekko in the notch (`features/season`). */
+  seasonal: boolean
 }
 
 export const APPEARANCE_LIMITS = {
@@ -97,4 +99,5 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   panelMenu: { order: [], hidden: [] },
   homeCards: null,
   homeWidths: {},
+  seasonal: true,
 }

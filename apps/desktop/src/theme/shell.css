@@ -1,0 +1,18 @@
+/* The notch look, for every display mode: the screen bezel's black, the light at the
+   bottom (Configurações → Notch → Visual) and the edge outline. Holiday colors for the
+   light come from theme/season.css via data-season. */
+@layer components {
+  /* Windows and panels: solid black, rounded like the open notch, with depth. */
+  .ekko-shell {
+    background-color: var(--notch-ink);
+    border-radius: calc(var(--notch-radius) + 4px);
+    box-shadow:
+      var(--notch-outline),
+      0 18px 50px -12px rgb(0 0 0 / 0.8);
+  }
+  /* Bars, bubbles and tabs: black with the soft light rising from the bottom. */
+  .ekko-glow {
+    background: var(--notch-aura), var(--notch-ink);
+    box-shadow: var(--notch-outline);
+  }
+}

@@ -29,7 +29,7 @@ export * from './captureTypes'
 export * from './hudTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
-export type Persona = 'ekko' | 'ultron' | 'eco'
+export type Persona = 'ekko' | 'ultron' | 'tobby'
 export type DockSide = 'left' | 'right'
 export type NotchSize = 'compact' | 'normal' | 'large'
 export type NotchOpen = 'hover' | 'click'

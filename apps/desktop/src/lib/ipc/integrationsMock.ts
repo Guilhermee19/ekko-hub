@@ -133,7 +133,8 @@ function requireConnected(provider: IntegrationProvider) {
 }
 
 async function connect(provider: IntegrationProvider): Promise<IntegrationStatus> {
-  if (!status[provider].clientId && !status[provider].builtIn) throw new Error('configure o Client ID antes de conectar')
+  if (!status[provider].clientId && !status[provider].builtIn)
+    throw new Error('configure o Client ID antes de conectar')
   await wait(1200)
   status[provider] = { ...status[provider], connected: true, account: ACCOUNTS[provider] }
   if (provider === 'google') calendarListeners.forEach((cb) => cb(mockEvents()))

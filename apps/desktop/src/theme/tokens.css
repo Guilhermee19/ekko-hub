@@ -32,7 +32,7 @@
   --color-danger: #ff5470;
 }
 
-:root[data-persona='eco'] {
+:root[data-persona='tobby'] {
   --color-base: #030a09;
   --color-surface: #08141a;
   --color-surface-hover: #0f1f24;
@@ -53,6 +53,67 @@ body,
 /* Appearance (Configurações > Aparência). theme/applyAppearance.ts overrides these on
    <html>; the values below are the defaults, so nothing depends on JS having run. */
 :root {
+  /* Holiday colors (features/season). Each one leans 20% toward the accent, so the
+     themes match the persona and a custom accent. */
+  --season-red-base: #e5383b;
+  --season-green-base: #2dc653;
+  --season-fur-base: #f5f5f5;
+  --season-pink-base: #ff8fb1;
+  --season-gold-base: #ffca3a;
+  --season-cyan-base: #4dd0e1;
+  --season-teal-base: #2ec4b6;
+  --season-purple-base: #7b2cbf;
+  --season-plum-base: #3c096c;
+  --season-orange-base: #ff9f1c;
+  --season-pumpkin-base: #f77f00;
+  --season-rose-base: #ff4f81;
+  --season-lime-base: #b2ff59;
+  --season-violet-base: #9d4edd;
+  --season-lavender-base: #c77dff;
+  --season-snow-base: #ffffff;
+  --season-ice-base: #e3f2fd;
+  --season-pastel-pink-base: #ffd6e7;
+  --season-pastel-yellow-base: #fff3b0;
+  --season-pastel-green-base: #cdeac0;
+  --season-pastel-blue-base: #d0e4ff;
+  --season-red: color-mix(in oklab, var(--season-red-base) 80%, var(--color-accent));
+  --season-green: color-mix(in oklab, var(--season-green-base) 80%, var(--color-accent));
+  --season-fur: color-mix(in oklab, var(--season-fur-base) 80%, var(--color-accent));
+  --season-pink: color-mix(in oklab, var(--season-pink-base) 80%, var(--color-accent));
+  --season-gold: color-mix(in oklab, var(--season-gold-base) 80%, var(--color-accent));
+  --season-cyan: color-mix(in oklab, var(--season-cyan-base) 80%, var(--color-accent));
+  --season-teal: color-mix(in oklab, var(--season-teal-base) 80%, var(--color-accent));
+  --season-purple: color-mix(in oklab, var(--season-purple-base) 80%, var(--color-accent));
+  --season-plum: color-mix(in oklab, var(--season-plum-base) 80%, var(--color-accent));
+  --season-orange: color-mix(in oklab, var(--season-orange-base) 80%, var(--color-accent));
+  --season-pumpkin: color-mix(in oklab, var(--season-pumpkin-base) 80%, var(--color-accent));
+  --season-rose: color-mix(in oklab, var(--season-rose-base) 80%, var(--color-accent));
+  --season-lime: color-mix(in oklab, var(--season-lime-base) 80%, var(--color-accent));
+  --season-violet: color-mix(in oklab, var(--season-violet-base) 80%, var(--color-accent));
+  --season-lavender: color-mix(in oklab, var(--season-lavender-base) 80%, var(--color-accent));
+  --season-snow: color-mix(in oklab, var(--season-snow-base) 80%, var(--color-accent));
+  --season-ice: color-mix(in oklab, var(--season-ice-base) 80%, var(--color-accent));
+  --season-pastel-pink: color-mix(
+    in oklab,
+    var(--season-pastel-pink-base) 80%,
+    var(--color-accent)
+  );
+  --season-pastel-yellow: color-mix(
+    in oklab,
+    var(--season-pastel-yellow-base) 80%,
+    var(--color-accent)
+  );
+  --season-pastel-green: color-mix(
+    in oklab,
+    var(--season-pastel-green-base) 80%,
+    var(--color-accent)
+  );
+  --season-pastel-blue: color-mix(
+    in oklab,
+    var(--season-pastel-blue-base) 80%,
+    var(--color-accent)
+  );
+
   --notch-radius: 18px;
   --notch-opacity: 1;
   --notch-glow: 0.25;
@@ -207,106 +268,68 @@ body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel'])
     drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
 }
 .ekko-eye,
-.ekko-eyes-body {
+.ekko-smile,
+.ekko-eyes-body,
+.ekko-eyes-react {
   transform-box: fill-box;
   transform-origin: center;
 }
-/* Changing look morphs the shape instead of snapping. */
+/* Changing look morphs the shape instead of snapping; each look sets how fast it
+   arrives (falling asleep is slow, a scare is quick). Loops and reactions run from
+   ui/ekkoMotion.ts. */
+.ekko-eyes {
+  --morph: 0.45s;
+  --morph-ease: cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.ekko-eyes:is([data-look='listening'], [data-look='thinking'], [data-look='speaking']) {
+  --morph: 0.3s;
+}
+.ekko-eyes[data-look='drowsy'] {
+  --morph: 1s;
+  --morph-ease: cubic-bezier(0.45, 0, 0.35, 1);
+}
+.ekko-eyes[data-look='asleep'] {
+  --morph: 1.6s;
+  --morph-ease: cubic-bezier(0.45, 0, 0.3, 1);
+}
+.ekko-eyes[data-look='excited'] {
+  --morph: 0.3s;
+}
+.ekko-eyes[data-look='startled'] {
+  --morph: 0.18s;
+  --morph-ease: cubic-bezier(0.2, 1.4, 0.4, 1);
+}
 .ekko-eye {
+  transition-property: x, y, width, height, rx, opacity;
+  transition-duration: var(--morph);
+  transition-timing-function: var(--morph-ease);
+}
+/* Excited: the capsules squint and fade while the ^ ^ rises in. */
+.ekko-smile {
+  opacity: 0;
+  transform: translateY(1.5px) scaleY(0.6);
   transition:
-    x 0.22s ease-out,
-    y 0.22s ease-out,
-    width 0.22s ease-out,
-    height 0.22s ease-out,
-    rx 0.22s ease-out;
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
-/* Calm: blinks now and then and glances to the sides. */
-.ekko-eyes:is([data-look='calm'], [data-look='speaking']) .ekko-eye {
-  animation: ekko-blink 5.5s ease-in-out infinite;
+.ekko-eyes[data-look='excited'] .ekko-eye {
+  opacity: 0;
 }
-.ekko-eyes[data-look='calm'] .ekko-eyes-body {
-  animation: ekko-glance 13s ease-in-out infinite;
+.ekko-eyes[data-look='excited'] .ekko-smile {
+  opacity: 1;
+  transform: none;
 }
-.ekko-eyes[data-look='thinking'] .ekko-eyes-body {
-  animation: ekko-look 1.6s ease-in-out infinite;
+/* The z keeps floating; it only fades in and out with sleep. */
+.ekko-zz-wrap {
+  opacity: 0;
+  transition: opacity 0.8s ease;
 }
-/* Drowsy: the lids fall slowly, then he catches himself. */
-.ekko-eyes[data-look='drowsy'] .ekko-eye {
-  transform-origin: bottom;
-  animation: ekko-nod 4.5s ease-in-out infinite;
-}
-.ekko-eyes[data-look='asleep'] .ekko-eyes-body {
-  animation: ekko-breathe 3.6s ease-in-out infinite;
+.ekko-eyes[data-look='asleep'] .ekko-zz-wrap {
+  opacity: 1;
+  transition-delay: 0.9s;
 }
 .ekko-zz {
   animation: ekko-zz 3.6s ease-out infinite;
-}
-.ekko-eyes[data-look='excited'] .ekko-eyes-body {
-  animation: ekko-hop 0.6s ease-out 4;
-}
-.ekko-eyes[data-look='startled'] .ekko-eyes-body {
-  animation: ekko-jolt 0.5s ease-out;
-}
-@keyframes ekko-blink {
-  0%,
-  93%,
-  100% {
-    transform: scaleY(1);
-  }
-  96% {
-    transform: scaleY(0.12);
-  }
-}
-@keyframes ekko-glance {
-  0%,
-  38%,
-  50%,
-  72%,
-  84%,
-  100% {
-    transform: translateX(0);
-  }
-  41%,
-  47% {
-    transform: translateX(-2.2px);
-  }
-  75%,
-  81% {
-    transform: translateX(2.2px);
-  }
-}
-@keyframes ekko-look {
-  0%,
-  100% {
-    transform: translateX(-2px);
-  }
-  50% {
-    transform: translateX(2px);
-  }
-}
-@keyframes ekko-nod {
-  0%,
-  100% {
-    transform: scaleY(1);
-  }
-  68% {
-    transform: scaleY(0.3);
-  }
-  76% {
-    transform: scaleY(1.25);
-  }
-  84% {
-    transform: scaleY(1);
-  }
-}
-@keyframes ekko-breathe {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(0.8px);
-  }
 }
 @keyframes ekko-zz {
   0% {
@@ -319,35 +342,6 @@ body:is([data-surface='hub'], [data-surface='settings'], [data-surface='panel'])
   100% {
     opacity: 0;
     transform: translate(2px, -4px) scale(1.1);
-  }
-}
-@keyframes ekko-hop {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  35% {
-    transform: translateY(-2.6px) scaleY(1.06);
-  }
-  70% {
-    transform: translateY(0.5px) scaleY(0.94);
-  }
-}
-@keyframes ekko-jolt {
-  0% {
-    transform: scale(0.6);
-  }
-  30% {
-    transform: scale(1.18) translateY(-1px);
-  }
-  50% {
-    transform: scale(1) translateX(-0.8px);
-  }
-  70% {
-    transform: translateX(0.8px);
-  }
-  100% {
-    transform: none;
   }
 }
 /* After the animations above (same specificity), so these win. */

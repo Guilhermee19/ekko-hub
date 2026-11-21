@@ -141,6 +141,9 @@ pub struct AppearanceSettings {
     /// Columns each home card takes (1..=4, the home is a 4-column grid); cards not
     /// listed use their default width.
     pub home_widths: BTreeMap<String, u8>,
+    /// Holiday looks on Ekko in the notch (Santa hat and snow at Christmas, bunny at
+    /// Easter…). On by default; some people would rather not.
+    pub seasonal: bool,
 }
 
 impl AppearanceSettings {
@@ -208,6 +211,7 @@ impl Default for AppearanceSettings {
             panel_menu: PanelMenu::default(),
             home_cards: None,
             home_widths: BTreeMap::new(),
+            seasonal: true,
         }
     }
 }
@@ -230,6 +234,14 @@ fn normalize_hex(raw: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn seasonal_looks_are_on_for_older_files() {
+        let old: AppearanceSettings = serde_json::from_str(r#"{"notchRadius": 12}"#).unwrap();
+        assert!(old.seasonal);
+        let off: AppearanceSettings = serde_json::from_str(r#"{"seasonal": false}"#).unwrap();
+        assert!(!off.seasonal);
+    }
 
     #[test]
     fn accent_is_normalized_or_dropped() {

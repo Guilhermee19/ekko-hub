@@ -8,7 +8,7 @@ import { Group } from './controls'
 
 const PERSONAS: { id: Persona; label: string; hint: string }[] = [
   { id: 'ekko', label: 'Ekko', hint: 'Ciano HUD (padrão)' },
-  { id: 'eco', label: 'Eco', hint: 'Verde-água, mais calmo' },
+  { id: 'tobby', label: 'Tobby', hint: 'Verde-água, mais calmo' },
   { id: 'ultron', label: 'Ultron', hint: 'Âmbar quente' },
 ]
 

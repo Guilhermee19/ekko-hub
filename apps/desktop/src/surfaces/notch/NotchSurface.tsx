@@ -4,6 +4,8 @@ import { PrintCard } from '@/features/capture/PrintCard'
 import { useRecentPrint } from '@/features/capture/useRecentPrint'
 import { useSystemHud } from '@/features/hud/useSystemHud'
 import { ShelfChip, SHELF_CHIP_W } from '@/features/shelf/ShelfChip'
+import { SeasonSky } from '@/features/season/SeasonSky'
+import { useSeason } from '@/features/season/useSeason'
 import { ShelfTray } from '@/features/shelf/ShelfTray'
 import { useShelf } from '@/features/shelf/store'
 import { backend } from '@/lib/ipc'
@@ -21,7 +23,7 @@ import {
   useWindowFocus,
 } from '../shared/useOverlay'
 import { DropZone } from './DropZone'
-import { CLOCK_W, canvas, MINIMAL, notchBox, notchLook, PILL_H } from './layout'
+import { CLOCK_W, canvas, isQuiet, MINIMAL, notchBox, notchLook, PILL_H } from './layout'
 import { useFileDrop } from './useFileDrop'
 import { useNotchDrag } from './useNotchDrag'
 
@@ -49,6 +51,7 @@ export function NotchSurface() {
   const dropping = useFileDrop()
   const shelved = useShelf((s) => s.items.length > 0)
   const recent = useRecentPrint()
+  const season = useSeason()
 
   const expanded = hovered || held || pinned
   const look = notchLook(expanded, notch.idle, presence, dropping, recent.print !== null)
@@ -95,6 +98,7 @@ export function NotchSurface() {
           presence.phase === 'listening' && look !== 'line' && 'notch-live',
           drag.dragging && 'cursor-grabbing transition-none',
         )}
+        data-season={season ?? undefined}
       >
         <div
           className={cn(
@@ -122,10 +126,13 @@ export function NotchSurface() {
             <div
               {...drag.handlers}
               title="Arraste para mover"
-              className={cn('flex shrink-0 items-center', !drag.dragging && 'cursor-grab')}
+              className={cn('relative flex shrink-0 items-center', !drag.dragging && 'cursor-grab')}
               style={{ height: PILL_H }}
             >
-              <PresenceLine eyes />
+              {season && (
+                <SeasonSky season={season} props={look === 'panel' || isQuiet(presence)} />
+              )}
+              <PresenceLine eyes center={look === 'panel'} />
               <ShelfChip />
               {expanded && (
                 <IconButton

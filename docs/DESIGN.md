@@ -6,7 +6,7 @@
 
 Todos os tokens ficam em `apps/desktop/src/theme/tokens.css`, no `@theme` do Tailwind 4. **O accent é a única cor da interface.** Grade, vinheta e glow derivam dele via `color-mix`.
 
-| Token | Ekko (padrão, ciano) | Ultron (âmbar) | Eco (teal) |
+| Token | Ekko (padrão, ciano) | Ultron (âmbar) | Tobby (teal) |
 |---|---|---|---|
 | `--color-base` | `#04070d` | `#0a0604` | `#030a09` |
 | `--color-surface` | `#0a121c` | `#150d06` | `#08141a` |

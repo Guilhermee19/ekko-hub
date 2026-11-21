@@ -38,7 +38,7 @@ const toast = (text: string) => useAssistant.getState().set({ toast: text })
 
 const PERSONAS: { id: Persona; label: string }[] = [
   { id: 'ekko', label: 'Ekko (ciano)' },
-  { id: 'eco', label: 'Eco (verde-água)' },
+  { id: 'tobby', label: 'Tobby (verde-água)' },
   { id: 'ultron', label: 'Ultron (âmbar)' },
 ]
 

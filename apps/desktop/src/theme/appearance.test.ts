@@ -65,7 +65,7 @@ describe('appearanceVars', () => {
   })
 
   it('scales the aura with the glow and turns it off at zero', () => {
-    expect(appearanceVars('eco', look({ notchGlow: 0 }))['--notch-aura']).toBe('none')
+    expect(appearanceVars('tobby', look({ notchGlow: 0 }))['--notch-aura']).toBe('none')
     const aura = appearanceVars('ekko', look({ notchGlow: 0.25 }))['--notch-aura']!
     expect(aura).toContain('var(--color-accent) 40%')
     expect(aura).toContain(auraPartner(PALETTES.ekko.accent))

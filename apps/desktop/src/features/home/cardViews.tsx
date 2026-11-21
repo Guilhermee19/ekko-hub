@@ -1,12 +1,4 @@
-import {
-  AlarmClock,
-  Clipboard,
-  Cpu,
-  Droplets,
-  Files,
-  ListChecks,
-  Timer,
-} from 'lucide-react'
+import { AlarmClock, Clipboard, Cpu, Droplets, Files, ListChecks, Timer } from 'lucide-react'
 import { useEffect, type ComponentType } from 'react'
 import { AgendaCard as AgendaView } from '@/features/calendar/AgendaCard'
 import { BatteryCard } from '@/features/hud/BatteryCard'

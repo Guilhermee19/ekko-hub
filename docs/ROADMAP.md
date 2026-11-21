@@ -101,7 +101,7 @@ O frontend fala com o backend só via `lib/ipc`. Na F1 tudo vem de `lib/ipc/mock
 
 ### F1b: painel e telas
 Cada tela fica em `features/<tela>/` com um store zustand próprio (dados mock) que a F2+ troca pelo backend.
-- [x] Shell do painel (sidebar estilo Kobi + nível/XP, contadores ao vivo, menu "Mais" no compacto)
+- [x] Shell do painel (sidebar estilo Kobi, contadores ao vivo, menu "Mais" no compacto; o nível/XP de mentira saiu em 21/11/2026)
 - [x] Início: saudação, input (manda para a Conversa), cards (água, tarefas, avisos, timers), música tocando, últimas mensagens
 - [x] Conversa: bolhas, streaming simulado (parar), log de ações com confirmar/cancelar, anexar print, sugestões
 - [x] Tarefas e Lembretes: listas, prioridade, subtarefas, repetição, atrasadas, concluídas
@@ -162,6 +162,11 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Bateria de periféricos sem fio com dongle USB: HyperX Cloud Stinger Core Wireless e mouses Attack Shark no card Bateria e nos avisos de bateria fraca, sem aviso enquanto carregam ([ADR 0001](adr/0001-wireless-usb-batteries.md))
 - [ ] Confirmar no app: bateria do HyperX e do Attack Shark no card Bateria e no notch
 - [ ] Confirmar no app: copiar imagem (navegador, print) e arquivos (Explorador) e colar de volta pelo Copiados
+- [x] Trocas de humor do Ekko suaves: cada humor chega no seu ritmo (adormecer devagar, susto rápido), o olho sai do meio de um piscar ou cochilo sem pular, o sorriso e o "z" aparecem e somem esmaecendo, e as reações tocam sem recriar os olhos (`ui/ekkoMotion.ts`); no notch aberto os olhos ficam sempre no meio, e na pílula deslizam do centro para a esquerda quando aparece um timer, música ou aviso
+- [x] Timer com qualquer tempo (horas, minutos e segundos, até 99 h), além dos atalhos de 1, 5, 10, 25 e 60 min
+- [x] Temas de época no notch, com aba própria nas Configurações (os olhos do Ekko não mudam; o fundo ganha enfeites e o brilho de baixo a cor da data, puxada para a cor de destaque da persona): Natal (pisca-pisca, neve e presentes), Ano Novo (fogos de artifício), Carnaval (máscara e confete), Páscoa (ovos nos cantos e coelho pulando), Dia dos Namorados (corações, brilho roxo) e Halloween (abóbora, morcegos, brilho laranja)
+- [x] Todos os modos de exibição com o visual do notch: bandeja, bolha, dock, central e só voz no preto da moldura, com os olhos do Ekko, o brilho de baixo e os temas de época (sai o rosto com anel e o núcleo estilo Jarvis)
+- [x] Persona Eco virou Tobby (quem tinha Eco salvo passa para Tobby sozinho)
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%

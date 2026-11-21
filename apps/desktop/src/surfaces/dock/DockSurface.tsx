@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useAssistant } from '@/stores/assistant'
 import { useSettings } from '@/stores/settings'
-import { EkkoFace } from '@/ui/EkkoFace'
+import { useSeason } from '@/features/season/useSeason'
+import { EkkoEyes } from '@/ui/EkkoEyes'
 import { PanelShell } from '../panel/PanelShell'
 import { useSystemHud } from '@/features/hud/useSystemHud'
-import { PresenceLine } from '../shared/PresenceLine'
+import { EkkoBar } from '../shared/EkkoBar'
 import { useEscape, useHitRect, useOverlayHover, useSummon } from '../shared/useOverlay'
 import { useElementSize } from '../shared/useViewport'
 
@@ -22,6 +23,7 @@ export function DockSurface() {
   const { hovered, bind } = useOverlayHover({ enterDelay: 120 })
   const [pinned, setPinned] = useState(false)
   const open = hovered || pinned
+  const season = useSeason()
 
   const tabY = Math.round((height - TAB.h) / 2)
   useHitRect(
@@ -37,25 +39,24 @@ export function DockSurface() {
     <div ref={ref} {...bind} className="no-select relative h-full w-full overflow-hidden">
       <div
         style={{ top: tabY, height: TAB.h, width: TAB.w }}
+        data-season={season ?? undefined}
         className={cn(
-          'absolute grid place-items-center border border-accent/25 bg-base/95 transition-opacity',
-          right ? 'right-0 rounded-l-2xl border-r-0' : 'left-0 rounded-r-2xl border-l-0',
+          'ekko-glow absolute grid place-items-center transition-opacity',
+          right ? 'right-0 rounded-l-2xl' : 'left-0 rounded-r-2xl',
           open && 'opacity-0',
         )}
       >
-        <EkkoFace phase={phase} className="size-6" />
+        <EkkoEyes phase={phase} className="h-3 w-[26px]" />
       </div>
       <aside
         className={cn(
-          'absolute inset-y-2 flex w-[calc(100%-8px)] flex-col overflow-hidden border border-accent/20 bg-base/97',
+          'ekko-shell absolute inset-y-2 flex w-[calc(100%-8px)] flex-col overflow-hidden',
           'transition-transform duration-300 ease-out-soft',
-          right ? 'right-0 rounded-l-2xl border-r-0' : 'left-0 rounded-r-2xl border-l-0',
+          right ? 'right-0 rounded-r-none' : 'left-0 rounded-l-none',
           open ? 'translate-x-0' : right ? 'translate-x-full' : '-translate-x-full',
         )}
       >
-        <div className="flex h-11 shrink-0 items-center border-b border-border-soft">
-          <PresenceLine />
-        </div>
+        <EkkoBar className="border-b border-border-soft" />
         <PanelShell layout="compact" className="min-h-0 flex-1" />
       </aside>
     </div>

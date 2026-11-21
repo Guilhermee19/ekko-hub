@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { elapsedFraction, formatDuration, formatElapsed, remainingMs } from './format'
+import {
+  durationSeconds,
+  elapsedFraction,
+  formatDuration,
+  formatElapsed,
+  MAX_TIMER_SECONDS,
+  remainingMs,
+} from './format'
 
 describe('timer format', () => {
   it('formats stopwatch readings', () => {
@@ -25,5 +32,14 @@ describe('timer format', () => {
   it('computes elapsed fraction', () => {
     expect(elapsedFraction(30_000, 60)).toBe(0.5)
     expect(elapsedFraction(0, 0)).toBe(1)
+  })
+
+  it('turns the h / min / s fields into seconds, with no 25 min limit', () => {
+    expect(durationSeconds('', '45', '')).toBe(45 * 60)
+    expect(durationSeconds('2', '30', '15')).toBe(2 * 3600 + 30 * 60 + 15)
+    expect(durationSeconds('', '90', '')).toBe(90 * 60)
+    expect(durationSeconds('', '', '')).toBe(0)
+    expect(durationSeconds('-3', 'abc', '2.7')).toBe(2)
+    expect(durationSeconds('500', '', '')).toBe(MAX_TIMER_SECONDS)
   })
 })

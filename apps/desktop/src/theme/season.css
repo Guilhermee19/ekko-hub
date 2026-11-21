@@ -1,0 +1,268 @@
+/* Holiday scene behind the notch bar (features/season/SeasonSky.tsx, SeasonProps.tsx). Each bit
+   gets its own left, duration, delay, --drift, --size and --top inline. */
+.season-bit {
+  position: absolute;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+.season-snow {
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.55;
+  animation-name: season-fall;
+}
+.season-confetti {
+  height: calc(var(--size) * 0.5);
+  border-radius: 1px;
+  background: currentColor;
+  animation-name: season-tumble;
+}
+.season-firework {
+  top: var(--top);
+  width: 0;
+  height: 0;
+}
+/* Sparks share the burst's duration and delay (set inline on the burst). */
+.season-spark {
+  position: absolute;
+  /* A short streak pointing away from the center. */
+  left: -0.8px;
+  top: -2px;
+  width: 1.6px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+  box-shadow: 0 0 3px currentColor;
+  opacity: 0;
+  animation: season-spark linear infinite;
+  animation-duration: inherit;
+  animation-delay: inherit;
+}
+.season-candle {
+  animation: season-flicker 2.6s linear infinite;
+}
+.season-heart {
+  top: auto;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  font-size: calc(var(--size) * 2.4);
+  line-height: 1;
+  animation-name: season-rise;
+}
+.season-bat {
+  top: var(--top);
+  width: 11px;
+  height: 6px;
+  animation-name: season-fly;
+}
+.season-bat svg {
+  animation: season-flap 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes season-fall {
+  0% {
+    transform: translate(0, -6px);
+  }
+  100% {
+    transform: translate(var(--drift), 44px);
+  }
+}
+@keyframes season-tumble {
+  0% {
+    transform: translate(0, -6px) rotate(0deg);
+  }
+  100% {
+    transform: translate(var(--drift), 44px) rotate(540deg);
+  }
+}
+/* Pop, fly out and fade in the first half; the second half waits in the dark. */
+@keyframes season-spark {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(0) scale(1.4);
+  }
+  6% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-13px) scale(0.5);
+  }
+}
+@keyframes season-rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 8px) scale(0.6);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift), -36px) scale(1.1);
+  }
+}
+@keyframes season-fly {
+  0% {
+    left: -8%;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    left: 108%;
+    transform: translateY(0);
+  }
+}
+@keyframes season-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.4);
+  }
+}
+
+/* The light at the bottom of the closed notch (and the other modes' bars) takes the holiday's colors; the
+   strength still follows Configurações → Notch → Brilho de baixo (0 = off). */
+:is(.notch-pill, .ekko-glow)[data-season] {
+  --glow-mix: calc(min(1, var(--notch-glow) * 1.6) * 100%);
+  background:
+    radial-gradient(
+      70% 140% at 18% 150%,
+      color-mix(in srgb, var(--glow-a) var(--glow-mix), transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      70% 140% at 82% 150%,
+      color-mix(in srgb, var(--glow-b) var(--glow-mix), transparent),
+      transparent 70%
+    ),
+    var(--notch-bg);
+}
+[data-season='christmas'] {
+  --glow-a: var(--season-red);
+  --glow-b: var(--season-green);
+}
+[data-season='newYear'] {
+  --glow-a: var(--season-gold);
+  --glow-b: var(--season-rose);
+}
+[data-season='carnival'] {
+  --glow-a: var(--season-rose);
+  --glow-b: var(--season-teal);
+}
+[data-season='easter'] {
+  --glow-a: var(--season-pastel-yellow);
+  --glow-b: var(--season-pastel-pink);
+}
+[data-season='valentines'] {
+  --glow-a: var(--season-violet);
+  --glow-b: var(--season-lavender);
+}
+[data-season='halloween'] {
+  --glow-a: var(--season-orange);
+  --glow-b: var(--season-pumpkin);
+}
+
+/* Christmas lights hanging from the top edge; each bulb cycles its colors. */
+.season-bulb {
+  position: absolute;
+  width: 3px;
+  height: 4px;
+  margin-left: -1.5px;
+  border-radius: 1.5px 1.5px 2px 2px;
+  background: currentColor;
+  box-shadow: 0 0 4px currentColor;
+  animation: season-bulb 3.6s ease-in-out infinite;
+}
+@keyframes season-bulb {
+  0%,
+  100% {
+    color: var(--season-red);
+  }
+  25% {
+    color: var(--season-green);
+  }
+  50% {
+    color: var(--season-gold);
+  }
+  75% {
+    color: var(--season-cyan);
+  }
+}
+
+/* Easter bunny: shows up in the corner, hops a few times, hops away. */
+.season-bunny {
+  opacity: 0;
+  animation: season-hop 9s ease-in-out infinite;
+}
+@keyframes season-hop {
+  0% {
+    opacity: 0;
+    transform: translate(16px, 0);
+  }
+  6% {
+    opacity: 1;
+  }
+  10% {
+    transform: translate(10px, -6px);
+  }
+  14% {
+    transform: translate(6px, 0);
+  }
+  20% {
+    transform: translate(2px, -6px);
+  }
+  26%,
+  44% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(6px, -6px) scaleX(-1);
+  }
+  56% {
+    transform: translate(12px, 0) scaleX(-1);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(18px, -6px) scaleX(-1);
+  }
+  66%,
+  100% {
+    opacity: 0;
+    transform: translate(22px, 0) scaleX(-1);
+  }
+}
+
+/* Reduced motion: no falling bits at all (a frozen snowfall just looks like dirt). */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion='off']) .season-sky {
+    display: none;
+  }
+  :root:not([data-reduce-motion='off']) .season-bunny {
+    animation: none;
+    opacity: 1;
+  }
+  :root:not([data-reduce-motion='off']) .season-candle,
+  :root:not([data-reduce-motion='off']) .season-bulb {
+    animation: none;
+  }
+}
+:root[data-reduce-motion='on'] .season-sky {
+  display: none;
+}
+:root[data-reduce-motion='on'] .season-candle,
+:root[data-reduce-motion='on'] .season-bulb {
+  animation: none;
+}

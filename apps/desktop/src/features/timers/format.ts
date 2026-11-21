@@ -21,6 +21,15 @@ export function formatDuration(seconds: number): string {
   return m % 60 ? `${h} h ${m % 60} min` : `${h} h`
 }
 
+/** Longest custom timer: 99 h 59 min 59 s. */
+export const MAX_TIMER_SECONDS = 99 * 3600 + 59 * 60 + 59
+
+/** Seconds from the h / min / s fields (blank or junk counts as 0), capped. */
+export function durationSeconds(h: string, m: string, s: string): number {
+  const n = (v: string) => Math.max(0, Math.floor(Number(v) || 0))
+  return Math.min(MAX_TIMER_SECONDS, n(h) * 3600 + n(m) * 60 + n(s))
+}
+
 /** Ms left for a countdown, clamped to [0, total]. `pausedLeft` wins when set. */
 export function remainingMs(
   endsAt: number,

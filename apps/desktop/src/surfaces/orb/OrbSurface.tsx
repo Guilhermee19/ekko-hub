@@ -2,15 +2,19 @@ import { useRef, type PointerEvent } from 'react'
 import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { useAssistant } from '@/stores/assistant'
-import { EkkoFace } from '@/ui/EkkoFace'
+import { SeasonSky } from '@/features/season/SeasonSky'
+import { useSeason } from '@/features/season/useSeason'
+import { EkkoEyes } from '@/ui/EkkoEyes'
 
 const DRAG_THRESHOLD = 4
 
-/** Floating bubble: drag to move (position saved by the backend), click to open the panel. */
+/** Floating bubble in the notch's look (black, bottom light, Ekko's eyes): drag to move
+ *  (position saved by the backend), click to open the panel. */
 export function OrbSurface() {
   const phase = useAssistant((s) => s.phase)
   const hasActivity = useAssistant((s) => Boolean(s.activity || s.toast))
   const start = useRef<{ x: number; y: number } | null>(null)
+  const season = useSeason()
 
   const onPointerDown = (e: PointerEvent) => {
     start.current = { x: e.screenX, y: e.screenY }
@@ -36,12 +40,18 @@ export function OrbSurface() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        data-season={season ?? undefined}
         className={cn(
-          'relative grid size-[72px] cursor-pointer place-items-center rounded-full border bg-base/95',
-          'shadow-[0_8px_30px_-8px_rgb(0_0_0/0.9)] transition-transform hover:scale-105',
-          phase === 'listening' ? 'border-danger/60' : 'border-accent/30',
+          'ekko-glow relative grid size-[72px] cursor-pointer place-items-center rounded-full',
+          'transition-transform hover:scale-105',
+          phase === 'listening' && 'ring-1 ring-danger/60',
         )}
       >
+        {season && (
+          <span className="absolute inset-0 overflow-hidden rounded-full">
+            <SeasonSky season={season} props={false} />
+          </span>
+        )}
         <span
           className={cn(
             'absolute inset-[-3px] rounded-full border-2 border-transparent',
@@ -50,9 +60,9 @@ export function OrbSurface() {
             phase === 'speaking' && 'animate-hud-breathe border-accent/70',
           )}
         />
-        <EkkoFace phase={phase} className="size-12" />
+        <EkkoEyes phase={phase} className="relative h-5 w-11" />
         {hasActivity && (
-          <span className="absolute top-1 right-1 size-3 rounded-full border-2 border-base bg-accent" />
+          <span className="absolute top-1 right-1 size-3 rounded-full border-2 border-(--notch-ink) bg-accent" />
         )}
       </button>
     </div>

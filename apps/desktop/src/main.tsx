@@ -18,6 +18,8 @@ import { SettingsSurface } from '@/surfaces/settings/SettingsSurface'
 import { VoiceSurface } from '@/surfaces/voice/VoiceSurface'
 import { applyAppearance } from './theme/applyAppearance'
 import './theme/tokens.css'
+import './theme/shell.css'
+import './theme/season.css'
 
 const SURFACES: Record<SurfaceId, ComponentType> = {
   gallery: Gallery,

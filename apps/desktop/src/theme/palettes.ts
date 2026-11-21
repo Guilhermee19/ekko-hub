@@ -30,7 +30,7 @@ export const PALETTES: Record<Persona, Palette> = {
     accent: '#ff9c3f',
     accentStrong: '#b8560f',
   },
-  eco: {
+  tobby: {
     base: '#030a09',
     surface: '#08141a',
     surfaceHover: '#0f1f24',

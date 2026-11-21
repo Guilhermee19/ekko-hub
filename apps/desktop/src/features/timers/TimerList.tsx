@@ -1,13 +1,19 @@
 import { BellRing, Hourglass, Pause, Play, Plus, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 import { cn } from '@/lib/cn'
 import { formatRemaining } from '@/lib/time'
 import { Badge, EmptyState } from '@/ui/data'
 import { Card, IconButton } from '@/ui/primitives'
-import { elapsedFraction, formatDuration, remainingMs } from './format'
+import { durationSeconds, elapsedFraction, formatDuration, remainingMs } from './format'
 import { useTimers, type Timer } from './store'
 
-const PRESETS = [1, 5, 10, 25]
+const PRESETS = [1, 5, 10, 25, 60]
+
+const UNITS = [
+  { key: 'h', unit: 'h', label: 'Horas' },
+  { key: 'm', unit: 'min', label: 'Minutos' },
+  { key: 's', unit: 's', label: 'Segundos' },
+] as const
 
 /** Named countdowns + quick-add presets. */
 export function TimerList({ now, compact }: { now: number; compact: boolean }) {
@@ -19,7 +25,7 @@ export function TimerList({ now, compact }: { now: number; compact: boolean }) {
         <EmptyState
           icon={Hourglass}
           title="Nenhum timer ativo"
-          hint="Escolha um tempo acima ou diga “timer de 10 minutos”."
+          hint="Digite qualquer tempo acima ou escolha um atalho."
         />
       ) : (
         <div className={cn('grid gap-2', compact ? 'grid-cols-1' : 'grid-cols-2')}>
@@ -35,31 +41,69 @@ export function TimerList({ now, compact }: { now: number; compact: boolean }) {
 function QuickAdd() {
   const addTimer = useTimers((s) => s.addTimer)
   const [label, setLabel] = useState('')
-  const start = (min: number) => {
-    addTimer(label || `Timer de ${formatDuration(min * 60)}`, min * 60)
+  const [time, setTime] = useState({ h: '', m: '', s: '' })
+  const custom = durationSeconds(time.h, time.m, time.s)
+  const start = (seconds: number) => {
+    if (seconds <= 0) return
+    addTimer(label || `Timer de ${formatDuration(seconds)}`, seconds)
     setLabel('')
+    setTime({ h: '', m: '', s: '' })
   }
+  // Enter anywhere starts the typed time, or 5 min when none was typed.
+  const onEnter = (e: KeyboardEvent<HTMLInputElement>) =>
+    e.key === 'Enter' && start(custom || 5 * 60)
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border-soft bg-base/60 p-1.5 focus-within:border-accent/50">
       <input
         value={label}
         onChange={(e) => setLabel(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && start(5)}
+        onKeyDown={onEnter}
         aria-label="Nome do timer"
-        placeholder="Nome do timer (opcional) · Enter inicia 5 min"
+        placeholder="Nome do timer (opcional)"
         className="min-w-0 bg-transparent px-1.5 py-1 text-[13px] outline-none placeholder:text-muted"
       />
+      <div className="flex items-center gap-1.5">
+        {UNITS.map(({ key, unit, label: name }) => (
+          <label
+            key={key}
+            className="flex min-w-0 flex-1 items-center gap-1 rounded-lg border border-border-soft px-2 py-1 focus-within:border-accent/50"
+          >
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={key === 'h' ? 99 : 59}
+              value={time[key]}
+              onChange={(e) => setTime((t) => ({ ...t, [key]: e.target.value }))}
+              onKeyDown={onEnter}
+              aria-label={name}
+              placeholder="0"
+              className="w-full min-w-0 [appearance:textfield] bg-transparent text-right font-mono text-[13px] tabular-nums outline-none placeholder:text-muted [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-[11px] text-muted">{unit}</span>
+          </label>
+        ))}
+        <button
+          type="button"
+          onClick={() => start(custom)}
+          disabled={custom === 0}
+          className="flex shrink-0 items-center gap-1 rounded-lg bg-accent-strong px-3 py-1 text-[12px] font-semibold text-white transition-[opacity,filter] hover:brightness-110 disabled:opacity-40"
+        >
+          <Play className="size-3 fill-current" aria-hidden />
+          Iniciar
+        </button>
+      </div>
       <div className="flex gap-1.5">
         {PRESETS.map((min) => (
           <button
             key={min}
             type="button"
-            onClick={() => start(min)}
-            aria-label={`Iniciar timer de ${min} minuto${min === 1 ? '' : 's'}`}
+            onClick={() => start(min * 60)}
+            aria-label={`Iniciar timer de ${formatDuration(min * 60)}`}
             className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border-soft py-1 font-mono text-[12px] text-muted tabular-nums transition-colors hover:border-accent/40 hover:text-accent"
           >
             <Plus className="size-3" aria-hidden />
-            {min} min
+            {formatDuration(min * 60)}
           </button>
         ))}
       </div>

@@ -16,6 +16,7 @@ import { MenuPage } from './sections/MenuPage'
 import { NotchPage } from './sections/NotchPage'
 import { NotificationsSettingsPage } from './sections/NotificationsSettingsPage'
 import { PillPage } from './sections/PillPage'
+import { SeasonsPage } from './sections/SeasonsPage'
 
 export type SectionId =
   | 'general'
@@ -25,6 +26,7 @@ export type SectionId =
   | 'display'
   | 'notch'
   | 'pill'
+  | 'seasons'
   | 'menu'
   | 'avatar'
   | 'brain'
@@ -44,6 +46,7 @@ export const SECTIONS: Record<SectionId, ComponentType> = {
   display: DisplayPage,
   notch: NotchPage,
   pill: PillPage,
+  seasons: SeasonsPage,
   menu: MenuPage,
   avatar: AvatarPage,
   brain: BrainPage,

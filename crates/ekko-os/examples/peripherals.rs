@@ -4,7 +4,10 @@
 use std::time::{Duration, Instant};
 
 fn main() {
-    let secs = std::env::args().nth(1).and_then(|s| s.parse().ok()).unwrap_or(10);
+    let secs = std::env::args()
+        .nth(1)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(10);
     let start = Instant::now();
     // The scanner starts on the first call; mice push a frame every ~2 s (needs two).
     let _ = ekko_os::peripherals::batteries();

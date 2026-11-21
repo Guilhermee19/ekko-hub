@@ -72,7 +72,9 @@ pub enum Persona {
     #[default]
     Ekko,
     Ultron,
-    Eco,
+    /// Was "eco" until 21/11/2026; old settings files still load.
+    #[serde(alias = "eco")]
+    Tobby,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -137,6 +139,13 @@ impl Default for Settings {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn old_eco_persona_loads_as_tobby() {
+        let p: Persona = serde_json::from_str("\"eco\"").unwrap();
+        assert_eq!(p, Persona::Tobby);
+        assert_eq!(serde_json::to_string(&Persona::Tobby).unwrap(), "\"tobby\"");
+    }
 
     #[test]
     fn display_mode_ids_round_trip() {

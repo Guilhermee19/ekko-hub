@@ -4,7 +4,7 @@ import { backend } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/stores/settings'
 import { useAssistant } from '@/stores/assistant'
-import { EkkoFace } from '@/ui/EkkoFace'
+import { EkkoEyes } from '@/ui/EkkoEyes'
 import { useMenuNav } from './menu'
 import type { PageId } from './nav'
 import { useNavBadges } from './badges'
@@ -142,35 +142,20 @@ export function PanelShell({ layout, className }: PanelShellProps) {
   )
 }
 
-/** Mock progression until F5 tracks real usage (Kobi-style level/XP). */
-const LEVEL = { level: 7, xp: 340, next: 500 }
-
 function Identity() {
   const name = useSettings((s) => s.settings.assistantName)
   const phase = useAssistant((s) => s.phase)
   return (
     <div className="mb-2 px-1.5 py-1">
       <div className="flex items-center gap-2.5">
-        <EkkoFace phase={phase} className="size-9" />
+        <span className="ekko-glow grid size-9 shrink-0 place-items-center rounded-xl">
+          <EkkoEyes phase={phase} className="h-3 w-[26px]" />
+        </span>
         <div className="min-w-0">
           <div className="text-[14px] font-semibold">{name}</div>
           <div className="flex items-center gap-1.5 text-[11px] text-muted">
             <span className="size-1.5 rounded-full bg-accent" /> Pronto
           </div>
-        </div>
-      </div>
-      <div className="mt-2" title={`${LEVEL.xp} de ${LEVEL.next} XP`}>
-        <div className="flex justify-between text-[10px] text-muted">
-          <span className="label-hud">Nível {LEVEL.level}</span>
-          <span className="font-mono tabular-nums">
-            {LEVEL.xp}/{LEVEL.next}
-          </span>
-        </div>
-        <div className="mt-1 h-1 overflow-hidden rounded-full bg-border-soft">
-          <div
-            className="h-full rounded-full bg-accent"
-            style={{ width: `${(LEVEL.xp / LEVEL.next) * 100}%` }}
-          />
         </div>
       </div>
     </div>

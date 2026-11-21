@@ -46,7 +46,7 @@ export function Gallery() {
           value={persona}
           options={[
             { value: 'ekko', label: 'Ekko' },
-            { value: 'eco', label: 'Eco' },
+            { value: 'tobby', label: 'Tobby' },
             { value: 'ultron', label: 'Ultron' },
           ]}
           onChange={(p) => void backend.setPersona(p)}
