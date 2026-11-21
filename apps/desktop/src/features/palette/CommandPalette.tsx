@@ -98,7 +98,7 @@ export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
       aria-modal="true"
       aria-label="Paleta de comandos"
       onKeyDown={onKeyDown}
-      className="animate-rise-in flex max-h-full w-full max-w-[640px] flex-col overflow-hidden rounded-2xl border border-border-soft bg-base shadow-2xl"
+      className="ekko-shell flex max-h-full w-full max-w-[640px] flex-col overflow-hidden border border-border-soft"
     >
       <div className="flex items-center gap-3 border-b border-border-soft px-4">
         <Search className="size-4 shrink-0 text-accent" />

@@ -9,6 +9,8 @@ export const PILL_H = 38
 export const MINIMAL = { w: 120, h: 12, bar: { w: 96, h: 5 } } as const
 /** Drop zone shown while files are dragged over the notch (also the "print salvo" card). */
 export const DROP = { w: 380, h: 112 } as const
+/** The notch grown into an alert card (new song, timer done, meeting soon…). */
+export const ALERT = { w: 440, h: 96 } as const
 
 /** Nothing worth showing in the pill: the minimal style can shrink to a line. */
 export function isQuiet(p: Presence): boolean {
@@ -46,7 +48,7 @@ export interface Box {
   h: number
 }
 
-export type NotchLook = 'panel' | 'pill' | 'line' | 'drop' | 'print'
+export type NotchLook = 'panel' | 'pill' | 'line' | 'drop' | 'print' | 'alert'
 
 export function notchLook(
   expanded: boolean,
@@ -56,10 +58,13 @@ export function notchLook(
   dropping = false,
   /** A print was just saved: its card shows until it times out or is closed. */
   printing = false,
+  /** An alert card is up (it waits while the panel is open). */
+  alerting = false,
 ): NotchLook {
   if (dropping) return 'drop'
   if (printing) return 'print'
   if (expanded) return 'panel'
+  if (alerting) return 'alert'
   return idle === 'minimal' && isQuiet(p) ? 'line' : 'pill'
 }
 
@@ -83,9 +88,11 @@ export function notchBox(
       ? [PANELS[size].w, PANELS[size].h]
       : look === 'drop' || look === 'print'
         ? [DROP.w, DROP.h]
-        : look === 'line'
-          ? [MINIMAL.w, MINIMAL.h]
-          : [Math.round((pillWidth(p) + extraW) * pillScale), Math.round(PILL_H * pillScale)]
+        : look === 'alert'
+          ? [ALERT.w, ALERT.h]
+          : look === 'line'
+            ? [MINIMAL.w, MINIMAL.h]
+            : [Math.round((pillWidth(p) + extraW) * pillScale), Math.round(PILL_H * pillScale)]
   const center = anchor ?? cw / 2
   const x = Math.min(cw - w, Math.max(0, Math.round(center - w / 2)))
   return { x, y: 0, w, h }

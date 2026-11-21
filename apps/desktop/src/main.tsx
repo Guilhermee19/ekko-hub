@@ -19,6 +19,7 @@ import { VoiceSurface } from '@/surfaces/voice/VoiceSurface'
 import { applyAppearance } from './theme/applyAppearance'
 import './theme/tokens.css'
 import './theme/shell.css'
+import './theme/motion.css'
 import './theme/season.css'
 
 const SURFACES: Record<SurfaceId, ComponentType> = {

@@ -130,6 +130,11 @@ export const mockBackend: Backend = {
     return patch({ onboarded: true })
   },
   showAlarm: (alarm) => {
+    // Same rule as display/flows.rs: in notch mode the notch grows into the alarm card.
+    if (settings.displayMode === 'notch') {
+      fire('ekko://alarm/notch', alarm)
+      return Promise.resolve()
+    }
     pendingAlarm = alarm
     fire(MOCK_ALARM_EVENT, alarm)
     return Promise.resolve()

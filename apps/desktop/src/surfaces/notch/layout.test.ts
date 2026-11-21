@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { IDLE } from '@/stores/assistant'
 import type { NotchSize } from '@/lib/ipc'
 import { formatRemaining } from '@/lib/time'
-import { canvas, notchBox, notchLook, pillWidth } from './layout'
+import { ALERT, canvas, notchBox, notchLook, pillWidth } from './layout'
 
 describe('notch layout', () => {
   it('idle pill is the narrowest state', () => {
@@ -50,6 +50,14 @@ describe('notch layout', () => {
   it('a fresh print shows its card over the panel, but not over a file drop', () => {
     expect(notchLook(true, 'pill', IDLE, false, true)).toBe('print')
     expect(notchLook(false, 'pill', IDLE, true, true)).toBe('drop')
+  })
+
+  it('an alert grows the closed notch into its card; the open panel keeps it waiting', () => {
+    expect(notchLook(false, 'minimal', IDLE, false, false, true)).toBe('alert')
+    expect(notchLook(true, 'pill', IDLE, false, false, true)).toBe('panel')
+    expect(notchLook(false, 'pill', IDLE, false, true, true)).toBe('print')
+    const box = notchBox('alert', 'normal', IDLE)
+    expect([box.w, box.h]).toEqual([ALERT.w, ALERT.h])
   })
 
   it('formats countdown and never goes negative', () => {

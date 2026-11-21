@@ -1,0 +1,39 @@
+/* Entrances for things that pop up: the notch's alert card, the command palette.
+   The notch box itself grows with its own transition (NotchSurface); the content fades
+   in a beat later, so it never shows squeezed. */
+.animate-alert-in {
+  animation: alert-in 360ms var(--ease-out-soft) 90ms both;
+}
+.animate-pop-in {
+  animation: pop-in 240ms var(--ease-out-soft) both;
+}
+@keyframes alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion='off']) :is(.animate-alert-in, .animate-pop-in) {
+    animation: none;
+  }
+}
+:root[data-reduce-motion='on'] :is(.animate-alert-in, .animate-pop-in) {
+  animation: none;
+}

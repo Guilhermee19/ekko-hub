@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { backend } from '@/lib/ipc'
 import { alertSound } from '@/lib/notifySound'
+import { showAlert, useAlerts } from '@/features/alerts/store'
 import { useAssistant } from '@/stores/assistant'
 import { feel } from '@/stores/mood'
 import { useSettings } from '@/stores/settings'
@@ -44,7 +45,14 @@ export const useNotifications = create<NotificationsState>((set) => ({
     // "Não perturbe": still listed in the center, but no toast and no sound.
     const quiet = alertSound(useSettings.getState().settings.general)
     if (quiet) return
-    useAssistant.getState().set({ toast: full.title })
+    if (useAlerts.getState().live) {
+      // The notch grows into a card instead of a one-line toast. Timers and reminders
+      // get theirs from the alarm itself (with snooze), so they are not shown twice.
+      if (full.kind !== 'timer' && full.kind !== 'reminder')
+        showAlert({ kind: 'notice', label: 'Aviso', title: full.title, detail: full.body })
+    } else {
+      useAssistant.getState().set({ toast: full.title })
+    }
     // A timer or reminder going off makes him jump; other news cheer him up.
     feel(full.kind === 'timer' || full.kind === 'reminder' ? 'startled' : 'excited')
   },

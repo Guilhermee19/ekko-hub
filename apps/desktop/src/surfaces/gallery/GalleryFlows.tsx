@@ -23,7 +23,7 @@ export const FLOW_DEMOS: { label: string; run: () => void }[] = [
     label: 'Notificação',
     run: () =>
       useNotifications.getState().notify({
-        kind: 'reminder',
+        kind: 'habit',
         title: 'Beber água',
         body: 'Faz 1 hora desde o último copo.',
       }),

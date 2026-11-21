@@ -1,5 +1,8 @@
 import { Pin, PinOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { AlertCard } from '@/features/alerts/AlertCard'
+import { useAlerts } from '@/features/alerts/store'
+import { useAlertSources } from '@/features/alerts/useAlertSources'
 import { PrintCard } from '@/features/capture/PrintCard'
 import { useRecentPrint } from '@/features/capture/useRecentPrint'
 import { useSystemHud } from '@/features/hud/useSystemHud'
@@ -53,8 +56,18 @@ export function NotchSurface() {
   const recent = useRecentPrint()
   const season = useSeason()
 
-  const expanded = hovered || held || pinned
-  const look = notchLook(expanded, notch.idle, presence, dropping, recent.print !== null)
+  const alert = useAlerts((s) => s.current)
+  useAlertSources()
+  // Hovering an alert keeps the card (its buttons stay reachable); a click opens the panel.
+  const expanded = held || pinned || (hovered && !alert)
+  const look = notchLook(
+    expanded,
+    notch.idle,
+    presence,
+    dropping,
+    recent.print !== null,
+    alert !== null,
+  )
   const anchor = useNotchAnchor()
   const showClock = useSettings((s) => s.settings.appearance.pillShow.clock)
   const extraW = (showClock ? CLOCK_W : 0) + (shelved ? SHELF_CHIP_W : 0)
@@ -62,7 +75,7 @@ export function NotchSurface() {
   // The pill zooms its content; the box (hit rect) is already scaled, so undo it in px.
   const zoom = look === 'pill' ? pillScale : 1
   const size = canvas(notch.size)
-  const open = look === 'panel' || look === 'drop' || look === 'print'
+  const open = look === 'panel' || look === 'drop' || look === 'print' || look === 'alert'
 
   useHitRect(box)
   useSummon(toggleHeld)
@@ -113,6 +126,16 @@ export function NotchSurface() {
             />
           )}
           {look === 'drop' && <DropZone />}
+          {look === 'alert' && alert && (
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              onOpen={() => {
+                setHeld(true)
+                void backend.focusSelf()
+              }}
+            />
+          )}
           {look === 'print' && recent.print && (
             <div
               className="h-full"

@@ -2,17 +2,20 @@
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use ekko_core::DisplayMode;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager};
 
 use super::geometry::Rect;
-use super::windows::{self, ALARM, ONBOARDING, PALETTE};
+use super::windows::{self, ALARM, NOTCH, ONBOARDING, PALETTE};
 use crate::state::AppState;
 
 /// Palette re-opened: the UI clears the query and focuses the input.
 pub const PALETTE_OPEN_EVENT: &str = "ekko://palette/open";
 /// A new alarm for the alarm window (payload: the alarm object from the frontend).
 pub const ALARM_EVENT: &str = "ekko://alarm/show";
+/// In notch mode the notch itself grows into the alarm card instead of a window.
+pub const ALARM_NOTCH_EVENT: &str = "ekko://alarm/notch";
 
 /// Windows sends a spurious blur while a popup is being shown; the palette only
 /// closes on blur after it really had focus.
@@ -61,8 +64,16 @@ pub fn show_onboarding(app: &AppHandle) -> tauri::Result<()> {
     window.set_focus()
 }
 
-/// Shows the alarm overlay near the top of the active monitor.
+/// Shows the alarm: in notch mode the notch expands into a card (with snooze); in the
+/// other modes, the alarm window near the top of the active monitor.
 pub fn show_alarm(app: &AppHandle, alarm: Value) -> tauri::Result<()> {
+    // Hidden notch (fullscreen game or video): the window still shows, as before.
+    let notch_up = app
+        .get_webview_window(NOTCH)
+        .is_some_and(|w| w.is_visible().unwrap_or(false));
+    if notch_up && app.state::<AppState>().settings().display_mode == DisplayMode::Notch {
+        return app.emit(ALARM_NOTCH_EVENT, alarm);
+    }
     app.state::<AppState>()
         .set_pending_alarm(Some(alarm.clone()));
     let window = windows::ensure(app, ALARM)?;

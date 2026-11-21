@@ -27,6 +27,20 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.5.0 pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
+## Como está hoje (v0.5.0)
+
+Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/animations.mjs`).
+
+| O notch abrindo | Os humores do Ekko |
+|---|---|
+| ![O notch abrindo ao passar o mouse](screenshots/anim-notch.webp) | ![Calmo, com sono, dormindo, susto e animado](screenshots/anim-moods.webp) |
+
+![Os temas de época nas Configurações](screenshots/anim-seasons.webp)
+
+| Início no notch | Central | Bandeja |
+|---|---|---|
+| ![Início no notch](screenshots/notch-home.webp) | ![Modo central](screenshots/mode-hub.webp) | ![Modo bandeja](screenshots/mode-tray.webp) |
+
 ## Releases
 
 Um release sai quando a branch `production` recebe um merge: o GitHub Actions compila o instalador, cria a tag `v<versão>` e publica. Nas outras branches nada é compilado nem publicado (passo a passo no README, seção Release).
@@ -170,6 +184,9 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Atualizar com um clique (Configurações → Sobre): consulta o último release no GitHub, baixa o instalador, confere tamanho e SHA-256, instala em modo passivo e reabre o Ekko; a aba Sobre mostra a versão real e quem fez o Ekko
 - [ ] Confirmar no app instalado: a atualização de uma versão para a seguinte (precisa de um release mais novo publicado)
 - [x] Persona Eco virou Tobby (quem tinha Eco salvo passa para Tobby sozinho)
+- [x] Avisos no próprio notch: ele cresce num cartão por alguns segundos com música nova, timer e lembrete (com Adiar 5 min, no lugar da janela de alarme), agenda (com Entrar), bateria fraca, aparelho conectado e notificações; passar o mouse segura o cartão, clicar abre o painel
+- [x] Paleta de comandos e painel flutuante abrem e fecham com animação
+- [ ] Confirmar no app: cartão de música trocando de faixa no Spotify/navegador e alarme de timer no notch
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%

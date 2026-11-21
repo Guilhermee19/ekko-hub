@@ -2,7 +2,7 @@
 
 **Um assistente que mora no topo da sua tela.** O Ekko ("eco") fica num notch discreto no alto do Windows e mostra o que importa agora: o timer correndo, a música tocando, a próxima reunião. Ao passar o mouse, ele abre um painel com tudo que você precisa no dia.
 
-![O notch do Ekko aberto no Início](docs/screenshots/notch-home.webp)
+![O notch do Ekko abrindo ao passar o mouse](docs/screenshots/anim-notch.webp)
 
 > **Versão 0.5.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
@@ -16,6 +16,12 @@
 
 ## O que ele faz
 
+### Vivo, com humor
+
+Os olhos do Ekko piscam e olham em volta. Sem mexer no PC, ele fica com sono e dorme; quando você volta, leva um susto. Coisas boas (o carregador, um fone conectado, arquivos na prateleira) o deixam animado. As trocas são sempre suaves.
+
+![Os humores do Ekko: calmo, com sono, dormindo, susto e animado](docs/screenshots/anim-moods.webp)
+
 ### Sempre à vista, sem atrapalhar
 
 A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela mostra e em que ordem.
@@ -25,6 +31,7 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 | ![Pílula com timer](docs/screenshots/pill-timer.webp) | ![Pílula com música](docs/screenshots/pill-music.webp) | ![Pílula ouvindo](docs/screenshots/pill-listening.webp) |
 
 - **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o Ekko mostra um alarme na tela, com a opção "Adiar 5 min".
+- **Bateria:** a do notebook e a de fones, mouses e teclados sem fio, por Bluetooth ou pelo dongle USB (HyperX Cloud Stinger Core Wireless e mouses Attack Shark), com aviso de bateria fraca.
 - **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade.
 - **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
 - **Agenda:** conectado ao Google Agenda, mostra o próximo compromisso 15 minutos antes e avisa 10 minutos antes.
@@ -32,6 +39,12 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
 
 ![Alarme de timer na tela](docs/screenshots/alarm.webp)
+
+### Enfeitado nas datas especiais
+
+No Natal, Ano Novo, Carnaval, Páscoa, Dia dos Namorados e Halloween, o notch ganha enfeites (neve e pisca-pisca, fogos, confete, um coelho pulando, corações, abóbora e morcegos) e o brilho de baixo fica na cor da data. Os olhos do Ekko não mudam, e tudo combina com a sua persona. Dá para desligar em *Configurações → Temas de época*.
+
+![Os temas de época nas Configurações](docs/screenshots/anim-seasons.webp)
 
 ### Uma prateleira no notch e o histórico do que você copia
 
@@ -49,13 +62,13 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 
 ### Do jeito que você quiser
 
-O Ekko não precisa ficar no topo. Escolha entre **notch**, **bandeja** (perto do relógio), **bolha flutuante**, **dock lateral**, **central** (uma janela grande) ou **só voz**. A troca acontece na hora.
+O Ekko não precisa ficar no topo. Escolha entre **notch**, **bandeja** (perto do relógio), **bolha flutuante**, **dock lateral**, **central** (uma janela grande) ou **só voz**. Todos têm o mesmo visual do notch, e a troca acontece na hora.
 
 | Bandeja, perto do relógio | Central |
 |---|---|
 | ![Modo bandeja](docs/screenshots/mode-tray.webp) | ![Modo central](docs/screenshots/mode-hub.webp) |
 
-Você também escolhe a cor (qualquer uma, ou as personas Ekko, Eco e Ultron) e o formato, a transparência, o brilho e o tamanho do notch. Dá para arrastar o notch pela borda de cima e levá-lo para outro monitor.
+Você também escolhe a cor (qualquer uma, ou as personas Ekko, Tobby e Ultron) e o formato, a transparência, o brilho e o tamanho do notch. Dá para arrastar o notch pela borda de cima e levá-lo para outro monitor.
 
 | Persona Ultron | Configurações de aparência |
 |---|---|
@@ -71,6 +84,10 @@ Você também escolhe a cor (qualquer uma, ou as personas Ekko, Eco e Ultron) e 
 - **Claude Code:** o Ekko detecta se está instalado.
 
 Cada serviço tem um passo a passo dentro do app. O Ekko não usa uma conta própria nesses serviços: você conecta com as suas credenciais.
+
+### Sempre atualizado
+
+Em *Configurações → Sobre*, **Verificar atualizações** procura a versão mais nova no GitHub. Se houver, um clique baixa, confere que o arquivo é exatamente o publicado, instala e reabre o Ekko.
 
 ### Rápido no teclado
 
@@ -184,4 +201,5 @@ Os prints saem da galeria, com dados de exemplo, e nunca de uma área de trabalh
 cd apps/desktop && npx vite --open false        # galeria em 127.0.0.1:1420
 msedge --headless=new --remote-debugging-port=9400 --user-data-dir=<pasta temporária>
 node scripts/screenshots.mjs                    # grava docs/screenshots/*.webp
+node scripts/animations.mjs                     # grava as animações (anim-*.webp, precisa do ffmpeg)
 ```
