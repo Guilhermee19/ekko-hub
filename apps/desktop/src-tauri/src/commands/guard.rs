@@ -1,7 +1,8 @@
 //! Regression guard: on Windows, building a webview window inside a *synchronous*
 //! Tauri command deadlocks the app (WebView2 needs the event loop the sync command
 //! is blocking). Every command that can create or show a window must be `async`.
-//! This happened in the onboarding: picking a display mode froze everything.
+//! This happened in the onboarding: picking a display mode froze everything, and
+//! again with "Pegar cor" (the eyedropper opened from the UI froze the whole app).
 
 /// Calls that may build a window (directly or through `display::apply`).
 const CREATES_WINDOWS: &[&str] = &[
@@ -12,10 +13,14 @@ const CREATES_WINDOWS: &[&str] = &[
     "open_settings_window",
     "windows::ensure",
     "change_mode",
+    // Freezes the screen into the capture window (print and eyedropper).
+    "capture::start",
 ];
 
 const SOURCES: &[(&str, &str)] = &[
     ("appearance.rs", include_str!("appearance.rs")),
+    ("capture.rs", include_str!("capture.rs")),
+    ("colors.rs", include_str!("colors.rs")),
     ("display.rs", include_str!("display.rs")),
     ("flows.rs", include_str!("flows.rs")),
     ("general.rs", include_str!("general.rs")),
@@ -27,6 +32,7 @@ const SOURCES: &[(&str, &str)] = &[
     ("settings.rs", include_str!("settings.rs")),
     ("system.rs", include_str!("system.rs")),
     ("timers.rs", include_str!("timers.rs")),
+    ("updates.rs", include_str!("updates.rs")),
     ("volume.rs", include_str!("volume.rs")),
 ];
 

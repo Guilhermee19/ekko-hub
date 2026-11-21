@@ -6,8 +6,9 @@ use tauri::AppHandle;
 use crate::services::capture::{self, CaptureMode};
 use crate::services::colors;
 
+/// `async`: it may build the capture window (see guard.rs).
 #[tauri::command]
-pub fn color_start(app: AppHandle) -> Result<(), String> {
+pub async fn color_start(app: AppHandle) -> Result<(), String> {
     capture::start(&app, CaptureMode::Color)
 }
 

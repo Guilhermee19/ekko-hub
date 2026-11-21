@@ -21,8 +21,9 @@ pub fn capture_cancel(app: AppHandle) {
     capture::cancel(&app);
 }
 
+/// `async`: it may build the capture window (see guard.rs).
 #[tauri::command]
-pub fn capture_start(app: AppHandle) -> Result<(), String> {
+pub async fn capture_start(app: AppHandle) -> Result<(), String> {
     capture::start(&app, CaptureMode::Print)
 }
 
