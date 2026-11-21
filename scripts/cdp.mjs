@@ -2,6 +2,7 @@
 // screenshots and animations. Mock data and a fake desktop: nothing personal leaks.
 //   1. npx vite --open false              (from apps/desktop, gallery on 127.0.0.1:1420)
 //   2. msedge --headless=new --remote-debugging-port=9400 --user-data-dir=<tmp>
+//      --enable-gpu --ignore-gpu-blocklist   (smoother animations)
 //   3. node scripts/screenshots.mjs | node scripts/animations.mjs
 
 const CDP = Number(process.env.CDP_PORT ?? 9400);
@@ -24,12 +25,14 @@ export async function connect({ reduceMotion = true } = {}) {
   await new Promise((r) => (ws.onopen = r));
   let seq = 0;
   const pending = new Map();
+  /** Event name → callback (e.g. Page.screencastFrame). */
+  const handlers = new Map();
   ws.onmessage = (m) => {
     const d = JSON.parse(m.data);
     if (d.id && pending.has(d.id)) {
       pending.get(d.id)(d);
       pending.delete(d.id);
-    }
+    } else if (d.method) handlers.get(d.method)?.(d.params);
   };
   const send = (method, params = {}) =>
     new Promise((resolve, reject) => {
@@ -70,6 +73,9 @@ export async function connect({ reduceMotion = true } = {}) {
   const page = {
     send,
     js,
+    /** Listens to a protocol event; `null` stops. */
+    on: (method, cb) =>
+      cb ? handlers.set(method, cb) : handlers.delete(method),
     async open(url = GALLERY) {
       await send("Page.navigate", { url });
       // The first load waits for Vite to bundle; poll until the gallery has rendered.

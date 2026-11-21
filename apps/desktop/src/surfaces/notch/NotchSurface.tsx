@@ -76,6 +76,7 @@ export function NotchSurface() {
   const zoom = look === 'pill' ? pillScale : 1
   const size = canvas(notch.size)
   const open = look === 'panel' || look === 'drop' || look === 'print' || look === 'alert'
+  const panelReady = usePanelReady(look === 'panel', notch.openMs)
 
   useHitRect(box)
   useSummon(toggleHeld)
@@ -169,7 +170,7 @@ export function NotchSurface() {
               )}
             </div>
           )}
-          {look === 'panel' && (
+          {panelReady && (look === 'panel' || look === 'pill') && (
             <>
               <ShelfTray />
               <PanelShell
@@ -193,4 +194,18 @@ function useNotchAnchor() {
     return () => void off.then((f) => f())
   }, [])
   return anchor
+}
+
+/**
+ * The panel's content mounts once the notch has finished growing and unmounts once it
+ * has finished shrinking: building or tearing it down is the heavy part, and doing it
+ * mid-animation made the notch stutter. Meanwhile the box just clips it.
+ */
+function usePanelReady(open: boolean, growMs: number) {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const id = window.setTimeout(() => setReady(open), growMs)
+    return () => window.clearTimeout(id)
+  }, [open, growMs])
+  return ready
 }

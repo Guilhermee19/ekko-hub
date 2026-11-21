@@ -35,6 +35,10 @@ Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/an
 |---|---|
 | ![O notch abrindo ao passar o mouse](screenshots/anim-notch.webp) | ![Calmo, com sono, dormindo, susto e animado](screenshots/anim-moods.webp) |
 
+| Avisos no notch | A paleta de comandos |
+|---|---|
+| ![Música, timer e aviso no notch](screenshots/anim-alerts.webp) | ![A paleta de comandos abrindo](screenshots/anim-palette.webp) |
+
 ![Os temas de época nas Configurações](screenshots/anim-seasons.webp)
 
 | Início no notch | Central | Bandeja |

@@ -30,7 +30,7 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 |---|---|---|
 | ![Pílula com timer](docs/screenshots/pill-timer.webp) | ![Pílula com música](docs/screenshots/pill-music.webp) | ![Pílula ouvindo](docs/screenshots/pill-listening.webp) |
 
-- **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o Ekko mostra um alarme na tela, com a opção "Adiar 5 min".
+- **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o próprio notch cresce num cartão com "Adiar 5 min".
 - **Bateria:** a do notebook e a de fones, mouses e teclados sem fio, por Bluetooth ou pelo dongle USB (HyperX Cloud Stinger Core Wireless e mouses Attack Shark), com aviso de bateria fraca.
 - **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade.
 - **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
@@ -38,7 +38,13 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 - **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
 
-![Alarme de timer na tela](docs/screenshots/alarm.webp)
+### Avisos no próprio notch
+
+Em vez de janelas que pulam na tela, o notch cresce por alguns segundos e mostra o detalhe: a música que começou (com a capa e o progresso), o timer que acabou, a reunião que vai começar (com o botão **Entrar**), a bateria fraca ou o fone que conectou. Passe o mouse para ele esperar; clique para abrir o painel.
+
+![Avisos no notch: música, timer e aviso](docs/screenshots/anim-alerts.webp)
+
+![O timer terminou, no notch](docs/screenshots/alarm.webp)
 
 ### Enfeitado nas datas especiais
 
@@ -100,7 +106,7 @@ Os dois são configuráveis em *Configurações → Atalhos*. Se outro programa 
 
 | Paleta de comandos | Boas-vindas |
 |---|---|
-| ![Paleta de comandos](docs/screenshots/palette.webp) | ![Boas-vindas](docs/screenshots/onboarding.webp) |
+| ![A paleta de comandos abrindo](docs/screenshots/anim-palette.webp) | ![Boas-vindas](docs/screenshots/onboarding.webp) |
 
 ## Em breve
 
@@ -199,7 +205,8 @@ Os prints saem da galeria, com dados de exemplo, e nunca de uma área de trabalh
 
 ```bash
 cd apps/desktop && npx vite --open false        # galeria em 127.0.0.1:1420
-msedge --headless=new --remote-debugging-port=9400 --user-data-dir=<pasta temporária>
+msedge --headless=new --remote-debugging-port=9400 --user-data-dir=<pasta temporária> --enable-gpu --ignore-gpu-blocklist
 node scripts/screenshots.mjs                    # grava docs/screenshots/*.webp
-node scripts/animations.mjs                     # grava as animações (anim-*.webp, precisa do ffmpeg)
+node scripts/animations.mjs                     # grava as animações a 30 fps (anim-*.webp, precisa do ffmpeg)
+# ONLY=anim-alerts regrava só uma; GAPS=1 mostra onde o navegador perdeu quadros
 ```

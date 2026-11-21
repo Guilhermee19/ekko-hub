@@ -89,9 +89,19 @@ await js(
 await sleep(500);
 await shot("palette", await desktop());
 await open();
+// In notch mode the timer alarm is the notch grown into a card: frame just that.
+await click("Notch no topo");
 await click("Alarme");
-await sleep(400);
-await shot("alarm", await desktop());
+await sleep(900);
+{
+  const d = await desktop();
+  await shot("alarm", {
+    x: d.x + d.width / 2 - 280,
+    y: d.y,
+    width: 560,
+    height: 120,
+  });
+}
 await open();
 await click("Boas-vindas");
 await sleep(600);
