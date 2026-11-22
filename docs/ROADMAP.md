@@ -193,6 +193,8 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [ ] Confirmar no app: cartão de música trocando de faixa no Spotify/navegador e alarme de timer no notch
 - [x] Pegar uma cor da tela (Win+Shift+C, ou Ctrl+Alt+C se estiver ocupado): conta-gotas sobre a tela congelada com lupa de 11×11 pixels e setas para ajustar 1 px; o notch mostra a cor com HEX, RGB e HSL para copiar; card Cores no Início com as últimas 16 cores (`colors.json`); nos outros modos o HEX é copiado direto
 - [ ] Confirmar no app: o atalho Win+Shift+C (o PowerToys usa o mesmo) e o conta-gotas num monitor com escala diferente de 100%
+- [x] O Ekko fica sempre por cima de todas as janelas (volta para a frente em até 1 s se outro app "sempre visível" passar por cima); com Esconder em tela cheia ligado e um jogo ou vídeo aberto, ele some e nada aparece por cima, e os alarmes esperam o jogo fechar
+- [x] Pegar cor pelo card e pela paleta travava o app inteiro (janela criada num comando síncrono); corrigido e coberto pelo teste de guarda
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%

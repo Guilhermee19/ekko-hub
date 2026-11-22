@@ -67,7 +67,11 @@ pub fn show_onboarding(app: &AppHandle) -> tauri::Result<()> {
 /// Shows the alarm: in notch mode the notch expands into a card (with snooze); in the
 /// other modes, the alarm window near the top of the active monitor.
 pub fn show_alarm(app: &AppHandle, alarm: Value) -> tauri::Result<()> {
-    // Hidden notch (fullscreen game or video): the window still shows, as before.
+    // "Esconder em tela cheia" with a game up: nothing over it; it shows on the way out.
+    if crate::services::fullscreen::hidden() {
+        crate::services::fullscreen::defer_alarm(alarm);
+        return Ok(());
+    }
     let notch_up = app
         .get_webview_window(NOTCH)
         .is_some_and(|w| w.is_visible().unwrap_or(false));

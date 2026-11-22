@@ -54,6 +54,16 @@ pub fn should_hide(fg: Foreground, ekko_monitor: ScreenRect, hidden_now: bool) -
     }
 }
 
+/// Puts these windows above every other always-on-top window (games in borderless
+/// fullscreen, players, other apps), in order: the last one ends up on top. Never
+/// activates them and never waits for their thread.
+pub fn raise_topmost(hwnds: &[isize]) {
+    #[cfg(windows)]
+    win::raise_topmost(hwnds);
+    #[cfg(not(windows))]
+    let _ = hwnds;
+}
+
 /// Reads the foreground window. Non-Windows builds always report `Nothing`.
 pub fn foreground() -> Foreground {
     #[cfg(windows)]
@@ -74,7 +84,8 @@ mod win {
     };
     use windows::Win32::UI::WindowsAndMessaging::{
         GetClassNameW, GetDesktopWindow, GetForegroundWindow, GetShellWindow, GetWindowRect,
-        GetWindowThreadProcessId,
+        GetWindowThreadProcessId, HWND_TOPMOST, SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOMOVE,
+        SWP_NOOWNERZORDER, SWP_NOSIZE, SetWindowPos,
     };
 
     use super::{Foreground, ScreenRect};
@@ -96,6 +107,15 @@ mod win {
         // SAFETY: valid buffer; a stale hwnd only makes the call fail (returns 0).
         let len = unsafe { GetClassNameW(hwnd, &mut buf) };
         String::from_utf16_lossy(&buf[..len.max(0) as usize])
+    }
+
+    pub fn raise_topmost(hwnds: &[isize]) {
+        let flags =
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS;
+        for &h in hwnds {
+            // SAFETY: z-order change only; a stale handle just makes the call fail.
+            let _ = unsafe { SetWindowPos(HWND(h as _), Some(HWND_TOPMOST), 0, 0, 0, 0, flags) };
+        }
     }
 
     pub fn foreground() -> Foreground {
