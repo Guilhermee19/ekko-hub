@@ -49,13 +49,19 @@ pub enum CleanError {
 }
 
 /// True when `temp` is inside `<local_appdata>\Temp` (case-insensitive, by component).
+/// Splits on both `\` and `/` so the check behaves the same on every host OS.
 pub fn is_safe_temp_root(temp: &Path, local_appdata: &Path) -> bool {
     let parts = |p: &Path| -> Vec<String> {
-        p.components()
-            .map(|c| c.as_os_str().to_string_lossy().to_lowercase())
+        p.to_string_lossy()
+            .split(['\\', '/'])
+            .filter(|s| !s.is_empty())
+            .map(str::to_lowercase)
             .collect()
     };
-    let base = parts(&local_appdata.join("Temp"));
+    let base = parts(local_appdata)
+        .into_iter()
+        .chain(["temp".into()])
+        .collect::<Vec<_>>();
     let temp = parts(temp);
     base.len() > 2 && temp.len() >= base.len() && temp[..base.len()] == base[..]
 }
