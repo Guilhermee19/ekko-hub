@@ -1,11 +1,17 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
-import type { CalendarEvent, CalendarReminder, IntegrationsBackend } from './integrations'
+import type {
+  CalendarAck,
+  CalendarEvent,
+  CalendarReminder,
+  IntegrationsBackend,
+} from './integrations'
 import { tauriConnectors } from './connectorsTauri'
 
 const EVENTS = {
   calendarChanged: 'ekko://calendar/changed',
   calendarSoon: 'ekko://calendar/soon',
+  calendarAcked: 'ekko://calendar/acked',
 } as const
 
 export const tauriIntegrations: IntegrationsBackend = {
@@ -20,6 +26,9 @@ export const tauriIntegrations: IntegrationsBackend = {
   calendarRange: (fromMs, toMs) => invoke('calendar_range', { fromMs, toMs }),
   onCalendarChanged: (cb) => listen<CalendarEvent[]>(EVENTS.calendarChanged, (e) => cb(e.payload)),
   onCalendarSoon: (cb) => listen<CalendarReminder>(EVENTS.calendarSoon, (e) => cb(e.payload)),
+  calendarAck: (id, startMs) => invoke('calendar_ack', { id, startMs }),
+  calendarAcked: () => invoke('calendar_acked'),
+  onCalendarAcked: (cb) => listen<CalendarAck[]>(EVENTS.calendarAcked, (e) => cb(e.payload)),
   spotifyState: () => invoke('spotify_state'),
   spotifyDevices: () => invoke('spotify_devices'),
   spotifyQueue: () => invoke('spotify_queue'),

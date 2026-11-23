@@ -38,8 +38,16 @@ export interface CalendarEvent {
 /** `ekko://calendar/soon`: ~10 min before (`soon`) and at the start (`start`). */
 export interface CalendarReminder {
   event: CalendarEvent
-  phase: 'soon' | 'start'
+  /** `late`: started and nobody confirmed it yet (sent again per the settings). */
+  phase: 'soon' | 'start' | 'late'
+  /** Rounded up; 0 at start, negative once late (-5 = 5 min late). */
   minutesLeft: number
+}
+
+/** An event occurrence marked as seen: no more nudges, it leaves the notch. */
+export interface CalendarAck {
+  id: string
+  startMs: number
 }
 
 export interface SpotifyTrack {
@@ -97,6 +105,9 @@ export interface IntegrationsBackend extends ConnectorsBackend {
   calendarRange(fromMs: number, toMs: number): Promise<CalendarEvent[]>
   onCalendarChanged(cb: (events: CalendarEvent[]) => void): Promise<Unlisten>
   onCalendarSoon(cb: (reminder: CalendarReminder) => void): Promise<Unlisten>
+  calendarAck(id: string, startMs: number): Promise<void>
+  calendarAcked(): Promise<CalendarAck[]>
+  onCalendarAcked(cb: (acked: CalendarAck[]) => void): Promise<Unlisten>
   spotifyState(): Promise<SpotifyPlayback | null>
   spotifyDevices(): Promise<SpotifyDevice[]>
   spotifyQueue(): Promise<SpotifyQueue>

@@ -1,4 +1,4 @@
-import { CalendarDays, Music2, Square, Timer, Volume2, X } from 'lucide-react'
+import { Music2, Square, Timer, Volume2, X } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { type Activity } from '@/stores/assistant'
 import { usePresence } from '@/stores/liveActivity'
@@ -10,6 +10,7 @@ import { Waveform } from '@/ui/Waveform'
 import { useAudioLevels } from '@/features/music/useAudioLevels'
 import { HudChip } from '@/features/hud/HudChips'
 import { formatRemaining } from '@/lib/time'
+import { EventChip } from './EventChip'
 import { useNow } from './useNow'
 
 /**
@@ -193,13 +194,11 @@ function ActivityChip({ activity }: { activity: Activity }) {
   }
   if (activity.kind === 'event') {
     return (
-      <span className={chip}>
-        <CalendarDays className="size-3.5 shrink-0 text-accent" />
-        <span className="truncate">{activity.title}</span>
-        <span className="ml-auto shrink-0 font-mono text-[11px] text-accent tabular-nums">
-          {eventWhen(activity.startsAt, activity.endsAt, now)}
-        </span>
-      </span>
+      <EventChip
+        activity={activity}
+        now={now}
+        when={eventWhen(activity.startsAt, activity.endsAt, now)}
+      />
     )
   }
   if (activity.kind === 'hud') return <HudChip activity={activity} />

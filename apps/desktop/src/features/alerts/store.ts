@@ -23,6 +23,8 @@ export interface Alert {
   /** Timer/reminder that can be snoozed from the card. */
   snooze?: { kind: 'timer' | 'reminder'; title: string }
   meetLink?: string
+  /** Calendar occurrence the "Confirmar" button marks as seen. */
+  event?: { id: string; startMs: number }
   /** A color just picked with the eyedropper (copy buttons). */
   color?: PickedColor
   /** How long it stays when nobody hovers it. */
@@ -36,7 +38,8 @@ const DEFAULT_MS: Record<AlertKind, number> = {
   music: 5000,
   timer: 15000,
   reminder: 15000,
-  event: 9000,
+  // Long enough to reach "Confirmar"; missed, the pill keeps it until then.
+  event: 15000,
   battery: 6000,
   device: 5000,
   notice: 6000,

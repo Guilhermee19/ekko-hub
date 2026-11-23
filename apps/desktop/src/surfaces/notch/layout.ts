@@ -26,7 +26,8 @@ export function pillWidth(p: Presence): number {
     case 'music':
       return 320
     case 'event':
-      return 300
+      // Room for the "Confirmar" check.
+      return 330
     case 'timer':
       return 220
     case 'volume':
