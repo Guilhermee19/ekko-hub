@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::capture::Frame;
 
-/// Picks kept in the history.
-pub const HISTORY_MAX: usize = 16;
+/// Unpinned colors kept in the history; pinned ones never fall off.
+pub const HISTORY_MAX: usize = 32;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Rgb {
@@ -82,6 +82,9 @@ pub struct PickedColor {
     pub hsl: String,
     /// Unix ms.
     pub at: u64,
+    /// Survives the cap and "Limpar". Missing in files saved before pins existed.
+    #[serde(default)]
+    pub pinned: bool,
 }
 
 impl PickedColor {
@@ -91,6 +94,7 @@ impl PickedColor {
             rgb: c.css_rgb(),
             hsl: c.css_hsl(),
             at,
+            pinned: false,
         }
     }
 }
@@ -131,14 +135,38 @@ pub struct ColorHistory {
 }
 
 impl ColorHistory {
-    pub fn add(&mut self, c: PickedColor) {
-        self.colors.retain(|x| x.hex != c.hex);
+    /// Adds at the front; a color already there moves up and keeps its pin.
+    pub fn add(&mut self, mut c: PickedColor) {
+        if let Some(i) = self.colors.iter().position(|x| x.hex == c.hex) {
+            c.pinned |= self.colors.remove(i).pinned;
+        }
         self.colors.insert(0, c);
-        self.colors.truncate(HISTORY_MAX);
+        self.trim();
     }
 
     pub fn remove(&mut self, hex: &str) {
         self.colors.retain(|x| x.hex != hex);
+    }
+
+    pub fn set_pinned(&mut self, hex: &str, pinned: bool) {
+        if let Some(c) = self.colors.iter_mut().find(|c| c.hex == hex) {
+            c.pinned = pinned;
+        }
+        self.trim();
+    }
+
+    /// "Limpar": everything but the pinned colors.
+    pub fn clear(&mut self) {
+        self.colors.retain(|c| c.pinned);
+    }
+
+    /// Drops the oldest unpinned colors past the cap.
+    fn trim(&mut self) {
+        let mut unpinned = 0;
+        self.colors.retain(|c| {
+            unpinned += usize::from(!c.pinned);
+            c.pinned || unpinned <= HISTORY_MAX
+        });
     }
 }
 
@@ -211,15 +239,49 @@ mod tests {
     fn history_dedupes_and_caps() {
         let mut h = ColorHistory::default();
         let pick = |v: u8, at| PickedColor::new(Rgb { r: v, g: 0, b: 0 }, at);
-        for v in 0..20 {
+        for v in 0..40 {
             h.add(pick(v, u64::from(v)));
         }
         assert_eq!(h.colors.len(), HISTORY_MAX);
-        assert_eq!(h.colors[0].hex, "#130000");
+        assert_eq!(h.colors[0].hex, "#270000");
         h.add(pick(10, 99));
         assert_eq!(h.colors[0].hex, "#0a0000");
         assert_eq!(h.colors.iter().filter(|c| c.hex == "#0a0000").count(), 1);
         h.remove("#0a0000");
         assert!(h.colors.iter().all(|c| c.hex != "#0a0000"));
+    }
+
+    #[test]
+    fn pinned_colors_survive_the_cap_clear_and_a_new_pick() {
+        let mut h = ColorHistory::default();
+        let pick = |v: u8| PickedColor::new(Rgb { r: 0, g: v, b: 0 }, u64::from(v));
+        h.add(pick(1));
+        h.set_pinned("#000100", true);
+        for v in 2..60 {
+            h.add(pick(v));
+        }
+        // The oldest is still there because it is pinned; the rest stop at the cap.
+        assert_eq!(h.colors.len(), HISTORY_MAX + 1);
+        assert!(
+            h.colors
+                .last()
+                .is_some_and(|c| c.hex == "#000100" && c.pinned)
+        );
+        // Picking it again moves it up and keeps the pin.
+        h.add(pick(1));
+        assert!(h.colors[0].pinned);
+        h.clear();
+        assert_eq!(h.colors.len(), 1);
+        // Unpinned, it is an ordinary color again.
+        h.set_pinned("#000100", false);
+        h.clear();
+        assert!(h.colors.is_empty());
+    }
+
+    #[test]
+    fn old_files_without_pins_still_load() {
+        let json = r##"{"colors":[{"hex":"#3fe0c5","rgb":"rgb(63, 224, 197)","hsl":"hsl(170, 72%, 56%)","at":1}]}"##;
+        let h: ColorHistory = serde_json::from_str(json).unwrap();
+        assert!(!h.colors[0].pinned);
     }
 }

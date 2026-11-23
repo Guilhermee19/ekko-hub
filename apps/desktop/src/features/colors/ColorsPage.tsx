@@ -59,6 +59,10 @@ export function ColorsPage({ compact }: PageProps) {
             opacity={opacity}
             onOpacity={setOpacity}
             onChange={choose}
+            onCode={(c) => {
+              setChosen(c.hex)
+              setOpacity(c.opacity)
+            }}
             onSave={save}
             saved={saved}
           />

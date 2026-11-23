@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
-import { normalizeHex, parseHex } from '@/theme/color'
-import { Input } from '@/ui/forms'
+import { parseHex } from '@/theme/color'
 import { Segmented, Slider } from '@/ui/primitives'
 import { GRID_COLUMNS, gridRows, withChannel } from './palette'
 import { SpectrumPicker } from './SpectrumPicker'
@@ -69,14 +68,9 @@ const CHANNELS = [
   { label: 'Azul', short: 'B' },
 ] as const
 
+/** RGB sliders; typing a code lives in CodeInput, next to the current color. */
 function Sliders({ value, onChange }: Props) {
   const rgb = parseHex(value) ?? [0, 0, 0]
-  const [draft, setDraft] = useState<string | null>(null)
-  const commit = (text: string) => {
-    const hex = normalizeHex(text)
-    if (hex) onChange(hex)
-    setDraft(null)
-  }
   return (
     <div className="flex flex-col gap-2.5">
       {CHANNELS.map((c, i) => (
@@ -94,18 +88,6 @@ function Sliders({ value, onChange }: Props) {
           </span>
         </div>
       ))}
-      <label className="flex items-center gap-3">
-        <span className="w-12 text-[12px] text-muted">HEX</span>
-        <Input
-          value={draft ?? value.toUpperCase()}
-          spellCheck={false}
-          maxLength={7}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={(e) => commit(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && commit(e.currentTarget.value)}
-          className="font-mono uppercase"
-        />
-      </label>
     </div>
   )
 }

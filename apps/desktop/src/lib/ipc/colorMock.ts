@@ -43,7 +43,20 @@ export function describe(r: number, g: number, b: number, at = Date.now()): Pick
     rgb: `rgb(${r}, ${g}, ${b})`,
     hsl: `hsl(${Math.round(h) % 360}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`,
     at,
+    pinned: false,
   }
+}
+
+/** Same rules as ColorHistory in ekko-core: front, keeps its pin, 32 unpinned at most. */
+function addColor(colors: PickedColor[], color: PickedColor): PickedColor[] {
+  const old = colors.find((c) => c.hex === color.hex)
+  const next = { ...color, pinned: color.pinned || (old?.pinned ?? false) }
+  return trim([next, ...colors.filter((c) => c.hex !== color.hex)])
+}
+
+function trim(colors: PickedColor[]): PickedColor[] {
+  let unpinned = 0
+  return colors.filter((c) => c.pinned || ++unpinned <= 32)
 }
 
 let pixels: Promise<ImageData> | null = null
@@ -103,9 +116,7 @@ export function mockColor({ on, fire }: Bus): ColorBackend {
       const p = at(await screen(), x, y)
       if (!p) throw new Error('nenhuma cor sob o cursor')
       const color = describe(...p)
-      await change({
-        colors: [color, ...history.colors.filter((c) => c.hex !== color.hex)].slice(0, 16),
-      })
+      await change({ colors: addColor(history.colors, color) })
       fire(COLOR_PICKED, color)
       return color
     },
@@ -116,12 +127,14 @@ export function mockColor({ on, fire }: Bus): ColorBackend {
       if (!v) return Promise.reject(new Error('cor inválida, use #rrggbb'))
       const n = parseInt(v, 16)
       const color = describe((n >> 16) & 255, (n >> 8) & 255, n & 255)
-      return change({
-        colors: [color, ...history.colors.filter((c) => c.hex !== color.hex)].slice(0, 16),
-      })
+      return change({ colors: addColor(history.colors, color) })
     },
     colorRemove: (hex) => change({ colors: history.colors.filter((c) => c.hex !== hex) }),
-    colorClear: () => change({ colors: [] }),
+    colorClear: () => change({ colors: history.colors.filter((c) => c.pinned) }),
+    colorPin: (hex, pinned) =>
+      change({
+        colors: trim(history.colors.map((c) => (c.hex === hex ? { ...c, pinned } : c))),
+      }),
     onColorPicked: (cb) => on(COLOR_PICKED, (c) => cb(c as PickedColor)),
     onColorsChanged: (cb) => on(COLORS_CHANGED, (h) => cb(h as ColorHistory)),
   }

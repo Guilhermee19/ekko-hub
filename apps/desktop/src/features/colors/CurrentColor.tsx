@@ -1,7 +1,8 @@
 import { Copy, Plus } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Button, IconButton, Slider } from '@/ui/primitives'
-import { formats, variations } from './palette'
+import { CodeInput } from './CodeInput'
+import { formats, type Parsed, variations } from './palette'
 import { copyColor } from './store'
 
 /** Checkerboard behind see-through colors (tokens, so it follows the theme). */
@@ -16,12 +17,14 @@ interface Props {
   opacity: number
   onOpacity: (v: number) => void
   onChange: (hex: string) => void
+  /** A typed or pasted code (its alpha sets the opacity). */
+  onCode: (color: Parsed) => void
   onSave: () => void
   saved: boolean
 }
 
-/** The chosen color: preview, opacity, codes to copy, save, and its variations. */
-export function CurrentColor({ hex, opacity, onOpacity, onChange, onSave, saved }: Props) {
+/** The chosen color: preview, codes to copy or paste, opacity, save, and variations. */
+export function CurrentColor({ hex, opacity, onOpacity, onChange, onCode, onSave, saved }: Props) {
   const codes = formats(hex, opacity)
   return (
     <div className="flex flex-col gap-3">
@@ -48,6 +51,8 @@ export function CurrentColor({ hex, opacity, onOpacity, onChange, onSave, saved 
           ))}
         </ul>
       </div>
+
+      <CodeInput hex={hex} onColor={onCode} />
 
       <div className="flex items-center gap-3">
         <span className="label-hud w-20">Opacidade</span>

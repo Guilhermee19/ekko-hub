@@ -5,7 +5,7 @@ import { useSettings } from '@/stores/settings'
 import { Kbd } from '@/ui/primitives'
 import { copyColor, pickColor, useColors, watchColors } from './store'
 
-/** Swatches shown in the card (the history keeps 16). */
+/** Swatches shown in the card (the history keeps 32 plus the pinned ones). */
 const SHOWN = 12
 
 /** Início card: the last picked colors (click copies the HEX) and the eyedropper. */

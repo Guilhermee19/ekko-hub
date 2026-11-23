@@ -66,6 +66,52 @@ export function withChannel(hex: string, channel: 0 | 1 | 2, value: number): str
   return toHex(next)
 }
 
+/** A pasted code: the color and its opacity (100 when the code has no alpha). */
+export interface Parsed {
+  hex: string
+  opacity: number
+}
+
+/** "50%" → 0.5 × scale; "0.5" → 0.5 (already in scale units). NaN when not a number. */
+function amount(text: string, scale: number): number {
+  const pct = text.endsWith('%')
+  const n = Number(pct ? text.slice(0, -1) : text)
+  return pct ? (n / 100) * scale : n
+}
+
+const toOpacity = (alpha: number) => Math.round(clamp01(alpha) * 100)
+
+/**
+ * Reads what people paste: #rgb, #rgba, #rrggbb, #rrggbbaa (with or without #),
+ * rgb()/rgba(), hsl()/hsla() with commas, spaces or "/" before the alpha, and a bare
+ * "63, 224, 197". Null when it is none of those.
+ */
+export function parseColor(text: string): Parsed | null {
+  const t = text.trim().toLowerCase().replace(/;$/, '')
+  const hex = /^#?([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(t)?.[1]
+  if (hex) {
+    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join('') : hex
+    const alpha = full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
+    return { hex: `#${full.slice(0, 6)}`, opacity: toOpacity(alpha) }
+  }
+  const call = /^(rgba?|hsla?)\((.*)\)$/.exec(t)
+  const kind = call ? call[1].slice(0, 3) : /^[\d\s.,%]+$/.test(t) ? 'rgb' : null
+  if (!kind) return null
+  const parts = (call ? call[2] : t).split(/[\s,/]+/).filter(Boolean)
+  if (parts.length < 3 || parts.length > 4) return null
+  const alpha = parts[3] === undefined ? 1 : amount(parts[3], 1)
+  const rgb: Rgb =
+    kind === 'rgb'
+      ? [amount(parts[0], 255), amount(parts[1], 255), amount(parts[2], 255)]
+      : fromHsl([
+          ((amount(parts[0].replace(/deg$/, ''), 1) % 360) + 360) % 360,
+          clamp01(amount(parts[1].replace(/%?$/, '%'), 1)),
+          clamp01(amount(parts[2].replace(/%?$/, '%'), 1)),
+        ])
+  if ([...rgb, alpha].some(Number.isNaN)) return null
+  return { hex: toHex(rgb), opacity: toOpacity(alpha) }
+}
+
 export interface Formats {
   hex: string
   rgb: string

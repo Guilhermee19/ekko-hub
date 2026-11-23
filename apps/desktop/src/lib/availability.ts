@@ -35,7 +35,7 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
   },
   colors: {
     status: 'live',
-    note: 'Guarda as 16 cores mais recentes. A opacidade só entra nos códigos copiados.',
+    note: 'Guarda as 32 cores mais recentes e todas as fixadas. A opacidade só entra nos códigos copiados.',
   },
   routines: {
     status: 'soon',

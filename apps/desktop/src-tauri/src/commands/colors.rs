@@ -48,5 +48,11 @@ pub fn color_remove(app: AppHandle, hex: String) -> ColorHistory {
 
 #[tauri::command]
 pub fn color_clear(app: AppHandle) -> ColorHistory {
-    colors::mutate(&app, |h| h.colors.clear())
+    colors::mutate(&app, ColorHistory::clear)
+}
+
+/// Pinned colors never fall off the history and survive "Limpar".
+#[tauri::command]
+pub fn color_pin(app: AppHandle, hex: String, pinned: bool) -> ColorHistory {
+    colors::mutate(&app, |h| h.set_pinned(&hex, pinned))
 }
