@@ -85,6 +85,8 @@ pub struct PillShow {
     pub clock: bool,
     pub timer: bool,
     pub music: bool,
+    /// Previous / play-pause / next next to the song in the notch.
+    pub music_controls: bool,
     pub event: bool,
     /// Battery of the laptop and of Bluetooth headsets, next to the clock.
     pub battery: bool,
@@ -100,6 +102,7 @@ impl Default for PillShow {
             clock: false,
             timer: true,
             music: true,
+            music_controls: true,
             event: true,
             battery: true,
             system: true,
@@ -320,6 +323,8 @@ mod tests {
             serde_json::from_str(r#"{"surfaceTone":"tinted","pillShow":{"clock":true}}"#).unwrap();
         assert_eq!(s.surface_tone, SurfaceTone::Tinted);
         assert!(s.pill_show.clock && s.pill_show.avatar);
+        // Files saved before the song buttons existed get them on.
+        assert!(s.pill_show.music_controls);
         assert_eq!(s.notch_radius, 18.0);
         let json = serde_json::to_value(AppearanceSettings::default()).unwrap();
         assert_eq!(json["pillPriority"][0], "timer");

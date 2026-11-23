@@ -2,9 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { IDLE } from '@/stores/assistant'
 import type { NotchSize } from '@/lib/ipc'
 import { formatRemaining } from '@/lib/time'
-import { ALERT, canvas, notchBox, notchLook, pillWidth } from './layout'
+import { ALERT, canvas, notchBox, notchLook, pillWidth, showsMusic } from './layout'
 
 describe('notch layout', () => {
+  it('song buttons only count while the pill shows the song', () => {
+    const music = { kind: 'music' as const, title: 'a', artist: 'b', playing: true }
+    expect(showsMusic({ ...IDLE, activity: music })).toBe(true)
+    expect(showsMusic(IDLE)).toBe(false)
+    expect(showsMusic({ ...IDLE, activity: music, toast: 'oi' })).toBe(false)
+    expect(showsMusic({ ...IDLE, activity: music, phase: 'listening' })).toBe(false)
+  })
+
   it('idle pill is the narrowest state', () => {
     const states = [
       { ...IDLE, phase: 'listening' as const },

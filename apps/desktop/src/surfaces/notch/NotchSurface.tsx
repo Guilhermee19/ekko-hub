@@ -26,7 +26,17 @@ import {
   useWindowFocus,
 } from '../shared/useOverlay'
 import { DropZone } from './DropZone'
-import { CLOCK_W, canvas, isQuiet, MINIMAL, notchBox, notchLook, PILL_H } from './layout'
+import { MINI_TRANSPORT_W } from '@/features/music/MiniTransport'
+import {
+  CLOCK_W,
+  canvas,
+  isQuiet,
+  MINIMAL,
+  notchBox,
+  notchLook,
+  PILL_H,
+  showsMusic,
+} from './layout'
 import { useFileDrop } from './useFileDrop'
 import { useNotchDrag } from './useNotchDrag'
 
@@ -69,8 +79,11 @@ export function NotchSurface() {
     alert !== null,
   )
   const anchor = useNotchAnchor()
-  const showClock = useSettings((s) => s.settings.appearance.pillShow.clock)
-  const extraW = (showClock ? CLOCK_W : 0) + (shelved ? SHELF_CHIP_W : 0)
+  const pillShow = useSettings((s) => s.settings.appearance.pillShow)
+  const extraW =
+    (pillShow.clock ? CLOCK_W : 0) +
+    (shelved ? SHELF_CHIP_W : 0) +
+    (pillShow.musicControls && showsMusic(presence) ? MINI_TRANSPORT_W : 0)
   const box = notchBox(look, notch.size, presence, anchor ?? undefined, pillScale, extraW)
   // The pill zooms its content; the box (hit rect) is already scaled, so undo it in px.
   const zoom = look === 'pill' ? pillScale : 1

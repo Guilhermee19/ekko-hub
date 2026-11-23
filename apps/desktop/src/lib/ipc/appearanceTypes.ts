@@ -16,6 +16,8 @@ export interface PillShow {
   clock: boolean
   timer: boolean
   music: boolean
+  /** Previous / play-pause / next next to the song in the notch. */
+  musicControls: boolean
   event: boolean
   /** Battery of the laptop and Bluetooth headsets, next to the clock. */
   battery: boolean
@@ -87,6 +89,7 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
     clock: false,
     timer: true,
     music: true,
+    musicControls: true,
     event: true,
     battery: true,
     system: true,
