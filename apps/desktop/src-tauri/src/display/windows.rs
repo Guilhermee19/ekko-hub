@@ -132,3 +132,17 @@ pub fn monitor_at(app: &AppHandle, x: i32, y: i32) -> Option<(usize, Monitor)> {
         .enumerate()
         .find(|(_, m)| monitor_rect(m).contains(x, y))
 }
+
+/// Win32 handle of `window` for the `ekko_os` calls that need one. Other systems have
+/// no HWND, so those features (drag out, re-raising on top) report unsupported there.
+pub fn native_handle(window: &WebviewWindow) -> Result<isize, String> {
+    #[cfg(windows)]
+    {
+        window.hwnd().map(|h| h.0 as isize).map_err(|e| e.to_string())
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = window;
+        Err("recurso disponível só no Windows".into())
+    }
+}

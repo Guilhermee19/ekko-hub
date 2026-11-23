@@ -114,7 +114,7 @@ fn keep_on_top(app: &AppHandle) {
         .iter()
         .filter_map(|label| app.get_webview_window(label))
         .filter(|w| w.is_visible().unwrap_or(false))
-        .filter_map(|w| w.hwnd().ok().map(|h| h.0 as isize))
+        .filter_map(|w| windows::native_handle(&w).ok())
         .collect();
     fullscreen::raise_topmost(&hwnds);
 }
