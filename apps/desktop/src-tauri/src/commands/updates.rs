@@ -56,6 +56,11 @@ pub async fn update_check(app: AppHandle) -> Result<UpdateInfo, String> {
 /// only, then reopens Ekko) and closes Ekko so the files can be replaced.
 #[tauri::command]
 pub async fn update_install(app: AppHandle) -> Result<(), String> {
+    // The quiet installer is Windows-only; on macOS the .dmg is swapped by hand.
+    if !cfg!(windows) {
+        let page = blocking(&app, |_| Ok(fetch()?.page_url)).await?;
+        return crate::services::integrations::open_browser(&page).map_err(|e| e.to_string());
+    }
     let current = app_version(app.clone());
     let path = blocking(&app, move |app| {
         // Asked again here: the UI never chooses what gets downloaded.

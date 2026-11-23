@@ -12,6 +12,7 @@
   "app": {
     "windows": [],
     "withGlobalTauri": false,
+    "macOSPrivateApi": true,
     "security": {
       "assetProtocol": { "enable": true, "scope": [] },
       "csp": "default-src 'self'; img-src 'self' data: asset: http://asset.localhost https:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost"

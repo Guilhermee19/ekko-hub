@@ -1,6 +1,5 @@
 //! Prateleira IPC. Mutations return the new snapshot (also broadcast).
 
-use std::os::windows::process::CommandExt;
 use std::process::Command;
 
 use ekko_core::shelf::{DropMode, Shelf};
@@ -50,27 +49,39 @@ pub fn shelf_drag_out(
     shelf::drag_out(&app, &window, paths)
 }
 
-/// Opens the file with its default app (folders open in Explorer).
+/// Opens the file with its default app (folders open in Explorer / Finder).
 #[tauri::command]
 pub fn shelf_open(app: AppHandle, id: String) -> Result<(), String> {
     let path = path_of(&app, &id)?;
-    Command::new("explorer")
-        .arg(path)
-        .spawn()
-        .map(drop)
-        .map_err(|e| e.to_string())
+    let opener = if cfg!(windows) { "explorer" } else { "open" };
+    spawn(Command::new(opener).arg(path))
 }
 
-/// Shows the file selected in its Explorer folder.
+/// Shows the file selected in its Explorer / Finder folder.
 #[tauri::command]
 pub fn shelf_reveal(app: AppHandle, id: String) -> Result<(), String> {
     let path = path_of(&app, &id)?;
+    spawn(&mut reveal(&path))
+}
+
+#[cfg(windows)]
+fn reveal(path: &str) -> Command {
+    use std::os::windows::process::CommandExt;
+    let mut cmd = Command::new("explorer");
     // Windows paths never contain quotes, so wrapping is safe.
-    Command::new("explorer")
-        .raw_arg(format!("/select,\"{path}\""))
-        .spawn()
-        .map(drop)
-        .map_err(|e| e.to_string())
+    cmd.raw_arg(format!("/select,\"{path}\""));
+    cmd
+}
+
+#[cfg(not(windows))]
+fn reveal(path: &str) -> Command {
+    let mut cmd = Command::new("open");
+    cmd.args(["-R", path]);
+    cmd
+}
+
+fn spawn(cmd: &mut Command) -> Result<(), String> {
+    cmd.spawn().map(drop).map_err(|e| e.to_string())
 }
 
 fn path_of(app: &AppHandle, id: &str) -> Result<String, String> {

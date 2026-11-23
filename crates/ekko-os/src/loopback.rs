@@ -34,6 +34,7 @@ pub fn capture(
 }
 
 /// Interleaved frames → mono average. `None` for formats we do not read.
+#[cfg_attr(not(windows), allow(dead_code))]
 fn to_mono(
     bytes: &[u8],
     channels: usize,

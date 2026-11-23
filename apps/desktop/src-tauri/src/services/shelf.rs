@@ -110,11 +110,11 @@ pub fn drag_out(app: &AppHandle, window: &WebviewWindow, paths: Vec<String>) -> 
         return Ok(());
     }
     let mode = service.data().mode;
-    let hwnd = match window.hwnd() {
-        Ok(h) => h.0 as isize,
+    let hwnd = match crate::display::windows::native_handle(window) {
+        Ok(h) => h,
         Err(err) => {
             service.dragging.store(false, Ordering::Relaxed);
-            return Err(err.to_string());
+            return Err(err);
         }
     };
     let handle = app.clone();
