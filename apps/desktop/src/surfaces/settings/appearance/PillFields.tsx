@@ -13,6 +13,11 @@ const PARTS: { id: keyof PillShow; label: string; hint: string }[] = [
   { id: 'clock', label: 'Relógio', hint: 'Hora atual no canto direito.' },
   { id: 'timer', label: 'Timers', hint: 'Contagem regressiva ao vivo.' },
   { id: 'music', label: 'Música', hint: 'O que está tocando agora.' },
+  {
+    id: 'musicControls',
+    label: 'Controles da música',
+    hint: 'Voltar, tocar/pausar e avançar ao lado do nome da música.',
+  },
   { id: 'event', label: 'Próximo evento', hint: 'Compromisso que está chegando.' },
   {
     id: 'battery',

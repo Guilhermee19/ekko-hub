@@ -7,6 +7,7 @@ import { useSettings } from '@/stores/settings'
 import { EkkoEyes } from '@/ui/EkkoEyes'
 import { EkkoFace } from '@/ui/EkkoFace'
 import { Waveform } from '@/ui/Waveform'
+import { MiniTransport } from '@/features/music/MiniTransport'
 import { useAudioLevels } from '@/features/music/useAudioLevels'
 import { HudChip } from '@/features/hud/HudChips'
 import { formatRemaining } from '@/lib/time'
@@ -59,7 +60,12 @@ export function PresenceLine({
         <span key={what} className="animate-fade-in flex min-w-0 flex-1 items-center gap-2.5">
           {glide && <span className="w-8 shrink-0" aria-hidden />}
           {show.avatar && !eyes && <EkkoFace phase={p.phase} className="size-6 shrink-0" />}
-          <Readout compact={compact} name={name} statusDot={show.statusDot} />
+          <Readout
+            compact={compact}
+            name={name}
+            statusDot={show.statusDot}
+            controls={eyes && show.musicControls}
+          />
         </span>
       )}
       {show.clock && p.phase === 'idle' && <Clock />}
@@ -72,10 +78,13 @@ function Readout({
   compact,
   name,
   statusDot,
+  controls,
 }: {
   compact: boolean
   name: string
   statusDot: boolean
+  /** Song buttons next to the music chip (notch only, optional in settings). */
+  controls: boolean
 }) {
   const p = usePresence()
   if (p.phase === 'listening') {
@@ -113,7 +122,7 @@ function Readout({
       </>
     )
   }
-  if (p.activity) return <ActivityChip activity={p.activity} />
+  if (p.activity) return <ActivityChip activity={p.activity} controls={controls} />
   return (
     <>
       {statusDot && (
@@ -167,7 +176,7 @@ function StopButton({ label, icon }: { label: string; icon: 'x' | 'square' }) {
   )
 }
 
-function ActivityChip({ activity }: { activity: Activity }) {
+function ActivityChip({ activity, controls }: { activity: Activity; controls: boolean }) {
   const now = useNow(activity.kind === 'timer' || activity.kind === 'event')
   const chip = 'flex min-w-0 flex-1 items-center gap-2 text-[12.5px]'
   if (activity.kind === 'timer') {
@@ -188,7 +197,10 @@ function ActivityChip({ activity }: { activity: Activity }) {
         <Music2 className="size-3.5 shrink-0 text-accent" />
         <span className="truncate">{activity.title}</span>
         <span className="truncate text-muted">· {activity.artist}</span>
-        <MusicBars playing={activity.playing} />
+        <span className="ml-auto flex shrink-0 items-center gap-2">
+          {controls && <MiniTransport playing={activity.playing} />}
+          <MusicBars playing={activity.playing} />
+        </span>
       </span>
     )
   }
@@ -239,7 +251,7 @@ function MusicBars({ playing }: { playing: boolean }) {
     <Waveform
       bars={4}
       levels={levels ?? [0, 0, 0, 0]}
-      className={cn('ml-auto h-3', !playing && 'opacity-30')}
+      className={cn('h-3', !playing && 'opacity-30')}
     />
   )
 }

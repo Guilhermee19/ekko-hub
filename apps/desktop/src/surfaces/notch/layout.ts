@@ -17,6 +17,11 @@ export function isQuiet(p: Presence): boolean {
   return p.phase === 'idle' && !p.toast && !p.activity
 }
 
+/** The pill is showing the song (same precedence as `pillWidth`). */
+export function showsMusic(p: Presence): boolean {
+  return p.phase === 'idle' && !p.toast && p.activity?.kind === 'music'
+}
+
 /** Pill width per state: wide enough for its content, narrow when idle (Kobi-like). */
 export function pillWidth(p: Presence): number {
   if (p.phase === 'listening' || p.phase === 'speaking') return 400
