@@ -138,7 +138,10 @@ pub fn monitor_at(app: &AppHandle, x: i32, y: i32) -> Option<(usize, Monitor)> {
 pub fn native_handle(window: &WebviewWindow) -> Result<isize, String> {
     #[cfg(windows)]
     {
-        window.hwnd().map(|h| h.0 as isize).map_err(|e| e.to_string())
+        window
+            .hwnd()
+            .map(|h| h.0 as isize)
+            .map_err(|e| e.to_string())
     }
     #[cfg(not(windows))]
     {
