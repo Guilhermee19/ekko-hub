@@ -24,10 +24,10 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.6.2 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.7.0 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
-## Como está hoje (v0.6.2)
+## Como está hoje (v0.7.0)
 
 Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/animations.mjs`).
 
@@ -51,6 +51,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.7.0** | 23/11/2026 | Página **Cores**: grade, espectro e controles RGB, opacidade, variações, salvar, fixar (as fixadas não saem do histórico, que guarda 32) e colar código em HEX, rgb ou hsl. Botões de voltar, tocar/pausar e avançar na música do notch (opcional em Pílula e avisos). **Meu PC** mostra a temperatura do sistema e da placa de vídeo, sem precisar de administrador. |
 | **v0.6.2** | 23/11/2026 | Correção: o `.dmg` do macOS não saía no release da v0.6.1 (um teste da limpeza da pasta temporária falhava no Mac). |
 | **v0.6.1** | 23/11/2026 | Correção: o aviso da reunião ficava fixo no notch o evento inteiro. Agora tem **Confirmar** no aviso e no notch; o Ekko avisa antes, na hora e, sem confirmação, de novo depois, com ícone de atraso no notch até confirmar. Antecedência, repetições e intervalo configuráveis em Notificações (padrão: 5 min antes, na hora e 5 min depois). Prévia para macOS: `.dmg` universal (Apple Silicon e Intel) no mesmo release. |
 | **v0.6.0** | 21/11/2026 | Pegar uma cor da tela (Win+Shift+C) com lupa, HEX/RGB/HSL para copiar e card Cores com as últimas 16; avisos no próprio notch (música nova, timer e lembrete com Adiar, agenda, bateria, aparelho conectado) no lugar das janelas; paleta e painel abrem e fecham com animação; o Ekko fica sempre por cima das outras janelas e, com Esconder em tela cheia, nada aparece sobre o jogo (os alarmes esperam). Correção: o alarme do timer não abre mais por cima de um jogo em tela cheia. |
@@ -60,7 +61,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.6.2)
+## O que já funciona de verdade (v0.7.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
@@ -70,13 +71,14 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
-| Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som; com Spotify: fila, dispositivos, aleatório, repetir |
+| Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som e botões de voltar, tocar/pausar e avançar ao lado delas (opcional em Pílula e avisos); com Spotify: fila, dispositivos, aleatório, repetir |
 | Agenda (Google) | Real | Calendário do mês com os eventos em cada dia e a lista do dia escolhido, avisos configuráveis (antes, na hora e repetidos até confirmar), evento no notch até confirmar, card do Início com a folha do dia; conecta com um clique quando o instalador leva o cliente OAuth do Ekko (senão, com o seu Client ID) |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
-| Meu PC | Real | CPU/RAM/GPU/disco/rede ao vivo, processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
+| Meu PC | Real | CPU/RAM/GPU/disco/rede e temperatura ao vivo (zona térmica do sistema pelo contador do Windows e placa de vídeo pelo driver, sem admin), processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico de textos, imagens (salvas em PNG) e arquivos, copiar de volta como estava, fixar, buscar, pausar, guardar os últimos 20, 50, 100 ou 200; senhas de gerenciadores ficam de fora |
+| Cores | Real | Conta-gotas na tela (Win+Shift+C) e página própria: grade, espectro (saturação × brilho com barra de matiz) e controles RGB, opacidade nos códigos copiados, variações, colar HEX/rgb/hsl, salvar e fixar; guarda 32 recentes mais as fixadas (`colors.json`) |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
 | Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Pílula e avisos, que vale também para os avisos de texto); liga e desliga em Pílula e avisos |
 | Olhos do Ekko | Real | Cápsulas que piscam e olham em volta; ficam com sono após 3 min sem mexer no PC e dormem após 8 min; levam susto (acordar, Caps Lock, bateria fraca, timer tocando) e ficam animados (carregador, fone conectado, arquivos na prateleira) |
@@ -204,6 +206,11 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [ ] Confirmar no app: Confirmar no aviso e no notch com uma reunião real; a confirmação vale enquanto o app está aberto (reiniciar no meio do evento traz o aviso de volta)
 - [x] Prévia para macOS (v0.6.1): `.dmg` universal assinado ad hoc no release; no Mac ficam de fora os recursos ligados ao Windows (música do sistema, volume, bateria, print, limpeza, arrastar da prateleira). Decisão em [`adr/0002-macos-build.md`](adr/0002-macos-build.md)
 - [ ] Confirmar num Mac de verdade: abrir o `.dmg`, janelas transparentes do notch, Keychain e Google Agenda
+- [x] Página **Cores** (v0.7.0): grade, espectro e controles RGB; opacidade, variações, copiar HEX/RGB/HSL, salvar; fixar cores (não saem do histórico nem com Limpar recentes); histórico de 32; campo Código que aceita HEX curto/longo/com alfa, rgb(), hsl() e "r, g, b"
+- [x] Controles da música no notch (v0.7.0): voltar, tocar/pausar e avançar entre o nome e as barras, pelo Spotify conectado ou pelo controle de mídia do Windows; o notch alarga 84 px só enquanto mostra a música; liga e desliga em *Pílula e avisos*
+- [x] Temperatura no Meu PC (v0.7.0): zona térmica do ACPI pelo contador "Thermal Zone Information" (a classe WMI que o sysinfo lê só responde a admin) e placa de vídeo pelo D3DKMT, a mesma leitura do Gerenciador de Tarefas, sem acordar a GPU dormindo; em notebook com duas placas vale a mais quente com sensor
+- [ ] Confirmar no app: botões da música no notch com o Spotify e com o YouTube no navegador
+- [ ] Confirmar no app: temperatura num PC de mesa e numa placa AMD
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%
 - [ ] Confirmar no app: reações do notch e bateria de um fone Bluetooth conectado
 - [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print
