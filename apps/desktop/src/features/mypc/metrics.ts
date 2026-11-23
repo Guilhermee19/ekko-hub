@@ -56,8 +56,29 @@ export function toPoint(s: SystemSnapshot): HistoryPoint {
     gpu: s.gpu?.usage ?? null,
     disk: disk && disk.total ? ((disk.total - disk.available) / disk.total) * 100 : null,
     net: s.network.rxPerSec + s.network.txPerSec,
-    temp: s.temperature,
+    temp: s.temperature ?? s.gpu?.temperature ?? null,
   }
+}
+
+/** Hot enough to flag: the system zone past 80 °C, a GPU past 87 °C (cards run hotter). */
+const HOT = { system: 80, gpu: 87 }
+
+/**
+ * The Temperatura card: the system zone as the number and the GPU under it; the GPU
+ * becomes the number when it is the only sensor. Null value = no sensor at all.
+ */
+export function temperatureCard(s: SystemSnapshot): {
+  value: number | null
+  sub: string
+  hot: boolean
+} {
+  const sys = s.temperature
+  const gpu = s.gpu?.temperature ?? null
+  const hot = (sys ?? 0) > HOT.system || (gpu ?? 0) > HOT.gpu
+  const status = hot ? 'Esquentando' : 'Normal'
+  if (sys == null && gpu == null) return { value: null, sub: 'Sem sensor neste PC', hot }
+  if (sys == null) return { value: gpu, sub: `Da GPU · ${status}`, hot }
+  return { value: sys, sub: gpu == null ? status : `GPU ${Math.round(gpu)} °C · ${status}`, hot }
 }
 
 /** Appends keeping the last `HISTORY_LEN` (ignores a repeated timestamp). */

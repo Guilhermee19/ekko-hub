@@ -35,6 +35,8 @@ export interface GpuStat {
   name: string | null
   vramUsed: number | null
   vramTotal: number | null
+  /** °C of the hottest GPU with a sensor (usually the dedicated one); null when none. */
+  temperature: number | null
 }
 
 export interface SystemSnapshot {

@@ -33,11 +33,12 @@ fn main() {
     );
     match &s.gpu {
         Some(g) => println!(
-            "GPU {:.0}% {} · VRAM {} de {}",
+            "GPU {:.0}% {} · VRAM {} de {} · temperatura {:?}",
             g.usage,
             g.name.as_deref().unwrap_or("?"),
             g.vram_used.map_or("?".into(), human_bytes),
-            g.vram_total.map_or("?".into(), human_bytes)
+            g.vram_total.map_or("?".into(), human_bytes),
+            g.temperature
         ),
         None => println!("GPU indisponível"),
     }

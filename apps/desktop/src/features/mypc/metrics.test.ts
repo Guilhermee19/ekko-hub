@@ -9,6 +9,7 @@ import {
   formatUptime,
   killMessage,
   sparkPoints,
+  temperatureCard,
   toPoint,
 } from './metrics'
 import { scanProgress } from './store'
@@ -56,6 +57,42 @@ describe('mypc metrics', () => {
     expect(h).toHaveLength(HISTORY_LEN)
     expect(h[0].atMs).toBe(5)
     expect(appendPoint(h, h[h.length - 1])).toBe(h)
+  })
+
+  it('temperature card: system first, GPU under it or alone, null without sensors', () => {
+    const snap = (system: number | null, gpu: number | null) =>
+      ({
+        temperature: system,
+        gpu:
+          gpu == null
+            ? null
+            : { usage: 0, name: null, vramUsed: null, vramTotal: null, temperature: gpu },
+      }) as SystemSnapshot
+    expect(temperatureCard(snap(65, 54))).toEqual({
+      value: 65,
+      sub: 'GPU 54 °C · Normal',
+      hot: false,
+    })
+    expect(temperatureCard(snap(65, null))).toEqual({ value: 65, sub: 'Normal', hot: false })
+    expect(temperatureCard(snap(null, 54))).toEqual({
+      value: 54,
+      sub: 'Da GPU · Normal',
+      hot: false,
+    })
+    expect(temperatureCard(snap(null, null)).value).toBeNull()
+    // A GPU at 85 °C is normal under load; the system zone at 85 °C is not.
+    expect(temperatureCard(snap(60, 85)).hot).toBe(false)
+    expect(temperatureCard(snap(85, 50)).sub).toBe('GPU 50 °C · Esquentando')
+    expect(temperatureCard(snap(60, 90)).hot).toBe(true)
+    expect(
+      toPoint({
+        ...snap(null, 54),
+        cpu: { total: 0, cores: [], brand: '' },
+        memory: { used: 0, total: 1, swapUsed: 0, swapTotal: 0 },
+        disks: [],
+        network: { rxPerSec: 0, txPerSec: 0 },
+      } as SystemSnapshot).temp,
+    ).toBe(54)
   })
 
   it('filters by name and sorts', () => {

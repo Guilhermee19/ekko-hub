@@ -32,7 +32,10 @@ impl HistoryPoint {
             gpu: s.gpu.as_ref().map(|g| g.usage),
             disk: s.system_disk().map(|d| d.used_percent()),
             net: s.network.rx_per_sec + s.network.tx_per_sec,
-            temp: s.temperature,
+            // Same value the card shows: the system zone, else the GPU.
+            temp: s
+                .temperature
+                .or_else(|| s.gpu.as_ref().and_then(|g| g.temperature)),
         }
     }
 }
