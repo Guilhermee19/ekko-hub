@@ -12,7 +12,7 @@ const idlePomodoro = {
 const base: LiveSources = { timers: [], pomodoro: idlePomodoro, music: null, event: null }
 const timer = { id: 't', label: 'Bolo', endsAt: 2_000, total: 300 }
 const music = { title: 'Song', artist: 'Band', playing: true }
-const event = { kind: 'event' as const, title: 'Daily', startsAt: 5_000, endsAt: 9_000 }
+const event = { kind: 'event' as const, id: 'd', title: 'Daily', startsAt: 5_000, endsAt: 9_000 }
 
 describe('pickActivity', () => {
   it('nothing live → null', () => {
@@ -63,15 +63,24 @@ describe('eventActivity', () => {
     calendarName: 'x',
   })
 
-  it('shows an event starting within 15 min or already running, never all-day ones', () => {
+  it('shows an event within the lead (5 min by default) or running, never all-day ones', () => {
     expect(eventActivity([ev('a', 30, 60)], 0)).toBeNull()
-    expect(eventActivity([ev('a', 10, 60)], 0)?.title).toBe('a')
+    expect(eventActivity([ev('a', 10, 60)], 0)).toBeNull()
+    expect(eventActivity([ev('a', 10, 60)], 0, 15)?.title).toBe('a')
+    expect(eventActivity([ev('a', 4, 60)], 0)?.title).toBe('a')
     expect(eventActivity([ev('a', -5, 20)], 0)?.title).toBe('a')
     expect(eventActivity([ev('day', -60, 600, true)], 0)).toBeNull()
     expect(eventActivity([ev('done', -60, -1)], 0)).toBeNull()
   })
 
   it('picks the earliest one', () => {
-    expect(eventActivity([ev('b', 12, 30), ev('a', 5, 30)], 0)?.title).toBe('a')
+    expect(eventActivity([ev('b', 4, 30), ev('a', 3, 30)], 0)?.title).toBe('a')
+  })
+
+  it('a confirmed event leaves the pill, even while it runs', () => {
+    const running = ev('a', -5, 20)
+    expect(eventActivity([running], 0, 5, [{ id: 'a', startMs: running.startMs }])).toBeNull()
+    // Another occurrence of the same id is still shown.
+    expect(eventActivity([running], 0, 5, [{ id: 'a', startMs: 0 }])?.title).toBe('a')
   })
 })

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useCalendar } from '@/features/calendar/store'
+import { isAcked, useCalendar } from '@/features/calendar/store'
 import { useMusic } from '@/features/music/store'
 import { backend, type CalendarReminder } from '@/lib/ipc'
 import { dndActive } from '@/lib/quietHours'
@@ -107,19 +107,23 @@ function watchCalendar() {
     const r = s.reminder
     if (!r || r === last) return
     last = r
-    if (quiet()) return
     const e = r.event
+    if (quiet() || isAcked(s.acked, e)) return
     showAlert({
       kind: 'event',
-      label:
-        r.phase === 'start' || r.minutesLeft <= 0
-          ? 'Agenda · começando agora'
-          : `Agenda · em ${r.minutesLeft} min`,
+      label: reminderLabel(r),
       title: e.title,
       detail: [span(e.startMs, e.endMs), e.location].filter(Boolean).join(' · '),
       meetLink: e.meetLink ?? undefined,
+      event: { id: e.id, startMs: e.startMs },
     })
   })
+}
+
+function reminderLabel(r: CalendarReminder): string {
+  if (r.phase === 'late') return `Agenda · começou há ${Math.abs(r.minutesLeft)} min`
+  if (r.phase === 'start' || r.minutesLeft <= 0) return 'Agenda · começando agora'
+  return `Agenda · em ${r.minutesLeft} min`
 }
 
 const hhmm = (ms: number) =>

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { backend, type CalendarEvent, type CalendarReminder } from '@/lib/ipc'
+import { backend, type CalendarAck, type CalendarEvent, type CalendarReminder } from '@/lib/ipc'
 import { errorText, useIntegrations } from '@/features/integrations/store'
 import { nextEvent } from './agenda'
 import { monthOf, monthRange, sameMonth, type MonthRef } from './month'
@@ -15,6 +15,10 @@ interface CalendarState {
   error: string | null
   /** Last reminder pushed by the backend (the notch shows it). */
   reminder: CalendarReminder | null
+  /** Events marked as seen: no more nudges, they leave the pill. */
+  acked: CalendarAck[]
+  /** "Confirmar": the backend stops nudging and every window drops the event. */
+  ack: (e: Pick<CalendarEvent, 'id' | 'startMs'>) => void
   /** Month on screen in the Agenda page and everything that falls on its grid. */
   month: MonthRef
   monthEvents: CalendarEvent[]
@@ -37,6 +41,13 @@ export const useCalendar = create<CalendarState>((set, get) => ({
   loading: false,
   error: null,
   reminder: null,
+  acked: [],
+  ack: (e) => {
+    if (isAcked(get().acked, e)) return
+    // Optimistic: the pill lets go at once; the backend broadcast confirms it.
+    set({ acked: [...get().acked, { id: e.id, startMs: e.startMs }] })
+    void backend.calendarAck(e.id, e.startMs)
+  },
   month: monthOf(Date.now()),
   monthEvents: [],
   nextEvent: (now) => nextEvent(get().events, now),
@@ -88,3 +99,12 @@ void backend.onCalendarChanged((events) => {
   void useIntegrations.getState().refresh()
 })
 void backend.onCalendarSoon((reminder) => useCalendar.setState({ reminder }))
+void backend.onCalendarAcked((acked) => useCalendar.setState({ acked }))
+void backend
+  .calendarAcked()
+  .then((acked) => useCalendar.setState({ acked }))
+  .catch(() => {})
+
+export function isAcked(acked: CalendarAck[], e: Pick<CalendarEvent, 'id' | 'startMs'>) {
+  return acked.some((a) => a.id === e.id && a.startMs === e.startMs)
+}

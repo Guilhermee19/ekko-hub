@@ -9,6 +9,18 @@ export interface DndSettings {
   to: string
 }
 
+/** Calendar nudges in the notch (mirrors `EventAlerts`). */
+export interface EventAlerts {
+  /** Minutes before the start; 0 = only at the start. */
+  beforeMin: number
+  /** Extra nudges after the start while the event is not confirmed. */
+  repeats: number
+  /** Minutes between those extra nudges. */
+  everyMin: number
+}
+
+export const DEFAULT_EVENT_ALERTS: EventAlerts = { beforeMin: 5, repeats: 1, everyMin: 5 }
+
 export interface GeneralSettings {
   /** Mirrors the OS; change it only through `setAutostart`. */
   autostart: boolean
@@ -17,6 +29,7 @@ export interface GeneralSettings {
   sound: NotifySound
   /** 0..1 */
   volume: number
+  eventAlerts: EventAlerts
 }
 
 export const DEFAULT_GENERAL: GeneralSettings = {
@@ -25,6 +38,7 @@ export const DEFAULT_GENERAL: GeneralSettings = {
   dnd: { enabled: false, from: '22:00', to: '07:00' },
   sound: 'chime',
   volume: 0.6,
+  eventAlerts: DEFAULT_EVENT_ALERTS,
 }
 
 export type ShortcutAction =

@@ -117,6 +117,8 @@ pub fn run() {
             commands::integrations::disconnect_integration,
             commands::integrations::calendar_upcoming,
             commands::integrations::calendar_range,
+            commands::calendar::calendar_ack,
+            commands::calendar::calendar_acked,
             commands::integrations::spotify_state,
             commands::integrations::spotify_devices,
             commands::integrations::spotify_queue,

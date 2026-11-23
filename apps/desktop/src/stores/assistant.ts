@@ -24,7 +24,15 @@ export type Activity =
   | { kind: 'volume'; level: number }
   /** Quick system reaction (Caps Lock, mic, brightness, battery, headset). */
   | { kind: 'hud'; icon: HudIcon; label: string; level?: number; warn?: boolean }
-  | { kind: 'event'; title: string; startsAt: number; endsAt: number; meetLink?: string }
+  | {
+      kind: 'event'
+      /** Google id; with `startsAt` it is what "Confirmar" marks as seen. */
+      id: string
+      title: string
+      startsAt: number
+      endsAt: number
+      meetLink?: string
+    }
 
 export interface Presence {
   phase: Phase

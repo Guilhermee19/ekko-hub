@@ -1,4 +1,5 @@
 import type {
+  CalendarAck,
   CalendarEvent,
   CalendarReminder,
   IntegrationProvider,
@@ -24,6 +25,8 @@ const ACCOUNTS: Record<IntegrationProvider, string> = {
 
 const calendarListeners = new Set<(events: CalendarEvent[]) => void>()
 const soonListeners = new Set<(r: CalendarReminder) => void>()
+const ackListeners = new Set<(acked: CalendarAck[]) => void>()
+let acked: CalendarAck[] = []
 
 const MIN = 60_000
 const snapshot = (): IntegrationStatus => structuredClone(status)
@@ -171,6 +174,18 @@ export const mockIntegrations: IntegrationsBackend = {
   onCalendarSoon: (cb) => {
     soonListeners.add(cb)
     return Promise.resolve(() => soonListeners.delete(cb))
+  },
+  calendarAck: (id, startMs) => {
+    if (!acked.some((a) => a.id === id && a.startMs === startMs)) {
+      acked = [...acked, { id, startMs }]
+      ackListeners.forEach((cb) => cb(acked))
+    }
+    return Promise.resolve()
+  },
+  calendarAcked: () => Promise.resolve(acked),
+  onCalendarAcked: (cb) => {
+    ackListeners.add(cb)
+    return Promise.resolve(() => ackListeners.delete(cb))
   },
   spotifyState: async () => {
     requireConnected('spotify')

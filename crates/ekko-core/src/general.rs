@@ -50,6 +50,38 @@ impl DndSettings {
     }
 }
 
+/// Calendar nudges in the notch: how early, and how often again while unconfirmed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct EventAlerts {
+    /// Minutes before the start (0 = only at the start).
+    pub before_min: u32,
+    /// Extra nudges after the start until the event is confirmed.
+    pub repeats: u32,
+    /// Minutes between those extra nudges.
+    pub every_min: u32,
+}
+
+impl Default for EventAlerts {
+    fn default() -> Self {
+        Self {
+            before_min: 5,
+            repeats: 1,
+            every_min: 5,
+        }
+    }
+}
+
+impl EventAlerts {
+    pub fn sanitized(self) -> Self {
+        Self {
+            before_min: self.before_min.min(120),
+            repeats: self.repeats.min(6),
+            every_min: self.every_min.clamp(1, 60),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct GeneralSettings {
@@ -61,6 +93,7 @@ pub struct GeneralSettings {
     pub sound: NotifySound,
     /// 0.0..=1.0
     pub volume: f32,
+    pub event_alerts: EventAlerts,
 }
 
 impl Default for GeneralSettings {
@@ -71,6 +104,7 @@ impl Default for GeneralSettings {
             dnd: DndSettings::default(),
             sound: NotifySound::default(),
             volume: 0.6,
+            event_alerts: EventAlerts::default(),
         }
     }
 }
@@ -83,6 +117,7 @@ impl GeneralSettings {
         } else {
             Self::default().volume
         };
+        self.event_alerts = self.event_alerts.sanitized();
         let defaults = DndSettings::default();
         for (value, fallback) in [
             (&mut self.dnd.from, defaults.from),
@@ -164,6 +199,19 @@ mod tests {
         assert_eq!(g.volume, 1.0);
         assert_eq!(g.dnd.from, "07:05");
         assert_eq!(g.dnd.to, "07:00");
+    }
+
+    #[test]
+    fn event_alerts_are_clamped() {
+        let e = EventAlerts {
+            before_min: 999,
+            repeats: 50,
+            every_min: 0,
+        }
+        .sanitized();
+        assert_eq!((e.before_min, e.repeats, e.every_min), (120, 6, 1));
+        let parsed: GeneralSettings = serde_json::from_str("{}").unwrap();
+        assert_eq!(parsed.event_alerts, EventAlerts::default());
     }
 
     #[test]

@@ -4,12 +4,14 @@ import {
   Bell,
   Bluetooth,
   CalendarDays,
+  Check,
   Timer,
   Video,
   X,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type MouseEvent } from 'react'
+import { useCalendar } from '@/features/calendar/store'
 import { copyColor } from '@/features/colors/store'
 import { useMusic } from '@/features/music/store'
 import { backend } from '@/lib/ipc'
@@ -132,11 +134,29 @@ function Actions({ alert }: { alert: Alert }) {
           Adiar 5 min
         </button>
       )}
+      {alert.event && (
+        <button
+          type="button"
+          title="Já vi: para de avisar e sai do notch"
+          onClick={act(() => {
+            useCalendar.getState().ack(alert.event!)
+            dismissAlert()
+          })}
+          className={cn(
+            button,
+            'flex items-center gap-1 bg-surface-hover text-content hover:bg-border-soft',
+          )}
+        >
+          <Check className="size-3.5" aria-hidden /> Confirmar
+        </button>
+      )}
       {alert.meetLink && (
         <button
           type="button"
           onClick={act(() => {
             void backend.openExternal(alert.meetLink!)
+            // Joining the call is as good as confirming it.
+            if (alert.event) useCalendar.getState().ack(alert.event)
             dismissAlert()
           })}
           className={cn(button, 'flex items-center gap-1 bg-accent-strong text-white')}

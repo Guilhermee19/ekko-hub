@@ -1,6 +1,6 @@
-import { useCalendar } from '@/features/calendar/store'
+import { isAcked, useCalendar } from '@/features/calendar/store'
 import { useMusic } from '@/features/music/store'
-import type { CalendarEvent } from '@/lib/ipc'
+import { DEFAULT_EVENT_ALERTS, type CalendarAck, type CalendarEvent } from '@/lib/ipc'
 import { useNow } from '@/surfaces/shared/useNow'
 import {
   phaseSeconds,
@@ -57,21 +57,24 @@ function candidate(kind: LiveKind, src: LiveSources): Activity | null {
   return src.music?.playing ? { kind: 'music', ...src.music } : null
 }
 
-/** Minutes before an event when the pill starts announcing it. */
-export const EVENT_LEAD_MIN = 15
-
-/** Ongoing timed event, or the next one starting within the lead window. */
+/**
+ * Timed event starting within the lead window (the "avisar antes" setting) or already
+ * running, until someone confirms it: a confirmed event leaves the pill even mid-way.
+ */
 export function eventActivity(
   events: CalendarEvent[],
   now: number,
-  leadMin = EVENT_LEAD_MIN,
+  leadMin = DEFAULT_EVENT_ALERTS.beforeMin,
+  acked: CalendarAck[] = [],
 ): Extract<Activity, { kind: 'event' }> | null {
   const e = events
     .filter((e) => !e.allDay && e.endMs > now && e.startMs - now <= leadMin * 60_000)
+    .filter((e) => !isAcked(acked, e))
     .sort((a, b) => a.startMs - b.startMs)[0]
   if (!e) return null
   return {
     kind: 'event',
+    id: e.id,
     title: e.title,
     startsAt: e.startMs,
     endsAt: e.endMs,
@@ -87,12 +90,16 @@ export function usePresence(): Presence {
   const track = useMusic((s) => s.track)
   const playing = useMusic((s) => s.playing)
   const events = useCalendar((s) => s.events)
+  const acked = useCalendar((s) => s.acked)
+  const leadMin = useSettings(
+    (s) => (s.settings.general.eventAlerts ?? DEFAULT_EVENT_ALERTS).beforeMin,
+  )
   const { pillPriority, pillShow } = useSettings((s) => s.settings.appearance)
   // Re-check every 30 s so an event appears when it enters the lead window.
   const now = useNow(events.length > 0, 30_000)
   if (presence.activity) return presence
   const music = track ? { title: track.title, artist: track.artist, playing } : null
-  const event = eventActivity(events, now)
+  const event = eventActivity(events, now, leadMin, acked)
   const hidden = { timer: !pillShow.timer, event: !pillShow.event, music: !pillShow.music }
   const activity = pickActivity({ timers, pomodoro, music, event }, pillPriority, hidden)
   return { ...presence, activity }
