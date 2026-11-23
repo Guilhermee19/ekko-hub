@@ -24,10 +24,10 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.6.1 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.6.2 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
-## Como está hoje (v0.6.1)
+## Como está hoje (v0.6.2)
 
 Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/animations.mjs`).
 
@@ -51,6 +51,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.6.2** | 23/11/2026 | Correção: o `.dmg` do macOS não saía no release da v0.6.1 (um teste da limpeza da pasta temporária falhava no Mac). |
 | **v0.6.1** | 23/11/2026 | Correção: o aviso da reunião ficava fixo no notch o evento inteiro. Agora tem **Confirmar** no aviso e no notch; o Ekko avisa antes, na hora e, sem confirmação, de novo depois, com ícone de atraso no notch até confirmar. Antecedência, repetições e intervalo configuráveis em Notificações (padrão: 5 min antes, na hora e 5 min depois). Prévia para macOS: `.dmg` universal (Apple Silicon e Intel) no mesmo release. |
 | **v0.6.0** | 21/11/2026 | Pegar uma cor da tela (Win+Shift+C) com lupa, HEX/RGB/HSL para copiar e card Cores com as últimas 16; avisos no próprio notch (música nova, timer e lembrete com Adiar, agenda, bateria, aparelho conectado) no lugar das janelas; paleta e painel abrem e fecham com animação; o Ekko fica sempre por cima das outras janelas e, com Esconder em tela cheia, nada aparece sobre o jogo (os alarmes esperam). Correção: o alarme do timer não abre mais por cima de um jogo em tela cheia. |
 | **v0.5.0** | 21/11/2026 | Atualizar com um clique (Sobre verifica o GitHub, baixa, confere e instala); bateria do fone HyperX Cloud Stinger Core Wireless e dos mouses Attack Shark pelo dongle USB; temas de época no notch (Natal, Ano Novo, Carnaval, Páscoa, Dia dos Namorados, Halloween) com aba própria; todos os modos de exibição com o visual do notch; trocas de humor suaves; timer com qualquer tempo; persona Eco virou Tobby; o nível de mentira saiu do painel. |
@@ -59,7 +60,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.6.1)
+## O que já funciona de verdade (v0.6.2)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
