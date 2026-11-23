@@ -6,6 +6,7 @@ import {
   Cpu,
   Droplets,
   Home,
+  Palette,
   ListChecks,
   MessageSquare,
   Music2,
@@ -24,6 +25,7 @@ export type PageId =
   | 'habits'
   | 'music'
   | 'clipboard'
+  | 'colors'
   | 'routines'
   | 'mypc'
   | 'memory'
@@ -44,6 +46,7 @@ export const NAV: NavItem[] = [
   { id: 'habits', label: 'Hábitos', icon: Droplets },
   { id: 'music', label: 'Música', icon: Music2 },
   { id: 'clipboard', label: 'Copiados', icon: Clipboard },
+  { id: 'colors', label: 'Cores', icon: Palette },
   { id: 'routines', label: 'Rotinas', icon: Workflow },
   { id: 'mypc', label: 'Meu PC', icon: Cpu },
   { id: 'memory', label: 'Memória', icon: Brain },

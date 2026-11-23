@@ -172,6 +172,8 @@ pub fn run() {
             commands::colors::color_pick,
             commands::colors::color_copy,
             commands::colors::color_history,
+            commands::colors::color_save,
+            commands::colors::color_pin,
             commands::colors::color_remove,
             commands::colors::color_clear,
             commands::hud::power_snapshot,

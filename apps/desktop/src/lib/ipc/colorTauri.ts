@@ -14,8 +14,10 @@ export const tauriColor: ColorBackend = {
   colorPick: (x, y) => invoke('color_pick', { x, y }),
   colorCopy: (text) => invoke('color_copy', { text }),
   colorHistory: () => invoke('color_history'),
+  colorSave: (hex) => invoke('color_save', { hex }),
   colorRemove: (hex) => invoke('color_remove', { hex }),
   colorClear: () => invoke('color_clear'),
+  colorPin: (hex, pinned) => invoke('color_pin', { hex, pinned }),
   onColorPicked: (cb) => listen<{ color: PickedColor }>(COLOR_PICKED, (e) => cb(e.payload.color)),
   onColorsChanged: (cb) => listen<ColorHistory>(COLORS_CHANGED, (e) => cb(e.payload)),
 }

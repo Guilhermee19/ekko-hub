@@ -15,9 +15,11 @@ export interface PickedColor {
   hsl: string
   /** Unix ms. */
   at: number
+  /** Never falls off the history and survives "Limpar". */
+  pinned: boolean
 }
 
-/** Last picks, newest first (up to 16). */
+/** Picks, newest first: up to 32 unpinned plus every pinned one. */
 export interface ColorHistory {
   colors: PickedColor[]
 }
@@ -31,8 +33,12 @@ export interface ColorBackend {
   colorPick(x: number, y: number): Promise<PickedColor>
   colorCopy(text: string): Promise<void>
   colorHistory(): Promise<ColorHistory>
+  /** Keeps a `#rrggbb` chosen on the Cores page in the history (front, deduped). */
+  colorSave(hex: string): Promise<ColorHistory>
   colorRemove(hex: string): Promise<ColorHistory>
+  /** Removes every color except the pinned ones. */
   colorClear(): Promise<ColorHistory>
+  colorPin(hex: string, pinned: boolean): Promise<ColorHistory>
   onColorPicked(cb: (c: PickedColor) => void): Promise<Unlisten>
   onColorsChanged(cb: (h: ColorHistory) => void): Promise<Unlisten>
 }

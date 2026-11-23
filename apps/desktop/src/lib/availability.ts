@@ -33,6 +33,10 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
     status: 'live',
     note: 'Guarda textos, imagens e arquivos que você copiar. Senhas de gerenciadores ficam de fora. Os atalhos dos snippets ainda não expandem sozinhos.',
   },
+  colors: {
+    status: 'live',
+    note: 'Guarda as 32 cores mais recentes e todas as fixadas. A opacidade só entra nos códigos copiados.',
+  },
   routines: {
     status: 'soon',
     phase: 'F5',
