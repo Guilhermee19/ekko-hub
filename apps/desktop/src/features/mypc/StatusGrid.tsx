@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import type { HistoryPoint, SystemSnapshot } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
-import { formatBytes, formatRate, formatUptime, systemDisk } from './metrics'
+import { formatBytes, formatRate, formatUptime, systemDisk, temperatureCard } from './metrics'
 import { Sparkline } from './Sparkline'
 import { useMyPc } from './store'
 
@@ -33,6 +33,7 @@ function cards(s: SystemSnapshot, h: HistoryPoint[]): Card[] {
   const disk = systemDisk(s)
   const diskUsed = disk && disk.total ? ((disk.total - disk.available) / disk.total) * 100 : null
   const net = h.map((p) => p.net)
+  const temp = temperatureCard(s)
   const gpuSub =
     s.gpu?.vramUsed != null && s.gpu.vramTotal
       ? `VRAM ${formatBytes(s.gpu.vramUsed)} de ${formatBytes(s.gpu.vramTotal)}`
@@ -95,17 +96,12 @@ function cards(s: SystemSnapshot, h: HistoryPoint[]): Card[] {
       key: 'temp',
       icon: Thermometer,
       label: 'Temperatura',
-      value: s.temperature == null ? null : pct(s.temperature),
+      value: temp.value == null ? null : pct(temp.value),
       unit: '°C',
-      sub:
-        s.temperature == null
-          ? 'Indisponível neste PC'
-          : s.temperature > 80
-            ? 'Esquentando'
-            : 'Normal',
+      sub: temp.sub,
       series: h.flatMap((p) => (p.temp == null ? [] : [p.temp])),
       domain: [30, 100],
-      hot: (s.temperature ?? 0) > 80,
+      hot: temp.hot,
     },
   ]
 }

@@ -93,8 +93,9 @@ function fakeSnapshot(t: number): SystemSnapshot {
       name: 'NVIDIA GeForce RTX 3060',
       vramUsed: 2.1 * GB,
       vramTotal: 12 * GB,
+      temperature: Math.round(wave(t, 47, 52, 6)),
     },
-    temperature: null,
+    temperature: Math.round(wave(t, 53, 58, 7)),
     processCount: 312,
   }
 }
@@ -106,7 +107,7 @@ const point = (s: SystemSnapshot): HistoryPoint => ({
   gpu: s.gpu?.usage ?? null,
   disk: ((s.disks[0].total - s.disks[0].available) / s.disks[0].total) * 100,
   net: s.network.rxPerSec + s.network.txPerSec,
-  temp: s.temperature,
+  temp: s.temperature ?? s.gpu?.temperature ?? null,
 })
 
 export function mockSystem({ on, fire }: Deps): SystemBackend {

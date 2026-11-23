@@ -10,11 +10,14 @@ pub mod group;
 pub mod history;
 pub mod kill;
 mod monitor;
+#[cfg(windows)]
+mod pdh;
 pub mod protect;
 pub mod scan;
 pub mod startup;
 #[cfg(test)]
 mod tests;
+pub mod thermal;
 pub(crate) mod verinfo;
 
 use serde::Serialize;
@@ -85,6 +88,9 @@ pub struct GpuStat {
     pub name: Option<String>,
     pub vram_used: Option<u64>,
     pub vram_total: Option<u64>,
+    /// °C of the hottest GPU with a sensor (usually the dedicated one, even when the
+    /// integrated chip is the busiest); None when no card reports one or all sleep.
+    pub temperature: Option<f32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -98,7 +104,8 @@ pub struct Snapshot {
     pub network: NetStat,
     /// None when the PC exposes no GPU counters.
     pub gpu: Option<GpuStat>,
-    /// °C; None on most Windows PCs (needs vendor drivers / admin).
+    /// °C of the hottest ACPI thermal zone (CPU area on laptops); None when the PC
+    /// exposes no zone and no other sensor.
     pub temperature: Option<f32>,
     pub process_count: usize,
 }

@@ -44,7 +44,7 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
   },
   mypc: {
     status: 'live',
-    note: 'Temperatura só aparece se o PC expuser sensores ao Windows. Programas de inicialização são só listados.',
+    note: 'A temperatura vem do sensor do sistema e da placa de vídeo; alguns PCs de mesa não têm nenhum dos dois. Programas de inicialização são só listados.',
   },
   memory: {
     status: 'soon',

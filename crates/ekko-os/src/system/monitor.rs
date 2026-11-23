@@ -12,6 +12,7 @@ use sysinfo::{
 use super::format::rate;
 use super::gpu::GpuSampler;
 use super::group::{self, ProcSample, ProcessGroup};
+use super::thermal::ThermalSampler;
 use super::{CpuStat, DiskStat, MemoryStat, NetStat, Snapshot, now_ms, verinfo};
 
 /// Disks and sensors change slowly; refresh them every N samples.
@@ -23,6 +24,7 @@ pub struct Monitor {
     disks: Disks,
     components: Option<Components>,
     gpu: GpuSampler,
+    thermal: ThermalSampler,
     net_totals: Option<(u64, u64, Instant)>,
     /// exe path → file description (version info is read once per exe).
     labels: HashMap<String, Option<String>>,
@@ -40,7 +42,7 @@ impl Monitor {
         let disks =
             Disks::new_with_refreshed_list_specifics(storage()).map_err(|e| e.to_string())?;
         let networks = Networks::new_with_refreshed_list().map_err(|e| e.to_string())?;
-        // Sensors via WMI: usually empty on Windows without vendor drivers.
+        // Fallback sensors via WMI: admin-only on Windows, so usually empty there.
         let components = Components::new_with_refreshed_list()
             .ok()
             .filter(|c| !c.is_empty());
@@ -50,6 +52,7 @@ impl Monitor {
             disks,
             components,
             gpu: GpuSampler::new(),
+            thermal: ThermalSampler::new(),
             net_totals: None,
             labels: HashMap::new(),
             ticks: 0,
@@ -71,7 +74,11 @@ impl Monitor {
                 components.refresh(false);
             }
         }
-        if self.ticks == 1 || self.ticks.is_multiple_of(SLOW_EVERY) {
+        // Thermal zones are a cheap counter read: every tick, so the sparkline moves.
+        let zone = self.thermal.sample();
+        if zone.is_some() {
+            self.temperature = zone;
+        } else if self.ticks == 1 || self.ticks.is_multiple_of(SLOW_EVERY) {
             self.temperature = self.components.as_ref().and_then(|c| {
                 c.iter()
                     .filter_map(|c| c.temperature())

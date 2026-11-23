@@ -1,6 +1,7 @@
 //! GPU load the way Task Manager computes it: PDH `GPU Engine` 3D utilization summed per
 //! adapter (capped at 100) and the busiest adapter wins. VRAM from `GPU Adapter Memory`,
-//! name and size from DXGI. Everything is optional: no counters → `None`, never a panic.
+//! name and size from DXGI, temperature from the driver (see thermal.rs). Everything is
+//! optional: no counters → `None`, never a panic.
 
 use std::collections::HashMap;
 
@@ -39,6 +40,13 @@ pub fn luid_key(high: i32, low: u32) -> String {
     format!("0x{:08x}_0x{low:08x}", high as u32)
 }
 
+/// Back from `luid_key` to (high, low), for driver calls that take a LUID.
+pub fn luid_parts(key: &str) -> Option<(i32, u32)> {
+    let (high, low) = key.split_once('_')?;
+    let hex = |s: &str| u32::from_str_radix(s.strip_prefix("0x")?, 16).ok();
+    Some((hex(high)? as i32, hex(low)?))
+}
+
 #[derive(Debug, Clone)]
 pub struct Adapter {
     pub luid: String,
@@ -46,8 +54,22 @@ pub struct Adapter {
     pub vram: u64,
 }
 
+/// Hottest adapter that has a sensor. On laptops with two GPUs the busy one is often
+/// the integrated chip, which reports nothing; the dedicated card is what heats up.
+pub fn hottest(adapters: &[Adapter], temperature: impl Fn(&str) -> Option<f32>) -> Option<f32> {
+    adapters
+        .iter()
+        .filter_map(|a| temperature(&a.luid))
+        .reduce(f32::max)
+}
+
 /// Picks the adapter to show and builds the stat (pure; `engines`/`memory` are PDH rows).
-pub fn stat(adapters: &[Adapter], engines: &[(String, f64)], memory: &[(String, f64)]) -> GpuStat {
+pub fn stat(
+    adapters: &[Adapter],
+    engines: &[(String, f64)],
+    memory: &[(String, f64)],
+    temperature: Option<f32>,
+) -> GpuStat {
     let main = adapters.iter().max_by_key(|a| a.vram);
     let (luid, usage) = busiest(engines)
         .or_else(|| main.map(|a| (a.luid.clone(), 0.0)))
@@ -63,6 +85,7 @@ pub fn stat(adapters: &[Adapter], engines: &[(String, f64)], memory: &[(String, 
         name: adapter.map(|a| a.name.clone()),
         vram_used: vram_used.map(|v| v as u64),
         vram_total: adapter.map(|a| a.vram).filter(|v| *v > 0),
+        temperature,
     }
 }
 
@@ -89,7 +112,11 @@ impl GpuSampler {
         #[cfg(windows)]
         {
             let (engines, memory) = self.pdh.as_mut()?.collect()?;
-            Some(stat(&self.adapters, &engines, &memory))
+            let temperature = hottest(&self.adapters, |luid| {
+                let (high, low) = luid_parts(luid)?;
+                super::thermal::gpu_temperature(high, low)
+            });
+            Some(stat(&self.adapters, &engines, &memory, temperature))
         }
         #[cfg(not(windows))]
         {
@@ -107,64 +134,42 @@ impl Default for GpuSampler {
 
 #[cfg(windows)]
 mod win {
-    use windows::Win32::Foundation::ERROR_SUCCESS;
     use windows::Win32::Graphics::Dxgi::{
         CreateDXGIFactory1, DXGI_ADAPTER_FLAG_SOFTWARE, IDXGIFactory1,
     };
-    use windows::Win32::System::Performance::{
-        PDH_CSTATUS_NEW_DATA, PDH_CSTATUS_VALID_DATA, PDH_FMT, PDH_FMT_COUNTERVALUE_ITEM_W,
-        PDH_FMT_DOUBLE, PDH_FMT_LARGE, PDH_HCOUNTER, PDH_HQUERY, PDH_MORE_DATA,
-        PdhAddEnglishCounterW, PdhCloseQuery, PdhCollectQueryData, PdhGetFormattedCounterArrayW,
-        PdhOpenQueryW,
-    };
-    use windows::core::{PCWSTR, w};
+    use windows::Win32::System::Performance::{PDH_FMT_DOUBLE, PDH_FMT_LARGE, PDH_HCOUNTER};
+    use windows::core::w;
 
+    use super::super::pdh::{Query, Rows, read_array};
     use super::{Adapter, luid_key};
 
-    type Rows = Vec<(String, f64)>;
-
     pub struct Pdh {
-        query: PDH_HQUERY,
+        query: Query,
         engines: PDH_HCOUNTER,
         memory: Option<PDH_HCOUNTER>,
     }
 
     impl Pdh {
         pub fn open() -> Option<Self> {
-            let mut query = PDH_HQUERY::default();
-            let mut engines = PDH_HCOUNTER::default();
-            let mut memory = PDH_HCOUNTER::default();
-            // SAFETY: out-params are valid locals; the query is closed in Drop (or here).
-            unsafe {
-                if PdhOpenQueryW(PCWSTR::null(), 0, &mut query) != ERROR_SUCCESS.0 {
-                    return None;
-                }
-                let path = w!("\\GPU Engine(*engtype_3D)\\Utilization Percentage");
-                if PdhAddEnglishCounterW(query, path, 0, &mut engines) != ERROR_SUCCESS.0 {
-                    PdhCloseQuery(query);
-                    return None;
-                }
-                let mem_path = w!("\\GPU Adapter Memory(*)\\Dedicated Usage");
-                let memory = (PdhAddEnglishCounterW(query, mem_path, 0, &mut memory)
-                    == ERROR_SUCCESS.0)
-                    .then_some(memory);
-                // Rate counters need a first sample to diff against.
-                PdhCollectQueryData(query);
-                Some(Self {
-                    query,
-                    engines,
-                    memory,
-                })
-            }
+            let query = Query::open()?;
+            let engines = query.add(w!("\\GPU Engine(*engtype_3D)\\Utilization Percentage"))?;
+            let memory = query.add(w!("\\GPU Adapter Memory(*)\\Dedicated Usage"));
+            // Rate counters need a first sample to diff against.
+            query.collect();
+            Some(Self {
+                query,
+                engines,
+                memory,
+            })
         }
 
         /// (3D engine %, dedicated bytes) per instance.
         pub fn collect(&mut self) -> Option<(Rows, Rows)> {
-            // SAFETY: the handles stay alive as long as `self`.
+            if !self.query.collect() {
+                return None;
+            }
+            // SAFETY: the counters belong to `self.query`, open while `self` lives.
             unsafe {
-                if PdhCollectQueryData(self.query) != ERROR_SUCCESS.0 {
-                    return None;
-                }
                 let engines = read_array(self.engines, PDH_FMT_DOUBLE)?;
                 let memory = self
                     .memory
@@ -173,73 +178,6 @@ mod win {
                 Some((engines, memory))
             }
         }
-    }
-
-    impl Drop for Pdh {
-        fn drop(&mut self) {
-            // SAFETY: opened in `open`, closed exactly once.
-            unsafe {
-                PdhCloseQuery(self.query);
-            }
-        }
-    }
-
-    /// Wildcard counter → (instance, value). Instances come and go between the size
-    /// query and the read, so `MORE_DATA` is retried.
-    unsafe fn read_array(counter: PDH_HCOUNTER, format: PDH_FMT) -> Option<Rows> {
-        let item = size_of::<PDH_FMT_COUNTERVALUE_ITEM_W>();
-        for _ in 0..3 {
-            let (mut size, mut count) = (0u32, 0u32);
-            // SAFETY: size query without a buffer.
-            let status = unsafe {
-                PdhGetFormattedCounterArrayW(counter, format, &mut size, &mut count, None)
-            };
-            if status != PDH_MORE_DATA {
-                // No instance right now (nothing drawing): zero load, not an error.
-                return (status == ERROR_SUCCESS.0).then(Vec::new);
-            }
-            let len = (size as usize).div_ceil(item);
-            let mut buf = vec![PDH_FMT_COUNTERVALUE_ITEM_W::default(); len];
-            // SAFETY: `buf` holds at least `size` bytes, aligned for the items.
-            let status = unsafe {
-                PdhGetFormattedCounterArrayW(
-                    counter,
-                    format,
-                    &mut size,
-                    &mut count,
-                    Some(buf.as_mut_ptr()),
-                )
-            };
-            if status == PDH_MORE_DATA {
-                continue;
-            }
-            if status != ERROR_SUCCESS.0 {
-                return None;
-            }
-            let rows = buf
-                .iter()
-                .take(count as usize)
-                .filter(|i| {
-                    i.FmtValue.CStatus == PDH_CSTATUS_VALID_DATA
-                        || i.FmtValue.CStatus == PDH_CSTATUS_NEW_DATA
-                })
-                .map(|i| {
-                    // SAFETY: PDH wrote a NUL-terminated name into `buf` and the union
-                    // member that matches `format`.
-                    unsafe {
-                        let name = i.szName.to_string().unwrap_or_default();
-                        let value = if format == PDH_FMT_LARGE {
-                            i.FmtValue.Anonymous.largeValue as f64
-                        } else {
-                            i.FmtValue.Anonymous.doubleValue
-                        };
-                        (name, value)
-                    }
-                })
-                .collect();
-            return Some(rows);
-        }
-        None
     }
 
     /// Hardware adapters (the software "Basic Render Driver" is skipped).
