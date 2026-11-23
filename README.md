@@ -4,11 +4,11 @@
 
 ![O notch do Ekko abrindo ao passar o mouse](docs/screenshots/anim-notch.webp)
 
-> **Versão 0.6.2, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.7.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.6.2_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.7.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -16,7 +16,7 @@
 
 ### macOS (prévia)
 
-Baixe o `Ekko_0.6.2_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
+Baixe o `Ekko_0.7.0_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
 
 No Mac funcionam o notch, painel, agenda, timers, prateleira e integrações. Os recursos ligados ao Windows (música do sistema, volume, bateria, print de área, limpeza do PC, arrastar da prateleira) ainda não existem lá.
 
@@ -38,7 +38,7 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 
 - **Timers e Pomodoro:** continuam contando com o painel fechado. Quando acabam, o próprio notch cresce num cartão com "Adiar 5 min".
 - **Bateria:** a do notebook e a de fones, mouses e teclados sem fio, por Bluetooth ou pelo dongle USB (HyperX Cloud Stinger Core Wireless e mouses Attack Shark), com aviso de bateria fraca.
-- **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade.
+- **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade, e ao lado delas ficam botões pequenos para voltar, pausar e avançar sem abrir o painel (dá para tirar em *Configurações → Pílula e avisos*).
 - **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
 - **Agenda:** conectado ao Google Agenda, avisa antes do compromisso e na hora. Um **Confirmar** tira o evento do notch; sem confirmação, ele avisa de novo e fica no notch com um ícone de atraso. Quanto tempo antes, quantas vezes repetir e a cada quanto tempo ficam em *Configurações → Notificações*.
 - **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
@@ -63,11 +63,18 @@ No Natal, Ano Novo, Carnaval, Páscoa, Dia dos Namorados e Halloween, o notch ga
 - **Prateleira de arquivos:** arraste arquivos ou pastas até o notch e solte (imagens aparecem com prévia). Eles ficam guardados ali e depois saem todos juntos (ou um a um) quando você arrasta para outra pasta, o e-mail ou o chat. Você escolhe se o Ekko copia ou move.
 - **Copiados:** o Ekko guarda o histórico do texto que você copia, com busca, fixar e pausar. Senhas copiadas de gerenciadores de senha ficam de fora.
 
+### Cores
+
+- **Pegar da tela:** `Win + Shift + C` congela a tela e abre um conta-gotas com lupa. A cor aparece no notch com HEX, RGB e HSL para copiar.
+- **Página Cores:** escolha uma cor pela grade, pelo espectro ou pelos controles RGB, ajuste a opacidade e pegue uma variação mais clara ou mais escura com um clique.
+- **Cole qualquer código:** `#fff`, `#3FE0C5`, `rgb(63, 224, 197)` ou `hsl(170 72% 56%)`, com ou sem transparência.
+- **Salvas e fixadas:** o Ekko guarda as 32 cores mais recentes. As que você fixa nunca saem do histórico.
+
 ### De olho no seu PC
 
 ![Meu PC](docs/screenshots/mypc.webp)
 
-- **Ao vivo:** CPU, memória, GPU (uso e VRAM), disco e rede, com gráfico do último minuto.
+- **Ao vivo:** CPU, memória, GPU (uso e VRAM), disco, rede e temperatura (do sistema e da placa de vídeo, sem precisar abrir como administrador), com gráfico do último minuto.
 - **O que está rodando:** cada programa numa linha só (as 40 abas do Chrome viram "Chrome"), ordenada por memória ou CPU.
 - **Finalizar tarefa:** o Ekko tenta fechar o programa direitinho e, se ele não responder, força. Sempre pede confirmação, e os processos essenciais do Windows ficam protegidos.
 - **Verificar meu PC:** analisa memória, processador, programas que abrem com o Windows, arquivos temporários, lixeira e espaço em disco. Também limpa temporários antigos e esvazia a lixeira, avisando antes quanto espaço vai liberar.
@@ -107,8 +114,9 @@ Em *Configurações → Sobre*, **Verificar atualizações** procura a versão m
 |---|---|
 | `Ctrl + Shift + Espaço` | Chama o Ekko de qualquer lugar |
 | `Ctrl + Alt + Espaço` | Abre a paleta de comandos (usa `Alt + Shift + Espaço` se outro programa já ocupa a primeira) |
+| `Win + Shift + C` | Pega uma cor da tela (usa `Ctrl + Alt + C` se outro programa já ocupa a primeira) |
 
-Os dois são configuráveis em *Configurações → Atalhos*. Se outro programa já usa a combinação, o Ekko avisa.
+Todos são configuráveis em *Configurações → Atalhos*. Se outro programa já usa a combinação, o Ekko avisa.
 
 | Paleta de comandos | Boas-vindas |
 |---|---|
