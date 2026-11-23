@@ -1,6 +1,6 @@
 # Roadmap: Ekko Hub
 
-> O Ekko ("eco") é um assistente de desktop **local-first para Windows**. Ele mora no topo da tela, conversa por texto e voz, usa IA grátis, local ou paga, e controla o PC.
+> O Ekko ("eco") é um assistente de desktop **local-first para Windows** (com uma prévia para macOS). Ele mora no topo da tela, conversa por texto e voz, usa IA grátis, local ou paga, e controla o PC.
 > Referências: Kobi (experiência do produto), jarvis-tauri-ia (identidade visual e base de funções) e claude-usage-tray (modo bandeja).
 
 **Regra do roadmap:** cada fase termina com uma **aprovação do Guilherme**. A fase seguinte só começa depois disso.
@@ -24,10 +24,10 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.6.0 pela branch `production`, com atualização em um clique |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.6.1 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
-## Como está hoje (v0.6.0)
+## Como está hoje (v0.6.1)
 
 Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/animations.mjs`).
 
@@ -47,10 +47,11 @@ Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/an
 
 ## Releases
 
-Um release sai quando a branch `production` recebe um merge: o GitHub Actions compila o instalador, cria a tag `v<versão>` e publica. Nas outras branches nada é compilado nem publicado (passo a passo no README, seção Release).
+Um release sai quando a branch `production` recebe um merge: o GitHub Actions compila o instalador do Windows e o `.dmg` do macOS, cria a tag `v<versão>` e publica. Nas outras branches nada é compilado nem publicado (passo a passo no README, seção Release).
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.6.1** | 23/11/2026 | Correção: o aviso da reunião ficava fixo no notch o evento inteiro. Agora tem **Confirmar** no aviso e no notch; o Ekko avisa antes, na hora e, sem confirmação, de novo depois, com ícone de atraso no notch até confirmar. Antecedência, repetições e intervalo configuráveis em Notificações (padrão: 5 min antes, na hora e 5 min depois). Prévia para macOS: `.dmg` universal (Apple Silicon e Intel) no mesmo release. |
 | **v0.6.0** | 21/11/2026 | Pegar uma cor da tela (Win+Shift+C) com lupa, HEX/RGB/HSL para copiar e card Cores com as últimas 16; avisos no próprio notch (música nova, timer e lembrete com Adiar, agenda, bateria, aparelho conectado) no lugar das janelas; paleta e painel abrem e fecham com animação; o Ekko fica sempre por cima das outras janelas e, com Esconder em tela cheia, nada aparece sobre o jogo (os alarmes esperam). Correção: o alarme do timer não abre mais por cima de um jogo em tela cheia. |
 | **v0.5.0** | 21/11/2026 | Atualizar com um clique (Sobre verifica o GitHub, baixa, confere e instala); bateria do fone HyperX Cloud Stinger Core Wireless e dos mouses Attack Shark pelo dongle USB; temas de época no notch (Natal, Ano Novo, Carnaval, Páscoa, Dia dos Namorados, Halloween) com aba própria; todos os modos de exibição com o visual do notch; trocas de humor suaves; timer com qualquer tempo; persona Eco virou Tobby; o nível de mentira saiu do painel. |
 | **v0.4.0** | 20/11/2026 | Agenda como calendário (o mês inteiro com os eventos em cada dia, navegação entre meses e a lista do dia escolhido) e card Agenda do Início com a folha do dia; Google Agenda pronto para conectar com um clique; olhos do Ekko em cápsula, com humor (sono, dormindo, susto, animado); Copiados guarda imagens e arquivos, com limite de 20 a 200 itens; Configurações reorganizadas em telas próprias (Notificações, Copiados, Modo de exibição, Notch, Pílula e avisos, Menu do painel). Correções: avisos rápidos que ficavam presos no notch, avisos de texto seguindo o tempo configurado e janelas cortadas com a escala da interface diferente de 100%. Primeira versão publicada pela branch `production`; as v0.3.1 e v0.3.2 não chegaram a ser publicadas e entraram nesta. |
@@ -58,7 +59,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.6.0)
+## O que já funciona de verdade (v0.6.1)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
@@ -69,7 +70,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
 | Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som; com Spotify: fila, dispositivos, aleatório, repetir |
-| Agenda (Google) | Real | Calendário do mês com os eventos em cada dia e a lista do dia escolhido, aviso 10 min antes, evento no notch, card do Início com a folha do dia; conecta com um clique quando o instalador leva o cliente OAuth do Ekko (senão, com o seu Client ID) |
+| Agenda (Google) | Real | Calendário do mês com os eventos em cada dia e a lista do dia escolhido, avisos configuráveis (antes, na hora e repetidos até confirmar), evento no notch até confirmar, card do Início com a folha do dia; conecta com um clique quando o instalador leva o cliente OAuth do Ekko (senão, com o seu Client ID) |
 | Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
@@ -198,6 +199,10 @@ Ordem pedida em 15/11/2026: aparência, voz e integrações antes da conversa co
 - [x] Pegar cor pelo card e pela paleta travava o app inteiro (janela criada num comando síncrono); corrigido e coberto pelo teste de guarda
 - [ ] Confirmar no app: humores do Ekko no notch (sono, susto, animado)
 - [ ] Confirmar no app: calendário da Agenda com a conta Google real (meses anteriores e seguintes)
+- [x] Avisos da agenda com **Confirmar** (v0.6.1): o evento sai do notch depois de confirmado, em vez de ficar a duração inteira; sem confirmação, aviso repetido e ícone de atraso no notch. *Configurações → Notificações → Avisos da agenda*: quanto tempo antes (só na hora, 5, 10, 15 ou 30 min), quantas repetições (0 a 5) e o intervalo (2 a 15 min)
+- [ ] Confirmar no app: Confirmar no aviso e no notch com uma reunião real; a confirmação vale enquanto o app está aberto (reiniciar no meio do evento traz o aviso de volta)
+- [x] Prévia para macOS (v0.6.1): `.dmg` universal assinado ad hoc no release; no Mac ficam de fora os recursos ligados ao Windows (música do sistema, volume, bateria, print, limpeza, arrastar da prateleira). Decisão em [`adr/0002-macos-build.md`](adr/0002-macos-build.md)
+- [ ] Confirmar num Mac de verdade: abrir o `.dmg`, janelas transparentes do notch, Keychain e Google Agenda
 - [ ] Confirmar no app: aviso de Caps Lock sumindo e as telas inteiras com escala diferente de 100%
 - [ ] Confirmar no app: reações do notch e bateria de um fone Bluetooth conectado
 - [ ] Confirmar no app: o atalho Alt Gr + Print Screen, a cópia como imagem e o arraste do print

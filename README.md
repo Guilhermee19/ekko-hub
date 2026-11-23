@@ -4,11 +4,11 @@
 
 ![O notch do Ekko abrindo ao passar o mouse](docs/screenshots/anim-notch.webp)
 
-> **Versão 0.6.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.6.1, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.6.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.6.1_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -16,7 +16,7 @@
 
 ### macOS (prévia)
 
-Baixe o `Ekko_<versão>_universal.dmg` (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
+Baixe o `Ekko_0.6.1_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
 
 No Mac funcionam o notch, painel, agenda, timers, prateleira e integrações. Os recursos ligados ao Windows (música do sistema, volume, bateria, print de área, limpeza do PC, arrastar da prateleira) ainda não existem lá.
 
@@ -40,7 +40,7 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 - **Bateria:** a do notebook e a de fones, mouses e teclados sem fio, por Bluetooth ou pelo dongle USB (HyperX Cloud Stinger Core Wireless e mouses Attack Shark), com aviso de bateria fraca.
 - **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade.
 - **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
-- **Agenda:** conectado ao Google Agenda, mostra o próximo compromisso 15 minutos antes e avisa 10 minutos antes.
+- **Agenda:** conectado ao Google Agenda, avisa antes do compromisso e na hora. Um **Confirmar** tira o evento do notch; sem confirmação, ele avisa de novo e fica no notch com um ícone de atraso. Quanto tempo antes, quantas vezes repetir e a cada quanto tempo ficam em *Configurações → Notificações*.
 - **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
 
@@ -187,14 +187,16 @@ Quem publica é o GitHub Actions ([`.github/workflows/release.yml`](.github/work
 ```bash
 git checkout production
 git merge main
-git push origin production   # o Actions compila, cria a tag v<versão> e publica o release com o .exe anexado
+git push origin production   # o Actions compila, cria a tag v<versão> e publica o release com o .exe e o .dmg
 ```
 
 A tag é criada pelo próprio Actions. Se a versão do `tauri.conf.json` já tiver sido publicada, o merge não gera release (fica só um aviso no Actions).
 
 **Google Agenda com um clique.** O instalador publicado leva o cliente OAuth do próprio Ekko, lido na hora do build das variáveis `EKKO_GOOGLE_CLIENT_ID` e `EKKO_GOOGLE_CLIENT_SECRET` (cadastradas como *secrets* do repositório, em *Settings → Secrets and variables → Actions*). Com elas, a pessoa só clica em **Conectar**. Sem elas o build funciona, mas cada um precisa cadastrar o seu Client ID em *Configurações → Conexões*. Para testar localmente, copie [`.env.example`](.env.example) para `.env` na raiz, preencha os dois valores e rode `npm run tauri dev` (o `.env` fica fora do git).
 
-O GitHub sempre adiciona "Source code (zip/tar.gz)" sozinho. O que as pessoas baixam é o `.exe` em *Assets*.
+O `.dmg` do macOS sai de um segundo job, num runner `macos-latest`, que roda depois do Windows e anexa o arquivo ao mesmo release.
+
+O GitHub sempre adiciona "Source code (zip/tar.gz)" sozinho. O que as pessoas baixam é o `.exe` ou o `.dmg` em *Assets*.
 
 Para testar o instalador localmente antes de publicar:
 
