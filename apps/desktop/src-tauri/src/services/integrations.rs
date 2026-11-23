@@ -74,15 +74,18 @@ pub fn session(app: &AppHandle, provider: Provider) -> Result<Session> {
     app.state::<Integrations>().session(provider, &ids)
 }
 
-/// Opens an http(s) URL in the default browser. `rundll32` hands the URL straight to
-/// the shell, so `&` in query strings is never parsed by cmd.exe.
+/// Opens an http(s) URL in the default browser. On Windows `rundll32` hands the URL
+/// straight to the shell, so `&` in query strings is never parsed by cmd.exe.
 pub fn open_browser(url: &str) -> Result<()> {
     if !(url.starts_with("https://") || url.starts_with("http://")) {
         return Err(Error::OAuth("só abro links http(s)".into()));
     }
-    std::process::Command::new("rundll32")
-        .args(["url.dll,FileProtocolHandler", url])
-        .spawn()
-        .map(|_| ())
-        .map_err(Error::Io)
+    let mut cmd = if cfg!(windows) {
+        let mut c = std::process::Command::new("rundll32");
+        c.arg("url.dll,FileProtocolHandler");
+        c
+    } else {
+        std::process::Command::new("open")
+    };
+    cmd.arg(url).spawn().map(|_| ()).map_err(Error::Io)
 }

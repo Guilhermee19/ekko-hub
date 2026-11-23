@@ -14,6 +14,12 @@
 
 **Requisitos:** Windows 10 ou 11 (64 bits). O WebView2 já vem no Windows 11; no Windows 10, o instalador baixa se faltar.
 
+### macOS (prévia)
+
+Baixe o `Ekko_<versão>_universal.dmg` (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
+
+No Mac funcionam o notch, painel, agenda, timers, prateleira e integrações. Os recursos ligados ao Windows (música do sistema, volume, bateria, print de área, limpeza do PC, arrastar da prateleira) ainda não existem lá.
+
 ## O que ele faz
 
 ### Vivo, com humor

@@ -1,9 +1,9 @@
-# Publishes a GitHub Release with the Windows installer attached whenever `production`
-# receives a merge. Nothing is built or released from any other branch.
+# Publishes a GitHub Release with the Windows installer and the macOS .dmg attached
+# whenever `production` receives a merge. Nothing is built or released from any other branch.
 # The version comes from tauri.conf.json: the job creates the tag v<version> itself, so
 # a merge that does not bump the version publishes nothing (it only warns).
 # GitHub always adds "Source code (zip/tar.gz)" on its own; what people download is the
-# Ekko_<version>_x64-setup.exe asset this job uploads.
+# Ekko_<version>_x64-setup.exe and Ekko_<version>_universal.dmg assets uploaded here.
 name: Release
 
 on:
@@ -27,6 +27,9 @@ concurrency:
 jobs:
   windows-installer:
     runs-on: windows-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      publish: ${{ steps.version.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,4 +104,46 @@ jobs:
           name: Ekko Hub ${{ steps.version.outputs.tag }}
           body_path: docs/releases/${{ steps.version.outputs.tag }}.md
           files: target/release/bundle/nsis/*-setup.exe
+          fail_on_unmatched_files: true
+
+  # Runs after Windows so the release already exists; this only adds the .dmg to it.
+  # Universal binary (Apple Silicon + Intel). Signed ad hoc, not notarized: on first
+  # open macOS asks to confirm in System Settings > Privacy & Security.
+  macos-dmg:
+    needs: windows-installer
+    if: needs.windows-installer.outputs.publish == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar (testes Rust no macOS)
+        run: cargo test --workspace
+
+      - name: Gerar o .dmg
+        env:
+          EKKO_GOOGLE_CLIENT_ID: ${{ secrets.EKKO_GOOGLE_CLIENT_ID }}
+          EKKO_GOOGLE_CLIENT_SECRET: ${{ secrets.EKKO_GOOGLE_CLIENT_SECRET }}
+        run: npm run tauri build -- --target universal-apple-darwin
+
+      - name: Anexar o .dmg ao release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.windows-installer.outputs.tag }}
+          files: target/universal-apple-darwin/release/bundle/dmg/*.dmg
           fail_on_unmatched_files: true

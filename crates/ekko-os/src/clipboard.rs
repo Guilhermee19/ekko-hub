@@ -3,6 +3,8 @@
 //! Copies flagged private by password managers are reported as `Read::Private`, the
 //! same rule Windows' own clipboard history follows.
 
+#![cfg_attr(not(windows), allow(dead_code))]
+
 /// Longest text read, in UTF-16 units; bigger copies are not history material.
 const READ_LIMIT: usize = 200_000;
 /// Biggest image read, in bytes (40 megapixels at 32 bits).

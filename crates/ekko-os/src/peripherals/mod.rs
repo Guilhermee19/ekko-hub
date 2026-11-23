@@ -4,6 +4,9 @@
 //! devices that push their level (mice) get a reader thread each. New device = one
 //! driver file plus a branch in `scan`.
 
+// Parsing and helpers are only called by the Windows backend (and the tests).
+#![cfg_attr(not(windows), allow(dead_code))]
+
 mod attack_shark;
 #[cfg(windows)]
 mod hid;
