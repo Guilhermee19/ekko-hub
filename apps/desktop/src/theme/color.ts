@@ -33,7 +33,8 @@ export function mix(a: string, b: string, amount: number): string {
   return toHex([0, 1, 2].map((i) => x[i] + (y[i] - x[i]) * amount) as Rgb)
 }
 
-function toHsl([r, g, b]: Rgb): Rgb {
+/** sRGB 0..255 → [hue 0..360, saturation 0..1, lightness 0..1]. */
+export function toHsl([r, g, b]: Rgb): Rgb {
   const [R, G, B] = [r / 255, g / 255, b / 255]
   const max = Math.max(R, G, B)
   const min = Math.min(R, G, B)
@@ -46,7 +47,8 @@ function toHsl([r, g, b]: Rgb): Rgb {
   return [h * 60, s, l]
 }
 
-function fromHsl([h, s, l]: Rgb): Rgb {
+/** [hue 0..360, saturation 0..1, lightness 0..1] → sRGB 0..255 (not rounded). */
+export function fromHsl([h, s, l]: Rgb): Rgb {
   const k = (n: number) => (n + h / 30) % 12
   const a = s * Math.min(l, 1 - l)
   const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))

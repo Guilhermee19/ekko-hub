@@ -111,6 +111,15 @@ export function mockColor({ on, fire }: Bus): ColorBackend {
     },
     colorCopy: (text) => navigator.clipboard?.writeText(text) ?? Promise.resolve(),
     colorHistory: () => Promise.resolve(history),
+    colorSave: (hex) => {
+      const v = /^#?([0-9a-f]{6})$/i.exec(hex.trim())?.[1]
+      if (!v) return Promise.reject(new Error('cor inválida, use #rrggbb'))
+      const n = parseInt(v, 16)
+      const color = describe((n >> 16) & 255, (n >> 8) & 255, n & 255)
+      return change({
+        colors: [color, ...history.colors.filter((c) => c.hex !== color.hex)].slice(0, 16),
+      })
+    },
     colorRemove: (hex) => change({ colors: history.colors.filter((c) => c.hex !== hex) }),
     colorClear: () => change({ colors: [] }),
     onColorPicked: (cb) => on(COLOR_PICKED, (c) => cb(c as PickedColor)),

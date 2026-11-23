@@ -6,6 +6,7 @@ import { AgendaPage } from '@/features/calendar/AgendaPage'
 import { HabitsPage } from '@/features/habits/HabitsPage'
 import { MusicPage } from '@/features/music/MusicPage'
 import { ClipboardPage } from '@/features/clipboard/ClipboardPage'
+import { ColorsPage } from '@/features/colors/ColorsPage'
 import { RoutinesPage } from '@/features/routines/RoutinesPage'
 import { MyPcPage } from '@/features/mypc/MyPcPage'
 import { MemoryPage } from '@/features/memory/MemoryPage'
@@ -30,6 +31,7 @@ export const PAGES: Record<PageId, ComponentType<PageProps>> = {
   habits: HabitsPage,
   music: MusicPage,
   clipboard: ClipboardPage,
+  colors: ColorsPage,
   routines: RoutinesPage,
   mypc: MyPcPage,
   memory: MemoryPage,

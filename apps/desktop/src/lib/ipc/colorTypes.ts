@@ -31,6 +31,8 @@ export interface ColorBackend {
   colorPick(x: number, y: number): Promise<PickedColor>
   colorCopy(text: string): Promise<void>
   colorHistory(): Promise<ColorHistory>
+  /** Keeps a `#rrggbb` chosen on the Cores page in the history (front, deduped). */
+  colorSave(hex: string): Promise<ColorHistory>
   colorRemove(hex: string): Promise<ColorHistory>
   colorClear(): Promise<ColorHistory>
   onColorPicked(cb: (c: PickedColor) => void): Promise<Unlisten>

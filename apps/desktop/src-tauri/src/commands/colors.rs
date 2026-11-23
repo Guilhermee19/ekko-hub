@@ -1,10 +1,11 @@
 //! Color picker IPC: start the eyedropper, read the loupe, pick, copy and the history.
 
-use ekko_core::colors::{ColorHistory, PickedColor};
+use ekko_core::colors::{ColorHistory, PickedColor, Rgb};
 use tauri::AppHandle;
 
 use crate::services::capture::{self, CaptureMode};
 use crate::services::colors;
+use crate::services::timers::now_ms;
 
 /// `async`: it may build the capture window (see guard.rs).
 #[tauri::command]
@@ -30,6 +31,14 @@ pub fn color_copy(text: String) -> Result<(), String> {
 #[tauri::command]
 pub fn color_history(app: AppHandle) -> ColorHistory {
     colors::history(&app)
+}
+
+/// Keeps a color chosen on the Cores page (grid, spectrum, sliders) in the history.
+#[tauri::command]
+pub fn color_save(app: AppHandle, hex: String) -> Result<ColorHistory, String> {
+    let rgb = Rgb::from_hex(&hex).ok_or("cor inválida, use #rrggbb")?;
+    let color = PickedColor::new(rgb, now_ms());
+    Ok(colors::mutate(&app, |h| h.add(color)))
 }
 
 #[tauri::command]

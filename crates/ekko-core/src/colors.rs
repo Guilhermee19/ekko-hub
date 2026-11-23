@@ -16,6 +16,20 @@ pub struct Rgb {
 }
 
 impl Rgb {
+    /// "#3fe0c5" or "3FE0C5" → Rgb; None for anything else (no short or alpha forms).
+    pub fn from_hex(text: &str) -> Option<Self> {
+        let digits = text.trim().trim_start_matches('#');
+        if digits.len() != 6 || !digits.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return None;
+        }
+        let byte = |i: usize| u8::from_str_radix(&digits[i..i + 2], 16).ok();
+        Some(Self {
+            r: byte(0)?,
+            g: byte(2)?,
+            b: byte(4)?,
+        })
+    }
+
     /// "#3fe0c5"
     pub fn hex(self) -> String {
         format!("#{:02x}{:02x}{:02x}", self.r, self.g, self.b)
@@ -178,6 +192,19 @@ mod tests {
             b: 128,
         };
         assert_eq!(gray.css_hsl(), "hsl(0, 0%, 50%)");
+    }
+
+    #[test]
+    fn parses_hex_with_or_without_hash() {
+        let c = Rgb::from_hex(" #3FE0C5 ").unwrap();
+        assert_eq!(c.hex(), "#3fe0c5");
+        assert_eq!(
+            Rgb::from_hex("000000").map(Rgb::hex).as_deref(),
+            Some("#000000")
+        );
+        for bad in ["", "#fff", "#3fe0c5ff", "#zzzzzz", "#3fe0c"] {
+            assert_eq!(Rgb::from_hex(bad), None, "{bad}");
+        }
     }
 
     #[test]
