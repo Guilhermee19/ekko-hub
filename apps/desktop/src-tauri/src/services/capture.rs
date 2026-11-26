@@ -55,6 +55,8 @@ pub struct Saved {
     pub name: String,
     pub width: u32,
     pub height: u32,
+    /// Already on the clipboard as an image (false when the clipboard was busy).
+    pub copied: bool,
 }
 
 pub fn init(app: &AppHandle) {
@@ -144,6 +146,9 @@ pub fn commit(app: &AppHandle, region: Region) -> Result<Saved, String> {
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let path = free_path(&dir, &file_name(now_ms(), local_offset_ms()));
     std::fs::write(&path, png).map_err(|e| e.to_string())?;
+    // Like Win+Shift+S: the print is ready to paste. A busy clipboard doesn't fail the
+    // save; the card still offers the copy.
+    let copied = ekko_os::clipboard::write_image(&cut.dib()).is_ok();
     let path = path.to_string_lossy().into_owned();
     let added = entry(&path).into_iter().collect();
     let shelf = mutate(app, |s, now| s.add(added, now) > 0);
@@ -154,6 +159,7 @@ pub fn commit(app: &AppHandle, region: Region) -> Result<Saved, String> {
         path: path.clone(),
         width: cut.width,
         height: cut.height,
+        copied,
     };
     let _ = app.emit(CAPTURE_SAVED, &saved);
     Ok(saved)

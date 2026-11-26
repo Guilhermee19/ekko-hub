@@ -22,6 +22,7 @@ export type SurfaceId =
   | 'onboarding'
   | 'alarm'
   | 'capture'
+  | 'taskbar'
 
 const SURFACES: SurfaceId[] = [
   'gallery',
@@ -36,6 +37,7 @@ const SURFACES: SurfaceId[] = [
   'onboarding',
   'alarm',
   'capture',
+  'taskbar',
 ]
 
 /** Tauri: window label decides. Browser: `?surface=` or the gallery. */

@@ -25,16 +25,19 @@ pub enum DisplayMode {
     Hub,
     /// Nothing pinned; only hotkey / wake word with a transient overlay.
     VoiceOnly,
+    /// Widget inside the Windows taskbar (FluentFlyout-style); click opens the panel.
+    Taskbar,
 }
 
 impl DisplayMode {
-    pub const ALL: [DisplayMode; 6] = [
+    pub const ALL: [DisplayMode; 7] = [
         DisplayMode::Notch,
         DisplayMode::Tray,
         DisplayMode::Orb,
         DisplayMode::Dock,
         DisplayMode::Hub,
         DisplayMode::VoiceOnly,
+        DisplayMode::Taskbar,
     ];
 
     /// Label shown in menus (pt-BR UI).
@@ -46,6 +49,7 @@ impl DisplayMode {
             DisplayMode::Dock => "Dock lateral",
             DisplayMode::Hub => "Central (HUD)",
             DisplayMode::VoiceOnly => "Só voz",
+            DisplayMode::Taskbar => "Barra de tarefas",
         }
     }
 
@@ -57,6 +61,7 @@ impl DisplayMode {
             DisplayMode::Dock => "dock",
             DisplayMode::Hub => "hub",
             DisplayMode::VoiceOnly => "voice-only",
+            DisplayMode::Taskbar => "taskbar",
         }
     }
 

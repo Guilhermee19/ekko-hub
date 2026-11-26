@@ -7,11 +7,11 @@ import { IconButton } from '@/ui/primitives'
 import './print.css'
 
 /**
- * "Print salvo": the print that just flew into the notch. Clicking the picture copies
- * it as an image; dragging it drops the PNG file wherever it goes (chat, e-mail, folder).
+ * "Print copiado": the print that just flew into the notch, already on the clipboard.
+ * Clicking the picture copies it again; dragging it drops the PNG file wherever it goes.
  */
 export function PrintCard({ print, onClose }: { print: CaptureSaved; onClose: () => void }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(print.copied)
   const [failed, setFailed] = useState(false)
   const shelved = useShelf((s) => s.items.find((i) => i.id === print.id))
   const drag = useDragOut(print.id ? [print.id] : [])
@@ -70,9 +70,11 @@ export function PrintCard({ print, onClose }: { print: CaptureSaved; onClose: ()
         <p className="mt-0.5 text-[11px] text-muted">
           {failed
             ? 'Não deu para copiar. Tente de novo.'
-            : print.id
-              ? 'Clique para copiar · arraste para usar'
-              : 'Prateleira cheia: abra a pasta para usar'}
+            : copied
+              ? 'Pronto para colar · arraste para usar'
+              : print.id
+                ? 'Clique para copiar · arraste para usar'
+                : 'Prateleira cheia: abra a pasta para usar'}
         </p>
       </div>
       <div className="flex flex-col gap-1 self-start">

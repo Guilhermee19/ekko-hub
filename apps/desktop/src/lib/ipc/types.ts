@@ -32,7 +32,7 @@ export * from './updateTypes'
 export * from './colorTypes'
 export * from './hudTypes'
 
-export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only'
+export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only' | 'taskbar'
 export type Persona = 'ekko' | 'ultron' | 'tobby'
 export type DockSide = 'left' | 'right'
 export type NotchSize = 'compact' | 'normal' | 'large'

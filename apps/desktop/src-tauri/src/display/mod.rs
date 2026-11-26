@@ -12,7 +12,7 @@ use tauri::{AppHandle, Manager, WebviewWindow};
 
 use crate::state::AppState;
 use geometry::Rect;
-use windows::{DOCK, HUB, NOTCH, ORB, PANEL, VOICE};
+use windows::{DOCK, HUB, NOTCH, ORB, PANEL, TASKBAR, VOICE};
 
 const MARGIN: i32 = 12;
 
@@ -49,6 +49,7 @@ pub fn primary_surface(mode: DisplayMode) -> Option<&'static str> {
         DisplayMode::Orb => Some(ORB),
         DisplayMode::Dock => Some(DOCK),
         DisplayMode::Hub => Some(HUB),
+        DisplayMode::Taskbar => Some(TASKBAR),
         DisplayMode::Tray | DisplayMode::VoiceOnly => None,
     }
 }
@@ -69,6 +70,10 @@ pub fn position(app: &AppHandle, window: &WebviewWindow, label: &str) -> tauri::
             Rect::new(work.x + (work.w - w) / 2, bottom, w, h)
         }
         HUB => geometry::centered(work, w, h),
+        TASKBAR => {
+            let monitor = windows::monitor_rect(&m);
+            geometry::taskbar_widget(monitor, work, w, h, MARGIN / 2)
+        }
         _ => return Ok(()),
     };
     windows::place(window, rect)
@@ -109,6 +114,24 @@ pub fn show_panel_beside_orb(app: &AppHandle) -> tauri::Result<()> {
     let anchor = Rect::new(pos.x, pos.y, size.width as i32, size.height as i32);
     show_panel_at(app, |work, w, h| {
         geometry::beside(work, anchor, w, h, MARGIN)
+    })
+}
+
+/// Taskbar mode: the panel opens above the widget; a second click closes it.
+pub fn toggle_panel_above_taskbar(app: &AppHandle) -> tauri::Result<()> {
+    if let Some(panel) = app.get_webview_window(PANEL)
+        && panel.is_visible()?
+    {
+        return panel.hide();
+    }
+    let Some(widget) = app.get_webview_window(TASKBAR) else {
+        return Ok(());
+    };
+    let pos = widget.outer_position()?;
+    let size = widget.outer_size()?;
+    let anchor = Rect::new(pos.x, pos.y, size.width as i32, size.height as i32);
+    show_panel_at(app, |work, w, h| {
+        geometry::above_widget(work, anchor, w, h, MARGIN)
     })
 }
 
