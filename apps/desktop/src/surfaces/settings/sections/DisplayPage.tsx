@@ -14,7 +14,7 @@ export function DisplayPage() {
       title="Modo de exibição"
       subtitle="Onde o Ekko fica na sua tela. Dá para trocar a qualquer momento, sem reiniciar."
     >
-      <Field title="Modo" hint="Como ele aparece: no topo, perto do relógio, flutuando ou de lado.">
+      <Field title="Modo" hint="Como ele aparece: no topo, na barra de tarefas, perto do relógio, flutuando ou de lado.">
         <DisplayModePicker />
       </Field>
       <MonitorField />

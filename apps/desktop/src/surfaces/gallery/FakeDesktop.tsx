@@ -9,6 +9,7 @@ import { canvas, placeNotch } from '@/lib/notchGeometry'
 import { NotchSurface } from '../notch/NotchSurface'
 import { OrbSurface } from '../orb/OrbSurface'
 import { PanelSurface } from '../panel/PanelSurface'
+import { TaskbarSurface } from '../taskbar/TaskbarSurface'
 import { VoiceSurface } from '../voice/VoiceSurface'
 
 const SCREEN = { w: FAKE_SCREEN_W, h: 760 }
@@ -69,13 +70,19 @@ export function FakeDesktop({ mode, popover, onTogglePopover }: FakeDesktopProps
           style={
             mode === 'orb'
               ? { right: 132, bottom: TASKBAR_H + 60, width: 400, height: 580 }
-              : { right: 12, bottom: TASKBAR_H + 12, width: 400, height: 580 }
+              : mode === 'taskbar'
+                ? { left: 12, bottom: TASKBAR_H + 12, width: 400, height: 580 }
+                : { right: 12, bottom: TASKBAR_H + 12, width: 400, height: 580 }
           }
         >
           <PanelSurface />
         </Win>
       )}
-      <Taskbar onTray={onTogglePopover} trayActive={mode === 'tray'} />
+      <Taskbar
+        onTray={onTogglePopover}
+        trayActive={mode === 'tray'}
+        widget={mode === 'taskbar' && <TaskbarSurface onOpen={onTogglePopover} />}
+      />
     </div>
   )
 }
@@ -104,13 +111,21 @@ function Win({
   )
 }
 
-function Taskbar({ onTray, trayActive }: { onTray: () => void; trayActive: boolean }) {
+function Taskbar({
+  onTray,
+  trayActive,
+  widget,
+}: {
+  onTray: () => void
+  trayActive: boolean
+  widget: ReactNode
+}) {
   return (
     <div
       className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t border-white/10 bg-[#1c1c1ce6] px-4 text-white/80"
       style={{ height: TASKBAR_H }}
     >
-      <div className="w-40" />
+      <div className="-ml-3 h-full w-64">{widget}</div>
       <div className="flex gap-2">
         {Array.from({ length: 7 }, (_, i) => (
           <span key={i} className="size-7 rounded-md bg-white/10" />

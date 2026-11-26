@@ -13,5 +13,6 @@ pub mod shelf;
 pub mod shortcuts;
 pub mod system;
 pub mod system_hud;
+pub mod taskbar;
 pub mod timers;
 pub mod volume;

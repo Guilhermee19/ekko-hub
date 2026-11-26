@@ -19,6 +19,7 @@ pub fn summon(app: &AppHandle, cursor: Option<(i32, i32)>) -> tauri::Result<()> 
             super::toggle_panel_from_tray(app, at.unwrap_or((0, i32::MAX)))
         }
         DisplayMode::Orb => super::show_panel_beside_orb(app),
+        DisplayMode::Taskbar => super::toggle_panel_above_taskbar(app),
         DisplayMode::Notch => app.emit_to(NOTCH, SUMMON_EVENT, ()),
         DisplayMode::Dock => app.emit_to(DOCK, SUMMON_EVENT, ()),
         DisplayMode::Hub => match app.get_webview_window(HUB) {
