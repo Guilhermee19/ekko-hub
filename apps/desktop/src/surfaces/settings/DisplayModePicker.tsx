@@ -1,4 +1,13 @@
-import { AppWindow, Circle, Mic, PanelRight, PanelTop, Rows2, type LucideIcon } from 'lucide-react'
+import {
+  AppWindow,
+  Circle,
+  Mic,
+  PanelBottom,
+  PanelRight,
+  PanelTop,
+  Rows2,
+  type LucideIcon,
+} from 'lucide-react'
 import { backend, type DisplayMode } from '@/lib/ipc'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/stores/settings'
@@ -11,6 +20,12 @@ export const MODES: { id: DisplayMode; label: string; hint: string; icon: Lucide
     icon: PanelTop,
   },
   { id: 'tray', label: 'Bandeja', hint: 'Ícone perto do relógio, abre um flyout', icon: Rows2 },
+  {
+    id: 'taskbar',
+    label: 'Barra de tarefas',
+    hint: 'Widget dentro da barra do Windows, com a música tocando',
+    icon: PanelBottom,
+  },
   { id: 'orb', label: 'Bolha flutuante', hint: 'Bolha arrastável em qualquer canto', icon: Circle },
   { id: 'dock', label: 'Dock lateral', hint: 'Barra na borda que desliza', icon: PanelRight },
   { id: 'hub', label: 'Central (HUD)', hint: 'Janela grande, estilo Jarvis', icon: AppWindow },

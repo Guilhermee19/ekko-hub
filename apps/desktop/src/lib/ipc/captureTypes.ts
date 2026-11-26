@@ -30,6 +30,8 @@ export interface CaptureSaved {
   name: string
   width: number
   height: number
+  /** Already on the clipboard as an image (false when the clipboard was busy). */
+  copied: boolean
 }
 
 export interface CaptureBackend {

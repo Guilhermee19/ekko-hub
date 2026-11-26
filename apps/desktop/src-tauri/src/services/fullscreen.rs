@@ -15,15 +15,17 @@ use tauri::{AppHandle, Manager};
 
 use crate::display::{
     self,
-    windows::{self, ALARM, CAPTURE, DOCK, NOTCH, ORB, PALETTE, PANEL, VOICE},
+    windows::{self, ALARM, CAPTURE, DOCK, NOTCH, ORB, PALETTE, PANEL, TASKBAR, VOICE},
 };
 use crate::state::AppState;
 
 const POLL: Duration = Duration::from_secs(1);
-const OVERLAYS: [&str; 4] = [NOTCH, ORB, DOCK, VOICE];
+const OVERLAYS: [&str; 5] = [NOTCH, ORB, DOCK, VOICE, TASKBAR];
 /// Kept on top while visible, bottom to top: popups above the bar, the print and
 /// eyedropper overlay above everything.
-const ON_TOP: [&str; 8] = [NOTCH, ORB, DOCK, VOICE, PANEL, ALARM, PALETTE, CAPTURE];
+const ON_TOP: [&str; 9] = [
+    TASKBAR, NOTCH, ORB, DOCK, VOICE, PANEL, ALARM, PALETTE, CAPTURE,
+];
 
 /// True while a fullscreen app has Ekko hidden.
 static HIDDEN: AtomicBool = AtomicBool::new(false);

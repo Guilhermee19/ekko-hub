@@ -100,6 +100,48 @@ pub fn beside(work: Rect, anchor: Rect, w: i32, h: i32, gap: i32) -> Rect {
     Rect::new(clamp(x, work.x, work.right() - w), y, w, h)
 }
 
+/// Taskbar widget: at the left end of the taskbar strip (the part of the monitor the
+/// work area leaves out). With an auto-hidden taskbar there is no strip, so it takes
+/// the bottom `fallback_h` px of the monitor.
+pub fn taskbar_widget(monitor: Rect, work: Rect, w: i32, fallback_h: i32, margin: i32) -> Rect {
+    let strip = if work.bottom() < monitor.bottom() {
+        Rect::new(
+            monitor.x,
+            work.bottom(),
+            monitor.w,
+            monitor.bottom() - work.bottom(),
+        )
+    } else if work.y > monitor.y {
+        Rect::new(monitor.x, monitor.y, monitor.w, work.y - monitor.y)
+    } else if work.x > monitor.x {
+        // Vertical taskbar on the left: the widget becomes a square at its top.
+        let side = work.x - monitor.x;
+        return Rect::new(monitor.x, monitor.y + margin, side, side);
+    } else if work.right() < monitor.right() {
+        let side = monitor.right() - work.right();
+        return Rect::new(work.right(), monitor.y + margin, side, side);
+    } else {
+        Rect::new(
+            monitor.x,
+            monitor.bottom() - fallback_h,
+            monitor.w,
+            fallback_h,
+        )
+    };
+    Rect::new(strip.x + margin, strip.y, w.min(strip.w), strip.h)
+}
+
+/// Panel opened from the taskbar widget: left-aligned with it, glued to the taskbar.
+pub fn above_widget(work: Rect, anchor: Rect, w: i32, h: i32, margin: i32) -> Rect {
+    let x = clamp(anchor.x, work.x + margin, work.right() - w - margin);
+    let y = if anchor.y >= work.y + work.h / 2 {
+        work.bottom() - h - margin
+    } else {
+        work.y + margin
+    };
+    Rect::new(x, y, w, h)
+}
+
 pub fn centered(work: Rect, w: i32, h: i32) -> Rect {
     Rect::new(
         work.x + (work.w - w) / 2,
@@ -191,5 +233,40 @@ mod tests {
     fn oversized_window_does_not_panic() {
         let r = tray_flyout(Rect::new(0, 0, 300, 300), (10, 10), 500, 500, 12);
         assert_eq!(r.x, 12);
+    }
+
+    #[test]
+    fn taskbar_widget_sits_in_the_bottom_strip() {
+        let monitor = Rect::new(0, 0, 1920, 1080);
+        let work = Rect::new(0, 0, 1920, 1032);
+        assert_eq!(
+            taskbar_widget(monitor, work, 260, 48, 8),
+            Rect::new(8, 1032, 260, 48)
+        );
+    }
+
+    #[test]
+    fn taskbar_widget_handles_top_and_hidden_taskbars() {
+        let monitor = Rect::new(1920, 0, 2560, 1440);
+        let top = Rect::new(1920, 40, 2560, 1400);
+        assert_eq!(
+            taskbar_widget(monitor, top, 300, 48, 8),
+            Rect::new(1928, 0, 300, 40)
+        );
+        // Auto-hide: the work area is the whole monitor.
+        assert_eq!(
+            taskbar_widget(monitor, monitor, 300, 48, 8),
+            Rect::new(1928, 1392, 300, 48)
+        );
+    }
+
+    #[test]
+    fn panel_opens_above_the_widget() {
+        let work = Rect::new(0, 0, 1920, 1032);
+        let widget = Rect::new(8, 1032, 260, 48);
+        assert_eq!(
+            above_widget(work, widget, 400, 580, 12),
+            Rect::new(12, 440, 400, 580)
+        );
     }
 }

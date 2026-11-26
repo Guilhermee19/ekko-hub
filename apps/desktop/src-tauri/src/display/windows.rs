@@ -18,9 +18,10 @@ pub const PALETTE: &str = "palette";
 pub const ONBOARDING: &str = "onboarding";
 pub const ALARM: &str = "alarm";
 pub const CAPTURE: &str = "capture";
+pub const TASKBAR: &str = "taskbar";
 
 /// Every surface that belongs to a display mode (settings is independent).
-pub const MODE_SURFACES: [&str; 6] = [NOTCH, PANEL, ORB, DOCK, HUB, VOICE];
+pub const MODE_SURFACES: [&str; 7] = [NOTCH, PANEL, ORB, DOCK, HUB, VOICE, TASKBAR];
 
 struct Spec {
     title: &'static str,
@@ -40,6 +41,8 @@ fn spec(label: &str, notch: NotchSize) -> Spec {
         ORB => ("Ekko", 96.0, 96.0, true),
         DOCK => ("Ekko", 400.0, 800.0, true),
         VOICE => ("Ekko", 560.0, 140.0, true),
+        // Height follows the real taskbar; 48 is Windows 11's default.
+        TASKBAR => ("Ekko", 280.0, 48.0, true),
         HUB => ("Ekko Hub", 1180.0, 760.0, false),
         PALETTE => ("Ekko · Comandos", 680.0, 540.0, true),
         ALARM => ("Ekko · Alarme", 460.0, 300.0, true),

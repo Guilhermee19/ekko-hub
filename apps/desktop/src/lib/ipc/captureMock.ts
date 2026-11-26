@@ -51,6 +51,7 @@ export function mockCapture({ on, fire, shelve }: Bus): CaptureBackend {
         name,
         width: Math.round(r.w),
         height: Math.round(r.h),
+        copied: true,
       }
       fire(CAPTURE_SAVED, saved)
       return saved

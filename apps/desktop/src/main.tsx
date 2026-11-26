@@ -15,6 +15,7 @@ import { OrbSurface } from '@/surfaces/orb/OrbSurface'
 import { PaletteSurface } from '@/surfaces/palette/PaletteSurface'
 import { PanelSurface } from '@/surfaces/panel/PanelSurface'
 import { SettingsSurface } from '@/surfaces/settings/SettingsSurface'
+import { TaskbarSurface } from '@/surfaces/taskbar/TaskbarSurface'
 import { VoiceSurface } from '@/surfaces/voice/VoiceSurface'
 import { applyAppearance } from './theme/applyAppearance'
 import './theme/tokens.css'
@@ -35,6 +36,7 @@ const SURFACES: Record<SurfaceId, ComponentType> = {
   onboarding: OnboardingSurface,
   alarm: AlarmSurface,
   capture: CaptureSurface,
+  taskbar: TaskbarSurface,
 }
 
 /** Opaque windows paint the base color; overlays stay transparent over the desktop. */

@@ -40,6 +40,7 @@ pub fn run() {
             services::integrations::init(&handle);
             services::shortcuts::init(&handle);
             services::fullscreen::spawn(&handle);
+            services::taskbar::spawn(&handle);
             commands::general::sync_autostart(&handle);
 
             let settings = app.state::<AppState>().settings();
