@@ -2,6 +2,7 @@ import {
   AlarmClock,
   BatteryMedium,
   CalendarDays,
+  CloudSun,
   Clipboard,
   Cpu,
   Droplets,
@@ -25,6 +26,7 @@ export type HomeCardId =
   | 'shelf'
   | 'music'
   | 'colors'
+  | 'weather'
 
 export interface HomeCardMeta {
   id: HomeCardId
@@ -58,6 +60,13 @@ export const HOME_CARDS: HomeCardMeta[] = [
     label: 'Cores',
     hint: 'Conta-gotas e as últimas cores pegas da tela',
     icon: Pipette,
+    width: 2,
+  },
+  {
+    id: 'weather',
+    label: 'Clima',
+    hint: 'Tempo agora, próximas horas e aviso de chuva forte',
+    icon: CloudSun,
     width: 2,
   },
 ]

@@ -18,7 +18,7 @@ pub struct Integrations {
     http: OnceLock<Arc<ReqwestTransport>>,
 }
 
-/// Registers the shared state and starts the calendar and e-mail pollers.
+/// Registers the shared state and starts the calendar, e-mail and weather pollers.
 pub fn init(app: &AppHandle) {
     app.manage(Integrations {
         store: Arc::new(KeyringStore),
@@ -26,6 +26,7 @@ pub fn init(app: &AppHandle) {
     });
     super::calendar::spawn(app);
     super::mail::spawn(app);
+    super::weather::spawn(app);
 }
 
 impl Integrations {

@@ -7,7 +7,16 @@ import { backend, type MailMessage, type PickedColor } from '@/lib/ipc'
 // flips `live` on, so other windows keep their old text toast instead.
 
 export type AlertKind =
-  'music' | 'timer' | 'reminder' | 'event' | 'battery' | 'device' | 'notice' | 'color' | 'email'
+  | 'music'
+  | 'timer'
+  | 'reminder'
+  | 'event'
+  | 'battery'
+  | 'device'
+  | 'notice'
+  | 'color'
+  | 'email'
+  | 'weather'
 
 export interface Alert {
   id: string
@@ -27,6 +36,8 @@ export interface Alert {
   event?: { id: string; startMs: number }
   /** A new e-mail: "Ver" opens it in the browser. */
   mail?: MailMessage
+  /** Red instead of the accent (a storm coming). */
+  danger?: boolean
   /** A color just picked with the eyedropper (copy buttons). */
   color?: PickedColor
   /** How long it stays when nobody hovers it. */
@@ -49,6 +60,8 @@ const DEFAULT_MS: Record<AlertKind, number> = {
   color: 12000,
   // Time to read the sender and the subject and reach "Ver".
   email: 10000,
+  // Rain coming: worth a read.
+  weather: 15000,
 }
 const MAX_QUEUE = 4
 

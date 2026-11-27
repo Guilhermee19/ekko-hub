@@ -10,6 +10,7 @@ import { useShelf } from '@/features/shelf/store'
 import { formatWhen } from '@/features/tasks/due'
 import { useTasks } from '@/features/tasks/store'
 import { useTimers } from '@/features/timers/store'
+import { WeatherCard } from '@/features/weather/WeatherCard'
 import { formatRemaining } from '@/lib/time'
 import type { PageProps } from '@/surfaces/panel/pages'
 import { useNow } from '@/surfaces/shared/useNow'
@@ -176,4 +177,5 @@ export const CARD_VIEW: Record<HomeCardId, ComponentType<CardProps>> = {
   shelf: ShelfCard,
   music: MusicCard,
   colors: ColorsCard,
+  weather: WeatherCard,
 }

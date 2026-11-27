@@ -3,6 +3,7 @@ import { isAcked, useCalendar } from '@/features/calendar/store'
 import { useMusic } from '@/features/music/store'
 import { backend, type CalendarReminder, type MailMessage } from '@/lib/ipc'
 import { dndActive } from '@/lib/quietHours'
+import { rainAlertText } from '@/features/weather/weather'
 import { useSettings } from '@/stores/settings'
 import { showAlert, useAlerts } from './store'
 
@@ -50,6 +51,14 @@ export function useAlertSources() {
     const offMail = backend.onMailNew((list) => {
       if (!quiet() && list.length) showAlert(mailAlert(list))
     })
+    const offWeather = backend.onWeatherAlert((e) => {
+      if (quiet()) return
+      showAlert({
+        kind: 'weather',
+        ...rainAlertText(e, Date.now()),
+        danger: e.alert.severity === 'storm',
+      })
+    })
     const offHud = backend.onHud((e) => {
       if (quiet()) return
       if (e.kind === 'lowBattery') {
@@ -77,6 +86,7 @@ export function useAlertSources() {
       void offColor.then((f) => f())
       void offHud.then((f) => f())
       void offMail.then((f) => f())
+      void offWeather.then((f) => f())
     }
   }, [])
 }

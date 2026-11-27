@@ -18,6 +18,7 @@ pub mod session;
 pub mod spotify;
 pub mod tokens;
 pub mod updates;
+pub mod weather;
 
 use serde::{Deserialize, Serialize};
 

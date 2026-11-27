@@ -17,3 +17,4 @@ pub mod system_hud;
 pub mod taskbar;
 pub mod timers;
 pub mod volume;
+pub mod weather;

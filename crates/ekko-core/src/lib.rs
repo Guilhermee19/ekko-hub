@@ -23,6 +23,7 @@ pub mod spectrum;
 pub mod store;
 pub mod tasks;
 pub mod timers;
+pub mod weather;
 
 pub use appearance::AppearanceSettings;
 pub use general::{DndSettings, GeneralSettings, NotifySound};
@@ -30,3 +31,4 @@ pub use integrations::IntegrationsSettings;
 pub use notch::{NotchIdle, NotchOpen, NotchSettings, NotchSize};
 pub use settings::{DisplayMode, DockSide, Persona, Settings};
 pub use shortcuts::{ShortcutAction, ShortcutSettings};
+pub use weather::WeatherSettings;
