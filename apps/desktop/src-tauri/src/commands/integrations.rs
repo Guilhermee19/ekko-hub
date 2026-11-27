@@ -1,8 +1,9 @@
-//! Spotify + Google Calendar IPC. Every call blocks on the network or the keyring,
+//! Spotify, Google Calendar, Gmail and Outlook IPC. Every call blocks on the network or the keyring,
 //! so commands are `async` and hop to `spawn_blocking`. Tokens never leave Rust.
 
 use std::time::Duration;
 
+use ekko_integrations::mail::{gmail, outlook};
 use ekko_integrations::spotify::{
     self, Control, Repeat, SpotifyDevice, SpotifyPlayback, SpotifyQueue,
 };
@@ -12,8 +13,8 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager};
 
 use super::settings::broadcast;
-use crate::services::calendar;
 use crate::services::integrations::{Integrations, open_browser, session};
+use crate::services::{calendar, mail};
 use crate::state::AppState;
 
 /// How long we wait for the user to finish the login in the browser.
@@ -35,6 +36,8 @@ pub struct ProviderStatus {
 pub struct IntegrationStatus {
     spotify: ProviderStatus,
     google: ProviderStatus,
+    gmail: ProviderStatus,
+    outlook: ProviderStatus,
 }
 
 /// Runs blocking integration work off the async runtime; errors become UI strings.
@@ -55,17 +58,23 @@ fn status_of(app: &AppHandle, provider: Provider) -> Result<ProviderStatus, Erro
     let ids = app.state::<AppState>().settings().integrations;
     let (client_id, has_secret) = match provider {
         Provider::Spotify => (ids.spotify_client_id, false),
-        Provider::Google => (
+        Provider::Google | Provider::Gmail => (
             ids.google_client_id,
             store.store().get(GOOGLE_CLIENT_SECRET)?.is_some(),
         ),
+        Provider::Outlook => (ids.outlook_client_id, false),
+    };
+    let built_in = match provider {
+        Provider::Spotify => false,
+        Provider::Google | Provider::Gmail => google_calendar::builtin_client().is_some(),
+        Provider::Outlook => outlook::builtin_client().is_some(),
     };
     Ok(ProviderStatus {
         connected: saved.is_some(),
         account: saved.and_then(|t| t.account),
         client_id,
         has_secret,
-        built_in: provider == Provider::Google && google_calendar::builtin_client().is_some(),
+        built_in,
     })
 }
 
@@ -73,6 +82,8 @@ fn full_status(app: &AppHandle) -> Result<IntegrationStatus, Error> {
     Ok(IntegrationStatus {
         spotify: status_of(app, Provider::Spotify)?,
         google: status_of(app, Provider::Google)?,
+        gmail: status_of(app, Provider::Gmail)?,
+        outlook: status_of(app, Provider::Outlook)?,
     })
 }
 
@@ -92,14 +103,16 @@ pub async fn set_integration_client(
     let id = Some(client_id.trim().to_owned()).filter(|id| !id.is_empty());
     let settings = app.state::<AppState>().update(|s| match provider {
         Provider::Spotify => s.integrations.spotify_client_id = id,
-        Provider::Google => s.integrations.google_client_id = id,
+        // Gmail shares the Agenda's Google client.
+        Provider::Google | Provider::Gmail => s.integrations.google_client_id = id,
+        Provider::Outlook => s.integrations.outlook_client_id = id,
     });
     broadcast(&app, &settings);
     blocking(&app, move |app| {
         let secret = client_secret
             .map(|s| s.trim().to_owned())
             .filter(|s| !s.is_empty());
-        if let (Provider::Google, Some(secret)) = (provider, secret) {
+        if let (Provider::Google | Provider::Gmail, Some(secret)) = (provider, secret) {
             app.state::<Integrations>()
                 .store()
                 .set(GOOGLE_CLIENT_SECRET, &secret)?;
@@ -113,16 +126,20 @@ fn login(app: &AppHandle, provider: Provider) -> Result<IntegrationStatus, Error
     let s = session(app, provider)?;
     let port = match provider {
         Provider::Spotify => spotify::REDIRECT_PORT,
-        Provider::Google => 0,
+        Provider::Google | Provider::Gmail | Provider::Outlook => 0,
     };
     let mut tokens = s.authorize(port, LOGIN_TIMEOUT, &open_browser)?;
     tokens.account = match provider {
         Provider::Spotify => spotify::account(&s)?,
         Provider::Google => google_calendar::account(&s)?,
+        Provider::Gmail => gmail::account(&s)?,
+        Provider::Outlook => outlook::account(&s)?,
     };
     s.save(&tokens)?;
-    if provider == Provider::Google {
-        calendar::request_refresh(app);
+    match provider {
+        Provider::Google => calendar::request_refresh(app),
+        Provider::Gmail | Provider::Outlook => mail::request_refresh(app),
+        Provider::Spotify => {}
     }
     full_status(app)
 }
@@ -137,6 +154,16 @@ pub async fn connect_google(app: AppHandle) -> Result<IntegrationStatus, String>
     blocking(&app, |app| login(app, Provider::Google)).await
 }
 
+#[tauri::command]
+pub async fn connect_gmail(app: AppHandle) -> Result<IntegrationStatus, String> {
+    blocking(&app, |app| login(app, Provider::Gmail)).await
+}
+
+#[tauri::command]
+pub async fn connect_outlook(app: AppHandle) -> Result<IntegrationStatus, String> {
+    blocking(&app, |app| login(app, Provider::Outlook)).await
+}
+
 /// Forgets the tokens (the Google client secret stays, so reconnecting is one click).
 #[tauri::command]
 pub async fn disconnect_integration(
@@ -145,8 +172,10 @@ pub async fn disconnect_integration(
 ) -> Result<IntegrationStatus, String> {
     blocking(&app, move |app| {
         tokens::clear(app.state::<Integrations>().store(), provider)?;
-        if provider == Provider::Google {
-            calendar::publish(app, Vec::new());
+        match provider {
+            Provider::Google => calendar::publish(app, Vec::new()),
+            Provider::Gmail | Provider::Outlook => mail::forget(app, provider),
+            Provider::Spotify => {}
         }
         full_status(app)
     })

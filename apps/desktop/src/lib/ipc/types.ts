@@ -17,6 +17,7 @@ import type { CaptureBackend } from './captureTypes'
 import type { UpdateBackend } from './updateTypes'
 import type { ColorBackend } from './colorTypes'
 import type { HudBackend } from './hudTypes'
+import type { MailBackend } from './mailTypes'
 import type { SystemBackend } from './systemTypes'
 
 export * from './appearanceTypes'
@@ -31,6 +32,7 @@ export * from './captureTypes'
 export * from './updateTypes'
 export * from './colorTypes'
 export * from './hudTypes'
+export * from './mailTypes'
 
 export type DisplayMode = 'notch' | 'tray' | 'orb' | 'dock' | 'hub' | 'voice-only' | 'taskbar'
 export type Persona = 'ekko' | 'ultron' | 'tobby'
@@ -160,7 +162,8 @@ export interface Backend
     CaptureBackend,
     UpdateBackend,
     ColorBackend,
-    HudBackend {
+    HudBackend,
+    MailBackend {
   readonly kind: 'tauri' | 'mock'
   getSettings(): Promise<Settings>
   onSettingsChanged(cb: (s: Settings) => void): Promise<Unlisten>

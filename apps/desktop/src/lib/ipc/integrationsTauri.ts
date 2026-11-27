@@ -21,6 +21,8 @@ export const tauriIntegrations: IntegrationsBackend = {
     invoke('set_integration_client', { provider, clientId, clientSecret: clientSecret ?? null }),
   connectSpotify: () => invoke('connect_spotify'),
   connectGoogle: () => invoke('connect_google'),
+  connectGmail: () => invoke('connect_gmail'),
+  connectOutlook: () => invoke('connect_outlook'),
   disconnectIntegration: (provider) => invoke('disconnect_integration', { provider }),
   calendarUpcoming: () => invoke('calendar_upcoming'),
   calendarRange: (fromMs, toMs) => invoke('calendar_range', { fromMs, toMs }),

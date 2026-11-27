@@ -17,6 +17,8 @@ pub struct OAuthClient {
     pub scopes: &'static [&'static str],
     /// Provider-specific auth params (e.g. Google `access_type=offline`).
     pub extra: &'static [(&'static str, &'static str)],
+    /// Microsoft wants `scope` on the token requests too (code and refresh).
+    pub token_scope: bool,
 }
 
 #[derive(Deserialize)]
@@ -83,6 +85,9 @@ impl OAuthClient {
         if let Some(secret) = &self.client_secret {
             form.push(("client_secret".into(), secret.clone()));
         }
+        if self.token_scope {
+            form.push(("scope".into(), self.scopes.join(" ")));
+        }
         form
     }
 
@@ -128,6 +133,7 @@ mod tests {
             client_secret: secret.map(Into::into),
             scopes: &["a.read", "b.write"],
             extra: &[("access_type", "offline")],
+            token_scope: false,
         }
     }
 

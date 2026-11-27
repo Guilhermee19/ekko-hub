@@ -11,6 +11,7 @@ pub mod general;
 mod guard;
 pub mod hud;
 pub mod integrations;
+pub mod mail;
 pub mod media;
 pub mod notch;
 pub mod productivity;

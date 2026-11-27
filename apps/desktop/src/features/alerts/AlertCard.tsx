@@ -5,6 +5,8 @@ import {
   Bluetooth,
   CalendarDays,
   Check,
+  ExternalLink,
+  Mail,
   Timer,
   Video,
   X,
@@ -12,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useState, type MouseEvent } from 'react'
 import { useCalendar } from '@/features/calendar/store'
+import { openMail } from '@/features/mail/store'
 import { copyColor } from '@/features/colors/store'
 import { useMusic } from '@/features/music/store'
 import { backend } from '@/lib/ipc'
@@ -26,6 +29,7 @@ const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
   battery: BatteryLow,
   device: Bluetooth,
   notice: Bell,
+  email: Mail,
 }
 
 /**
@@ -148,6 +152,19 @@ function Actions({ alert }: { alert: Alert }) {
           )}
         >
           <Check className="size-3.5" aria-hidden /> Confirmar
+        </button>
+      )}
+      {alert.mail && (
+        <button
+          type="button"
+          title="Abrir o e-mail no navegador"
+          onClick={act(() => {
+            openMail(alert.mail!)
+            dismissAlert()
+          })}
+          className={cn(button, 'flex items-center gap-1 bg-accent-strong text-white')}
+        >
+          <ExternalLink className="size-3.5" aria-hidden /> Ver
         </button>
       )}
       {alert.meetLink && (

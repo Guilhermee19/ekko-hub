@@ -7,6 +7,7 @@ pub mod clipboard;
 pub mod colors;
 pub mod fullscreen;
 pub mod integrations;
+pub mod mail;
 pub mod media;
 pub mod productivity;
 pub mod shelf;

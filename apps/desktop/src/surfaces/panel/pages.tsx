@@ -7,6 +7,7 @@ import { HabitsPage } from '@/features/habits/HabitsPage'
 import { MusicPage } from '@/features/music/MusicPage'
 import { ClipboardPage } from '@/features/clipboard/ClipboardPage'
 import { ColorsPage } from '@/features/colors/ColorsPage'
+import { MailPage } from '@/features/mail/MailPage'
 import { RoutinesPage } from '@/features/routines/RoutinesPage'
 import { MyPcPage } from '@/features/mypc/MyPcPage'
 import { MemoryPage } from '@/features/memory/MemoryPage'
@@ -28,6 +29,7 @@ export const PAGES: Record<PageId, ComponentType<PageProps>> = {
   tasks: TasksPage,
   timers: TimersPage,
   agenda: AgendaPage,
+  mail: MailPage,
   habits: HabitsPage,
   music: MusicPage,
   clipboard: ClipboardPage,
