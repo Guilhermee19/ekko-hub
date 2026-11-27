@@ -24,10 +24,10 @@ Legenda: `[ ]` a fazer · `[~]` em andamento · `[x]` feito
 | F6 | Controle do PC | `[ ]` |
 | F7 | Integrações (MCP, memória, casa, câmeras…) | `[~]` Spotify e Google Agenda adiantados na F1.5 |
 | F8 | Avatar do Ekko | `[ ]` |
-| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.8.0 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
+| F9 | Polimento v1 (autostart, update, diagnóstico) | `[~]` instalador v0.9.0 (Windows e prévia macOS) pela branch `production`, com atualização em um clique |
 | V2 | Servidor + app no celular | `[ ]` |
 
-## Como está hoje (v0.8.0)
+## Como está hoje (v0.9.0)
 
 Gravado da galeria com dados de exemplo (`scripts/screenshots.mjs` e `scripts/animations.mjs`).
 
@@ -51,6 +51,7 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 
 | Versão | Data | O que tem |
 |---|---|---|
+| **v0.9.0** | 27/11/2026 | **E-mail** só leitura: Gmail e Outlook (Hotmail) em Conexões, página E-mail com não lidos e todos, e aviso no notch de e-mail novo, os dois com **Ver** abrindo a mensagem no navegador. **Clima** pela Open-Meteo: cidade em Configurações → Clima, card no Início com o tempo agora e as próximas horas, e aviso no notch de chuva forte ou tempestade com 1 a 6 h de antecedência. |
 | **v0.8.0** | 27/11/2026 | Modo de exibição **Barra de tarefas**: um widget dentro da barra do Windows com a música tocando (capa, nome e voltar/tocar/avançar) ou os olhos do Ekko; o clique abre o painel logo acima. O **print de área** já vai direto para a área de transferência, pronto para colar. |
 | **v0.7.0** | 23/11/2026 | Página **Cores**: grade, espectro e controles RGB, opacidade, variações, salvar, fixar (as fixadas não saem do histórico, que guarda 32) e colar código em HEX, rgb ou hsl. Botões de voltar, tocar/pausar e avançar na música do notch (opcional em Pílula e avisos). **Meu PC** mostra a temperatura do sistema e da placa de vídeo, sem precisar de administrador. |
 | **v0.6.2** | 23/11/2026 | Correção: o `.dmg` do macOS não saía no release da v0.6.1 (um teste da limpeza da pasta temporária falhava no Mac). |
@@ -62,24 +63,26 @@ Um release sai quando a branch `production` recebe um merge: o GitHub Actions co
 | **v0.1.3** | 19/11/2026 | Notch novo (preto, orelhas, luz embaixo e olhos do Ekko), prateleira de arquivos no notch (soltar e arrastar todos juntos, copiar ou mover), Copiados real (histórico do clipboard com fixar, buscar e pausar). Conversa, Rotinas, Memória e as configurações sem efeito saíram dos menus até ficarem prontas. |
 | **v0.1.0** | 16/11/2026 | Primeira prévia: notch e 6 modos de exibição, aparência personalizável, timers/Pomodoro, tarefas, lembretes, água e hábitos reais, música e volume do Windows, Spotify, Google Agenda, Home Assistant, iniciar com o Windows, esconder em tela cheia, não perturbe, atalhos configuráveis. O resto é protótipo marcado como **Em breve** no app. |
 
-## O que já funciona de verdade (v0.8.0)
+## O que já funciona de verdade (v0.9.0)
 
 | Área | Status no app | Detalhe |
 |---|---|---|
 | Notch, barra de tarefas, bandeja, bolha, dock, central, só voz | Real | Troca sem reiniciar, arrastar e posição salva, multi-monitor, esconde em tela cheia |
-| Configurações | Real | Separadas por assunto: Geral (nomes, inicialização), Notificações (som, não perturbe), Copiados, Aparência (persona, cor, escala, tom, movimento), Modo de exibição (modo, monitor, lado do dock), Notch (posição, abrir, tamanho, visual com contorno), Pílula e avisos (o que mostra, prioridade, tempo dos avisos), Menu do painel, Atalhos, Privacidade, Conexões |
-| Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover, largura de 1 a 4 colunas, todos da mesma altura): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Bateria, Copiados, Prateleira, Tocando agora |
+| Configurações | Real | Separadas por assunto: Geral (nomes, inicialização), Notificações (som, não perturbe), Copiados, Aparência (persona, cor, escala, tom, movimento), Modo de exibição (modo, monitor, lado do dock), Notch (posição, abrir, tamanho, visual com contorno), Pílula e avisos (o que mostra, prioridade, tempo dos avisos), Menu do painel, Clima (cidade e aviso de chuva), Atalhos, Privacidade, Conexões |
+| Início | Real | Cards escolhidos pelo usuário (adicionar, mover arrastando com prévia, remover, largura de 1 a 4 colunas, todos da mesma altura): Água, Tarefas, Avisos, Timers, Agenda, Meu PC, Bateria, Copiados, Prateleira, Tocando agora, Cores, Clima |
 | Timers e Pomodoro | Real | Rodam no backend, aparecem no notch, alarme em tela, adiar 5 min |
 | Tarefas, lembretes, água e hábitos | Real | Salvos em disco (`productivity.json`), lembretes disparam aviso + alarme, viram o dia à meia-noite |
 | Notificações | Real | Avisos de timers e lembretes; som e "não perturbe" |
 | Música | Real | Qualquer player do Windows, volume do Windows, arrastar a barra, barras no notch que seguem o som e botões de voltar, tocar/pausar e avançar ao lado delas (opcional em Pílula e avisos); com Spotify: fila, dispositivos, aleatório, repetir |
 | Agenda (Google) | Real | Calendário do mês com os eventos em cada dia e a lista do dia escolhido, avisos configuráveis (antes, na hora e repetidos até confirmar), evento no notch até confirmar, card do Início com a folha do dia; conecta com um clique quando o instalador leva o cliente OAuth do Ekko (senão, com o seu Client ID) |
-| Conexões | Real | Spotify, Google Agenda, Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
+| Conexões | Real | Spotify, Google Agenda, Gmail, Outlook (Hotmail), Home Assistant (luzes/tomadas), Claude Code (detecção); MCP, Tuya e câmeras marcados F7 |
 | Atalhos | Real | Chamar, paleta e print trocáveis (gravando a tecla ou com um clique em atalhos prontos), com aviso de conflito; os de voz/ditado/seleção ficam salvos e ativam quando a função chegar |
 | Paleta, boas-vindas, alarme, confirmação | Real | |
 | Meu PC | Real | CPU/RAM/GPU/disco/rede e temperatura ao vivo (zona térmica do sistema pelo contador do Windows e placa de vídeo pelo driver, sem admin), processos agrupados, finalizar tarefa (protegidos), verificação com nota de saúde (0 a 100), cartões por item e limpeza de temporários e lixeira, log de auditoria |
 | Copiados | Real | Histórico de textos, imagens (salvas em PNG) e arquivos, copiar de volta como estava, fixar, buscar, pausar, guardar os últimos 20, 50, 100 ou 200; senhas de gerenciadores ficam de fora |
 | Cores | Real | Conta-gotas na tela (Win+Shift+C) e página própria: grade, espectro (saturação × brilho com barra de matiz) e controles RGB, opacidade nos códigos copiados, variações, colar HEX/rgb/hsl, salvar e fixar; guarda 32 recentes mais as fixadas (`colors.json`) |
+| E-mail | Real | Gmail e Outlook (Hotmail), só leitura: página E-mail com não lidos e todos (os 20 mais recentes de cada conta, olhados a cada minuto) e aviso no notch de e-mail novo, sem promoções e respeitando o Não perturbe; **Ver** abre a mensagem no navegador |
+| Clima | Real | Cidade buscada pela Open-Meteo (grátis, sem chave), card no Início com o tempo agora, mínima/máxima e as próximas horas, e aviso no notch de chuva forte ou tempestade com antecedência configurável (1 a 6 h), um por período de chuva e respeitando o Não perturbe |
 | Print de tela | Real | Alt Gr + Print Screen congela o monitor, você escolhe a área (um clique pega a tela inteira); o PNG vai para Imagens\Ekko e para o notch, onde um clique copia a imagem e arrastar leva o arquivo; fechar ou esperar 7 s tira da prateleira |
 | Notch reage ao sistema | Real | Volume (inclusive pelas teclas), brilho da tela do notebook, Caps Lock, microfone mudo e fones conectados aparecem na pílula e somem sozinhos (tempo de 1 a 10 s em Pílula e avisos, que vale também para os avisos de texto); liga e desliga em Pílula e avisos |
 | Olhos do Ekko | Real | Cápsulas que piscam e olham em volta; ficam com sono após 3 min sem mexer no PC e dormem após 8 min; levam susto (acordar, Caps Lock, bateria fraca, timer tocando) e ficam animados (carregador, fone conectado, arquivos na prateleira) |
@@ -291,6 +294,9 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 - [ ] Spotify completo (OAuth: capa, fila, dispositivos, tocar em outro aparelho)
 - [ ] Google Calendar
 - [~] Google Agenda com um clique: o instalador leva o cliente OAuth do próprio Ekko (secrets `EKKO_GOOGLE_CLIENT_ID`/`_SECRET` no GitHub) e mostra só o botão Conectar; falta passar pela verificação do Google para sair do modo de teste
+- [~] E-mail, só leitura ([`specs/email-integration.md`](specs/email-integration.md)): Gmail (`gmail.readonly`, mesmo cliente Google da Agenda) e Outlook/Hotmail (Microsoft Graph, `Mail.Read`); página E-mail com não lidos/todos e aviso no notch de e-mail novo (promoções ficam de fora), os dois com **Ver** abrindo no navegador. Falta filtro de importantes, apagar e etiquetar
+- [ ] Confirmar no app: login do Outlook com uma conta Hotmail real e o redirect `http://127.0.0.1/callback` no Entra
+- [~] Clima pela Open-Meteo (grátis, sem chave): cidade em Configurações → Clima, card Clima no Início (agora, mínima/máxima, próximas horas) e aviso no notch de chuva forte ou tempestade com 1 a 6 h de antecedência, uma vez por período de chuva. Falta a linha do clima na pílula e os alertas oficiais do INMET/Defesa Civil
 - [ ] Mandar tarefa pesada para o Claude Code
 - [ ] **Cliente MCP**: plugar qualquer servidor MCP como tools
 - [ ] Memória de longo prazo (notas markdown + busca vetorial, portada do Jarvis)

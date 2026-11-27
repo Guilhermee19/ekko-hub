@@ -10,6 +10,8 @@ import { tauriCapture } from './captureTauri'
 import { tauriUpdate } from './updateTauri'
 import { tauriColor } from './colorTauri'
 import { tauriHud } from './hudTauri'
+import { tauriMail } from './mailTauri'
+import { tauriWeather } from './weatherTauri'
 import { tauriSystem } from './systemTauri'
 import type { Backend, Settings } from './types'
 import type { TimersSnapshot } from './types'
@@ -44,6 +46,8 @@ export const tauriBackend: Backend = {
   ...tauriUpdate,
   ...tauriColor,
   ...tauriHud,
+  ...tauriMail,
+  ...tauriWeather,
   getSettings: () => invoke<Settings>('get_settings'),
   onSettingsChanged: (cb) => listen<Settings>(EVENTS.settingsChanged, (e) => cb(e.payload)),
   setDisplayMode: (mode) => invoke('set_display_mode', { mode }),

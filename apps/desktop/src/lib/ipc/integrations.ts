@@ -1,19 +1,20 @@
-// Mirrors crates/ekko-integrations + commands/integrations.rs (Spotify, Google Calendar).
+// Mirrors crates/ekko-integrations + commands/integrations.rs (Spotify, Google Calendar,
+// Gmail and Outlook connections; the e-mail itself is in mailTypes.ts).
 import type { ConnectorsBackend } from './connectors'
 
 export type * from './connectors'
 
-export type IntegrationProvider = 'spotify' | 'google'
+export type IntegrationProvider = 'spotify' | 'google' | 'gmail' | 'outlook'
 
 /** Redirect URI the user must register in the Spotify app (fixed port). */
 export const SPOTIFY_REDIRECT_URI = 'http://127.0.0.1:8890/callback'
 
 export interface ProviderStatus {
   connected: boolean
-  /** Spotify display name or Google e-mail. */
+  /** Spotify display name or the account's e-mail. */
   account: string | null
   clientId: string | null
-  /** Google only: client secret saved in the Credential Manager. */
+  /** Google / Gmail: client secret saved in the Credential Manager. */
   hasSecret: boolean
   /** This build ships its own client: connecting is one click, no setup. */
   builtIn: boolean
@@ -22,6 +23,9 @@ export interface ProviderStatus {
 export interface IntegrationStatus {
   spotify: ProviderStatus
   google: ProviderStatus
+  /** Shares the Google client (ID and secret) with the Agenda. */
+  gmail: ProviderStatus
+  outlook: ProviderStatus
 }
 
 export interface CalendarEvent {
@@ -99,6 +103,8 @@ export interface IntegrationsBackend extends ConnectorsBackend {
   /** Opens the browser and resolves after the login (or rejects after ~3 min). */
   connectSpotify(): Promise<IntegrationStatus>
   connectGoogle(): Promise<IntegrationStatus>
+  connectGmail(): Promise<IntegrationStatus>
+  connectOutlook(): Promise<IntegrationStatus>
   disconnectIntegration(provider: IntegrationProvider): Promise<IntegrationStatus>
   calendarUpcoming(): Promise<CalendarEvent[]>
   /** Events between two instants (epoch ms), past ones included: the month view. */

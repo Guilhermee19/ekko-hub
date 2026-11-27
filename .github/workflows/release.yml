@@ -82,15 +82,19 @@ jobs:
       - name: Gerar o instalador
         if: steps.version.outputs.publish == 'true'
         shell: pwsh
-        # Ekko's own Google client, so people connect the Agenda with one click
-        # (Settings → Secrets and variables → Actions). Without them the build still
-        # works, but each person has to bring their own Client ID.
+        # Ekko's own Google client and Microsoft app, so people connect the Agenda, Gmail
+        # and Outlook with one click (Settings → Secrets and variables → Actions).
+        # Without them the build still works, but each person brings their own Client ID.
         env:
           EKKO_GOOGLE_CLIENT_ID: ${{ secrets.EKKO_GOOGLE_CLIENT_ID }}
           EKKO_GOOGLE_CLIENT_SECRET: ${{ secrets.EKKO_GOOGLE_CLIENT_SECRET }}
+          EKKO_MS_CLIENT_ID: ${{ secrets.EKKO_MS_CLIENT_ID }}
         run: |
           if (-not $env:EKKO_GOOGLE_CLIENT_ID -or -not $env:EKKO_GOOGLE_CLIENT_SECRET) {
-            Write-Output "::warning::Sem EKKO_GOOGLE_CLIENT_ID/SECRET: o Google Agenda sai sem o login de um clique."
+            Write-Output "::warning::Sem EKKO_GOOGLE_CLIENT_ID/SECRET: o Google Agenda e o Gmail saem sem o login de um clique."
+          }
+          if (-not $env:EKKO_MS_CLIENT_ID) {
+            Write-Output "::warning::Sem EKKO_MS_CLIENT_ID: o Outlook sai sem o login de um clique."
           }
           npm run tauri build
 
@@ -139,6 +143,7 @@ jobs:
         env:
           EKKO_GOOGLE_CLIENT_ID: ${{ secrets.EKKO_GOOGLE_CLIENT_ID }}
           EKKO_GOOGLE_CLIENT_SECRET: ${{ secrets.EKKO_GOOGLE_CLIENT_SECRET }}
+          EKKO_MS_CLIENT_ID: ${{ secrets.EKKO_MS_CLIENT_ID }}
         run: npm run tauri build -- --target universal-apple-darwin
 
       - name: Anexar o .dmg ao release

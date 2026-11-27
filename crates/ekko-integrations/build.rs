@@ -4,7 +4,11 @@
 
 use std::path::Path;
 
-const KEYS: [&str; 2] = ["EKKO_GOOGLE_CLIENT_ID", "EKKO_GOOGLE_CLIENT_SECRET"];
+const KEYS: [&str; 3] = [
+    "EKKO_GOOGLE_CLIENT_ID",
+    "EKKO_GOOGLE_CLIENT_SECRET",
+    "EKKO_MS_CLIENT_ID",
+];
 
 fn main() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.env");

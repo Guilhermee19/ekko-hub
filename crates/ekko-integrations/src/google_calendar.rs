@@ -42,6 +42,7 @@ pub fn oauth(client_id: &str, client_secret: Option<String>) -> OAuthClient {
         scopes: SCOPES,
         // offline + consent so Google always hands out a refresh token.
         extra: &[("access_type", "offline"), ("prompt", "consent")],
+        token_scope: false,
     }
 }
 

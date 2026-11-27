@@ -17,11 +17,13 @@ import { NotchPage } from './sections/NotchPage'
 import { NotificationsSettingsPage } from './sections/NotificationsSettingsPage'
 import { PillPage } from './sections/PillPage'
 import { SeasonsPage } from './sections/SeasonsPage'
+import { WeatherSettingsPage } from './sections/WeatherSettingsPage'
 
 export type SectionId =
   | 'general'
   | 'notifications'
   | 'clipboard'
+  | 'weather'
   | 'appearance'
   | 'display'
   | 'notch'
@@ -42,6 +44,7 @@ export const SECTIONS: Record<SectionId, ComponentType> = {
   general: GeneralPage,
   notifications: NotificationsSettingsPage,
   clipboard: ClipboardSettingsPage,
+  weather: WeatherSettingsPage,
   appearance: AppearancePage,
   display: DisplayPage,
   notch: NotchPage,

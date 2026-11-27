@@ -1,13 +1,22 @@
 import { create } from 'zustand'
 import { snoozeMs } from '@/features/notifications/AlarmOverlay'
-import { backend, type PickedColor } from '@/lib/ipc'
+import { backend, type MailMessage, type PickedColor } from '@/lib/ipc'
 
 // Alerts the notch grows into for a few seconds (a new song, a timer going off, a
 // meeting soon, low battery…), one at a time. Only the notch window renders them; it
 // flips `live` on, so other windows keep their old text toast instead.
 
 export type AlertKind =
-  'music' | 'timer' | 'reminder' | 'event' | 'battery' | 'device' | 'notice' | 'color'
+  | 'music'
+  | 'timer'
+  | 'reminder'
+  | 'event'
+  | 'battery'
+  | 'device'
+  | 'notice'
+  | 'color'
+  | 'email'
+  | 'weather'
 
 export interface Alert {
   id: string
@@ -25,6 +34,10 @@ export interface Alert {
   meetLink?: string
   /** Calendar occurrence the "Confirmar" button marks as seen. */
   event?: { id: string; startMs: number }
+  /** A new e-mail: "Ver" opens it in the browser. */
+  mail?: MailMessage
+  /** Red instead of the accent (a storm coming). */
+  danger?: boolean
   /** A color just picked with the eyedropper (copy buttons). */
   color?: PickedColor
   /** How long it stays when nobody hovers it. */
@@ -45,6 +58,10 @@ const DEFAULT_MS: Record<AlertKind, number> = {
   notice: 6000,
   // Time to choose a format and copy it.
   color: 12000,
+  // Time to read the sender and the subject and reach "Ver".
+  email: 10000,
+  // Rain coming: worth a read.
+  weather: 15000,
 }
 const MAX_QUEUE = 4
 

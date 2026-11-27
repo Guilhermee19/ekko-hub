@@ -9,6 +9,8 @@ import { mockCapture } from './captureMock'
 import { mockUpdate } from './updateMock'
 import { mockColor } from './colorMock'
 import { mockHud } from './hudMock'
+import { mockMail } from './mailMock'
+import { mockWeather } from './weatherMock'
 import { mockSystem } from './systemMock'
 import { mockTimers } from './mockTimers'
 import {
@@ -165,6 +167,8 @@ export const mockBackend: Backend = {
   ...mockHud({ on }),
   ...mockUpdate(),
   ...mockColor({ on, fire }),
+  ...mockMail,
+  ...mockWeather({ on, fire, weather: () => settings.weather, patch }),
   ...mockCapture({
     on,
     fire,

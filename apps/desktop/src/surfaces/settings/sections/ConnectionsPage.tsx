@@ -5,6 +5,7 @@ import { ConnectionsShell, SoonConnectionCard } from './ConnectionsCard'
 import { HomeAssistantCard } from './ConnectionsHomeAssistant'
 import { ConnectionsMcp } from './ConnectionsMcp'
 import { OAuthConnectionCard } from './ConnectionsOAuth'
+import { GMAIL_GUIDE, OUTLOOK_GUIDE } from './mailGuides'
 import { GOOGLE_GUIDE, SPOTIFY_GUIDE } from './oauthGuides'
 import { PageTitle } from './systemUi'
 
@@ -16,6 +17,8 @@ export function ConnectionsPage() {
       <div className="grid grid-flow-dense grid-cols-2 gap-3">
         <OAuthConnectionCard guide={SPOTIFY_GUIDE} />
         <OAuthConnectionCard guide={GOOGLE_GUIDE} />
+        <OAuthConnectionCard guide={GMAIL_GUIDE} />
+        <OAuthConnectionCard guide={OUTLOOK_GUIDE} />
         <ConnectionsClaudeCard />
         <HomeAssistantCard />
         <SoonConnectionCard

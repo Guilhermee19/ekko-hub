@@ -4,6 +4,7 @@ import {
   Brain,
   Cable,
   Clipboard,
+  CloudSun,
   Info,
   Keyboard,
   ListOrdered,
@@ -34,6 +35,7 @@ const ALL_GROUPS: { title: string; items: { id: SectionId; label: string; icon: 
         { id: 'general', label: 'Geral', icon: Settings2 },
         { id: 'notifications', label: 'Notificações', icon: Bell },
         { id: 'clipboard', label: 'Copiados', icon: Clipboard },
+        { id: 'weather', label: 'Clima', icon: CloudSun },
       ],
     },
     {

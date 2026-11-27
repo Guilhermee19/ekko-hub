@@ -29,6 +29,10 @@ export const PAGE_AVAILABILITY: Record<PageId, Availability> = {
     note: 'Controles e volume do Windows funcionam com qualquer player; conecte o Spotify em Configurações → Conexões para fila, dispositivos, aleatório e repetir.',
   },
   agenda: { status: 'live', note: 'Conecte o Google Agenda em Configurações → Conexões.' },
+  mail: {
+    status: 'live',
+    note: 'Só leitura: o Ekko mostra a caixa de entrada e “Ver” abre o e-mail no navegador. Conecte o Gmail ou o Outlook em Configurações → Conexões.',
+  },
   clipboard: {
     status: 'live',
     note: 'Guarda textos, imagens e arquivos que você copiar. Senhas de gerenciadores ficam de fora. Os atalhos dos snippets ainda não expandem sozinhos.',
@@ -58,6 +62,7 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
   general: { status: 'live', note: 'Idioma e tema claro ainda não estão disponíveis.' },
   notifications: { status: 'live' },
   clipboard: { status: 'live' },
+  weather: { status: 'live' },
   appearance: { status: 'live' },
   display: { status: 'live' },
   notch: { status: 'live' },

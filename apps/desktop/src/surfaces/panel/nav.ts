@@ -8,6 +8,7 @@ import {
   Home,
   Palette,
   ListChecks,
+  Mail,
   MessageSquare,
   Music2,
   Timer,
@@ -22,6 +23,7 @@ export type PageId =
   | 'tasks'
   | 'timers'
   | 'agenda'
+  | 'mail'
   | 'habits'
   | 'music'
   | 'clipboard'
@@ -43,6 +45,7 @@ export const NAV: NavItem[] = [
   { id: 'tasks', label: 'Tarefas', icon: ListChecks },
   { id: 'timers', label: 'Timers', icon: Timer },
   { id: 'agenda', label: 'Agenda', icon: CalendarDays },
+  { id: 'mail', label: 'E-mail', icon: Mail },
   { id: 'habits', label: 'Hábitos', icon: Droplets },
   { id: 'music', label: 'Música', icon: Music2 },
   { id: 'clipboard', label: 'Copiados', icon: Clipboard },

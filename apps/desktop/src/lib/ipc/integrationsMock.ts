@@ -10,6 +10,7 @@ import type {
   SpotifyTrack,
 } from './integrations'
 import { mockConnectors } from './connectorsMock'
+import { mockMailAccount } from './mailMock'
 
 // Gallery stand-in: fake login after a short delay, agenda with events around "now".
 
@@ -17,10 +18,14 @@ const status: IntegrationStatus = {
   spotify: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
   // Like a published build: Google connects with one click.
   google: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: true },
+  gmail: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: true },
+  outlook: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: true },
 }
 const ACCOUNTS: Record<IntegrationProvider, string> = {
   spotify: 'Ana',
   google: 'guilherme@gmail.com',
+  gmail: 'guilherme@gmail.com',
+  outlook: 'guilherme@hotmail.com',
 }
 
 const calendarListeners = new Set<(events: CalendarEvent[]) => void>()
@@ -141,6 +146,7 @@ async function connect(provider: IntegrationProvider): Promise<IntegrationStatus
   await wait(1200)
   status[provider] = { ...status[provider], connected: true, account: ACCOUNTS[provider] }
   if (provider === 'google') calendarListeners.forEach((cb) => cb(mockEvents()))
+  if (provider === 'gmail' || provider === 'outlook') mockMailAccount(provider, ACCOUNTS[provider])
   return snapshot()
 }
 
@@ -153,15 +159,18 @@ export const mockIntegrations: IntegrationsBackend = {
     status[provider] = {
       ...status[provider],
       clientId: id,
-      hasSecret: provider === 'google' && hasSecret,
+      hasSecret: (provider === 'google' || provider === 'gmail') && hasSecret,
     }
     return Promise.resolve(snapshot())
   },
   connectSpotify: () => connect('spotify'),
   connectGoogle: () => connect('google'),
+  connectGmail: () => connect('gmail'),
+  connectOutlook: () => connect('outlook'),
   disconnectIntegration: (provider) => {
     status[provider] = { ...status[provider], connected: false, account: null }
     if (provider === 'google') calendarListeners.forEach((cb) => cb([]))
+    if (provider === 'gmail' || provider === 'outlook') mockMailAccount(provider, null)
     return Promise.resolve(snapshot())
   },
   calendarUpcoming: () => Promise.resolve(status.google.connected ? mockEvents() : []),

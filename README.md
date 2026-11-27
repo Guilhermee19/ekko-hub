@@ -4,11 +4,11 @@
 
 ![O notch do Ekko abrindo ao passar o mouse](docs/screenshots/anim-notch.webp)
 
-> **Versão 0.8.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.9.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.8.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.9.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -16,7 +16,7 @@
 
 ### macOS (prévia)
 
-Baixe o `Ekko_0.8.0_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
+Baixe o `Ekko_0.9.0_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
 
 No Mac funcionam o notch, painel, agenda, timers, prateleira e integrações. Os recursos ligados ao Windows (música do sistema, volume, bateria, print de área, limpeza do PC, arrastar da prateleira) ainda não existem lá.
 
@@ -41,12 +41,14 @@ A pílula no topo muda conforme o que está acontecendo. Você escolhe o que ela
 - **Música:** mostra o que toca em qualquer player do Windows (o app do Spotify, o YouTube no navegador e outros), com tocar/pausar, próxima, anterior e o volume do Windows. As barrinhas no notch seguem o som de verdade, e ao lado delas ficam botões pequenos para voltar, pausar e avançar sem abrir o painel (dá para tirar em *Configurações → Pílula e avisos*).
 - **Do seu jeito:** escolha os cards do Início (água, tarefas, agenda, Meu PC, copiados…) e arraste para mudar a ordem; escolha também quais páginas aparecem no menu.
 - **Agenda:** conectado ao Google Agenda, avisa antes do compromisso e na hora. Um **Confirmar** tira o evento do notch; sem confirmação, ele avisa de novo e fica no notch com um ícone de atraso. Quanto tempo antes, quantas vezes repetir e a cada quanto tempo ficam em *Configurações → Notificações*.
+- **E-mail:** conectado ao Gmail ou ao Outlook (Hotmail), mostra a caixa de entrada na página *E-mail* e avisa no notch quando chega e-mail novo. O botão **Ver** abre a mensagem no navegador. É só leitura: o Ekko não apaga nem envia nada, e promoções não geram aviso.
+- **Clima:** escolha a cidade em *Configurações → Clima* e adicione o card no Início: o tempo agora, a mínima e a máxima e as próximas horas. Quando vem chuva forte ou tempestade, o notch avisa com antecedência (de 1 a 6 h). A previsão é da Open-Meteo, grátis e sem cadastro.
 - **Tarefas, lembretes, água e hábitos:** ficam salvos no seu PC, e os lembretes tocam na hora certa.
 - **Some quando precisa:** em jogos e vídeos em tela cheia, o Ekko se esconde sozinho.
 
 ### Avisos no próprio notch
 
-Em vez de janelas que pulam na tela, o notch cresce por alguns segundos e mostra o detalhe: a música que começou (com a capa e o progresso), o timer que acabou, a reunião que vai começar (com o botão **Entrar**), a bateria fraca ou o fone que conectou. Passe o mouse para ele esperar; clique para abrir o painel.
+Em vez de janelas que pulam na tela, o notch cresce por alguns segundos e mostra o detalhe: a música que começou (com a capa e o progresso), o timer que acabou, a reunião que vai começar (com o botão **Entrar**), o e-mail que chegou (com **Ver**), a chuva forte chegando, a bateria fraca ou o fone que conectou. Passe o mouse para ele esperar; clique para abrir o painel.
 
 ![Avisos no notch: música, timer e aviso](docs/screenshots/anim-alerts.webp)
 

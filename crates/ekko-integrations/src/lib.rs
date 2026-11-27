@@ -1,4 +1,4 @@
-//! Third-party integrations (Spotify, Google Calendar) over OAuth 2 + PKCE, plus app
+//! Third-party integrations (Spotify, Google Calendar, Gmail, Outlook) over OAuth 2 + PKCE, plus app
 //! updates from GitHub Releases.
 //!
 //! Everything here is blocking (`reqwest::blocking`): callers on an async runtime must
@@ -10,6 +10,7 @@ pub mod google_calendar;
 pub mod home_assistant;
 pub mod http;
 pub mod loopback;
+pub mod mail;
 pub mod oauth;
 pub mod pkce;
 pub mod reminders;
@@ -17,10 +18,12 @@ pub mod session;
 pub mod spotify;
 pub mod tokens;
 pub mod updates;
+pub mod weather;
 
 use serde::{Deserialize, Serialize};
 
 pub use google_calendar::CalendarEvent;
+pub use mail::MailMessage;
 pub use session::Session;
 pub use tokens::{KeyringStore, MemoryStore, SecretStore, Tokens};
 
@@ -29,6 +32,8 @@ pub use tokens::{KeyringStore, MemoryStore, SecretStore, Tokens};
 pub enum Provider {
     Spotify,
     Google,
+    Gmail,
+    Outlook,
 }
 
 impl Provider {
@@ -37,6 +42,8 @@ impl Provider {
         match self {
             Provider::Spotify => "spotify",
             Provider::Google => "google",
+            Provider::Gmail => "gmail",
+            Provider::Outlook => "outlook",
         }
     }
 
@@ -44,6 +51,8 @@ impl Provider {
         match self {
             Provider::Spotify => "Spotify",
             Provider::Google => "Google",
+            Provider::Gmail => "Gmail",
+            Provider::Outlook => "Outlook",
         }
     }
 }

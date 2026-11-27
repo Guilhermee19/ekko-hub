@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { isAcked, useCalendar } from '@/features/calendar/store'
 import { useMusic } from '@/features/music/store'
-import { backend, type CalendarReminder } from '@/lib/ipc'
+import { backend, type CalendarReminder, type MailMessage } from '@/lib/ipc'
 import { dndActive } from '@/lib/quietHours'
+import { rainAlertText } from '@/features/weather/weather'
 import { useSettings } from '@/stores/settings'
 import { showAlert, useAlerts } from './store'
 
@@ -47,6 +48,17 @@ export function useAlertSources() {
         color: c,
       }),
     )
+    const offMail = backend.onMailNew((list) => {
+      if (!quiet() && list.length) showAlert(mailAlert(list))
+    })
+    const offWeather = backend.onWeatherAlert((e) => {
+      if (quiet()) return
+      showAlert({
+        kind: 'weather',
+        ...rainAlertText(e, Date.now()),
+        danger: e.alert.severity === 'storm',
+      })
+    })
     const offHud = backend.onHud((e) => {
       if (quiet()) return
       if (e.kind === 'lowBattery') {
@@ -73,6 +85,8 @@ export function useAlertSources() {
       void offAlarm.then((f) => f())
       void offColor.then((f) => f())
       void offHud.then((f) => f())
+      void offMail.then((f) => f())
+      void offWeather.then((f) => f())
     }
   }, [])
 }
@@ -118,6 +132,20 @@ function watchCalendar() {
       event: { id: e.id, startMs: e.startMs },
     })
   })
+}
+
+/** One alert for a burst: the newest message, with how many came along. */
+export function mailAlert(list: MailMessage[]) {
+  const [m] = list
+  const service = m.provider === 'gmail' ? 'Gmail' : 'Outlook'
+  return {
+    kind: 'email' as const,
+    label:
+      list.length > 1 ? `${service} · ${list.length} e-mails novos` : `${service} · e-mail novo`,
+    title: m.subject,
+    detail: [m.fromName, m.snippet].filter(Boolean).join(' · '),
+    mail: m,
+  }
 }
 
 function reminderLabel(r: CalendarReminder): string {

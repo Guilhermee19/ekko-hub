@@ -4,7 +4,10 @@ import {
   Bell,
   Bluetooth,
   CalendarDays,
+  CloudLightning,
   Check,
+  ExternalLink,
+  Mail,
   Timer,
   Video,
   X,
@@ -12,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useState, type MouseEvent } from 'react'
 import { useCalendar } from '@/features/calendar/store'
+import { openMail } from '@/features/mail/store'
 import { copyColor } from '@/features/colors/store'
 import { useMusic } from '@/features/music/store'
 import { backend } from '@/lib/ipc'
@@ -26,6 +30,8 @@ const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
   battery: BatteryLow,
   device: Bluetooth,
   notice: Bell,
+  email: Mail,
+  weather: CloudLightning,
 }
 
 /**
@@ -33,7 +39,7 @@ const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
  * title big and the detail. Hover keeps it; a click on it opens the panel.
  */
 export function AlertCard({ alert, onOpen }: { alert: Alert; onOpen: () => void }) {
-  const warn = alert.kind === 'battery'
+  const warn = alert.kind === 'battery' || alert.danger
   return (
     <div
       onPointerEnter={() => holdAlert(true)}
@@ -86,7 +92,7 @@ function Art({ alert }: { alert: Alert }) {
     )
   }
   const Icon = ICON[alert.kind]
-  const low = alert.kind === 'battery'
+  const low = alert.kind === 'battery' || alert.danger
   return (
     <span
       className={cn(
@@ -148,6 +154,19 @@ function Actions({ alert }: { alert: Alert }) {
           )}
         >
           <Check className="size-3.5" aria-hidden /> Confirmar
+        </button>
+      )}
+      {alert.mail && (
+        <button
+          type="button"
+          title="Abrir o e-mail no navegador"
+          onClick={act(() => {
+            openMail(alert.mail!)
+            dismissAlert()
+          })}
+          className={cn(button, 'flex items-center gap-1 bg-accent-strong text-white')}
+        >
+          <ExternalLink className="size-3.5" aria-hidden /> Ver
         </button>
       )}
       {alert.meetLink && (
