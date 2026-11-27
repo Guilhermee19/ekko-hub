@@ -4,11 +4,11 @@
 
 ![O notch do Ekko abrindo ao passar o mouse](docs/screenshots/anim-notch.webp)
 
-> **Versão 0.7.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
+> **Versão 0.8.0, prévia.** O que já funciona está listado abaixo. As telas que ainda não estão prontas ficam fora dos menus até a fase delas chegar.
 
 ## Baixar
 
-1. Baixe o instalador `Ekko_0.7.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
+1. Baixe o instalador `Ekko_0.8.0_x64-setup.exe` em **[Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest)**.
 2. Rode o instalador. O app ainda não tem assinatura digital, então o Windows SmartScreen pode mostrar um aviso. Clique em **Mais informações → Executar assim mesmo**.
 3. Na primeira vez, as boas-vindas pedem seu nome e o jeito que você quer ver o Ekko.
 
@@ -16,7 +16,7 @@
 
 ### macOS (prévia)
 
-Baixe o `Ekko_0.7.0_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
+Baixe o `Ekko_0.8.0_universal.dmg` na mesma página de [Releases](https://github.com/Guilhermee19/ekko-hub/releases/latest) (Apple Silicon e Intel, macOS 11 ou mais novo) e arraste o Ekko para Aplicativos. O app não é notarizado pela Apple, então na primeira vez o macOS bloqueia: abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir mesmo assim**.
 
 No Mac funcionam o notch, painel, agenda, timers, prateleira e integrações. Os recursos ligados ao Windows (música do sistema, volume, bateria, print de área, limpeza do PC, arrastar da prateleira) ainda não existem lá.
 
