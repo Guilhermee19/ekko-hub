@@ -4,6 +4,7 @@ import {
   Bell,
   Bluetooth,
   CalendarDays,
+  CloudLightning,
   Check,
   ExternalLink,
   Mail,
@@ -30,6 +31,7 @@ const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
   device: Bluetooth,
   notice: Bell,
   email: Mail,
+  weather: CloudLightning,
 }
 
 /**
@@ -37,7 +39,7 @@ const ICON: Record<Exclude<AlertKind, 'music' | 'color'>, LucideIcon> = {
  * title big and the detail. Hover keeps it; a click on it opens the panel.
  */
 export function AlertCard({ alert, onOpen }: { alert: Alert; onOpen: () => void }) {
-  const warn = alert.kind === 'battery'
+  const warn = alert.kind === 'battery' || alert.danger
   return (
     <div
       onPointerEnter={() => holdAlert(true)}
@@ -90,7 +92,7 @@ function Art({ alert }: { alert: Alert }) {
     )
   }
   const Icon = ICON[alert.kind]
-  const low = alert.kind === 'battery'
+  const low = alert.kind === 'battery' || alert.danger
   return (
     <span
       className={cn(

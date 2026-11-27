@@ -62,6 +62,7 @@ export const SECTION_AVAILABILITY: Record<SectionId, Availability> = {
   general: { status: 'live', note: 'Idioma e tema claro ainda não estão disponíveis.' },
   notifications: { status: 'live' },
   clipboard: { status: 'live' },
+  weather: { status: 'live' },
   appearance: { status: 'live' },
   display: { status: 'live' },
   notch: { status: 'live' },

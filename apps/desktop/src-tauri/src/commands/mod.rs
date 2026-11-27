@@ -21,3 +21,4 @@ pub mod system;
 pub mod timers;
 pub mod updates;
 pub mod volume;
+pub mod weather;
