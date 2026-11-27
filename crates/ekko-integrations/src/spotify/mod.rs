@@ -26,6 +26,7 @@ pub fn oauth(client_id: &str) -> OAuthClient {
         client_secret: None,
         scopes: SCOPES,
         extra: &[],
+        token_scope: false,
     }
 }
 

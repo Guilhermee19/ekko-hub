@@ -142,6 +142,7 @@ pub(crate) mod tests {
             client_secret: None,
             scopes: &[],
             extra: &[],
+            token_scope: false,
         };
         let s = Session::new(provider, oauth, store, http.clone());
         let t = Tokens {

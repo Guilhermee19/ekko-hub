@@ -291,6 +291,8 @@ Toda tool aqui tem nível de risco. As ações `Confirm` e `Dangerous` passam pe
 - [ ] Spotify completo (OAuth: capa, fila, dispositivos, tocar em outro aparelho)
 - [ ] Google Calendar
 - [~] Google Agenda com um clique: o instalador leva o cliente OAuth do próprio Ekko (secrets `EKKO_GOOGLE_CLIENT_ID`/`_SECRET` no GitHub) e mostra só o botão Conectar; falta passar pela verificação do Google para sair do modo de teste
+- [~] E-mail, só leitura ([`specs/email-integration.md`](specs/email-integration.md)): Gmail (`gmail.readonly`, mesmo cliente Google da Agenda) e Outlook/Hotmail (Microsoft Graph, `Mail.Read`); página E-mail com não lidos/todos e aviso no notch de e-mail novo (promoções ficam de fora), os dois com **Ver** abrindo no navegador. Falta filtro de importantes, apagar e etiquetar
+- [ ] Confirmar no app: login do Outlook com uma conta Hotmail real e o redirect `http://127.0.0.1/callback` no Entra
 - [ ] Mandar tarefa pesada para o Claude Code
 - [ ] **Cliente MCP**: plugar qualquer servidor MCP como tools
 - [ ] Memória de longo prazo (notas markdown + busca vetorial, portada do Jarvis)

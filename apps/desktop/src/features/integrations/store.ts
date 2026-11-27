@@ -1,12 +1,18 @@
 import { create } from 'zustand'
 import { backend, type IntegrationProvider, type IntegrationStatus } from '@/lib/ipc'
 
-// Connection status for Spotify / Google, shared by Settings, Agenda and Música.
+// Connection status for Spotify / Google / Gmail / Outlook, shared by Settings, Agenda,
+// Música and E-mail.
 // Tokens never reach the UI: only "connected" and the account name.
 
-const EMPTY: IntegrationStatus = {
-  spotify: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
-  google: { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false },
+const OFF = { connected: false, account: null, clientId: null, hasSecret: false, builtIn: false }
+const EMPTY: IntegrationStatus = { spotify: OFF, google: OFF, gmail: OFF, outlook: OFF }
+
+const CONNECT: Record<IntegrationProvider, () => Promise<IntegrationStatus>> = {
+  spotify: () => backend.connectSpotify(),
+  google: () => backend.connectGoogle(),
+  gmail: () => backend.connectGmail(),
+  outlook: () => backend.connectOutlook(),
 }
 
 interface IntegrationsState {
@@ -51,8 +57,7 @@ export const useIntegrations = create<IntegrationsState>((set, get) => {
       if (get().connecting) return false
       set((s) => ({ connecting: p, error: { ...s.error, [p]: undefined } }))
       try {
-        const call = p === 'spotify' ? backend.connectSpotify() : backend.connectGoogle()
-        ok(p, await call)
+        ok(p, await CONNECT[p]())
         return true
       } catch (err) {
         fail(p, err)

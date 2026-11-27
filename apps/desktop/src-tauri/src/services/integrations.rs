@@ -1,10 +1,12 @@
-//! Shared plumbing for Spotify / Google: keyring store, HTTP client and sessions.
+//! Shared plumbing for Spotify / Google / Gmail / Outlook: keyring store, HTTP client and sessions.
 //! All `ekko-integrations` calls block, so commands run them on `spawn_blocking`.
 
 use std::sync::{Arc, OnceLock};
 
 use ekko_core::IntegrationsSettings;
 use ekko_integrations::http::{ReqwestTransport, Transport};
+use ekko_integrations::mail::{gmail, outlook};
+use ekko_integrations::oauth::OAuthClient;
 use ekko_integrations::tokens::{GOOGLE_CLIENT_SECRET, KeyringStore, SecretStore};
 use ekko_integrations::{Error, Provider, Result, Session, google_calendar, spotify};
 use tauri::{AppHandle, Manager};
@@ -16,13 +18,14 @@ pub struct Integrations {
     http: OnceLock<Arc<ReqwestTransport>>,
 }
 
-/// Registers the shared state and starts the calendar poller.
+/// Registers the shared state and starts the calendar and e-mail pollers.
 pub fn init(app: &AppHandle) {
     app.manage(Integrations {
         store: Arc::new(KeyringStore),
         http: OnceLock::new(),
     });
     super::calendar::spawn(app);
+    super::mail::spawn(app);
 }
 
 impl Integrations {
@@ -42,13 +45,14 @@ impl Integrations {
     pub fn session(&self, provider: Provider, ids: &IntegrationsSettings) -> Result<Session> {
         let oauth = match provider {
             Provider::Spotify => spotify::oauth(client_id(&ids.spotify_client_id, provider)?),
-            // The user's own client wins; otherwise the one this build ships with.
-            Provider::Google => match (
-                client_id(&ids.google_client_id, provider),
-                google_calendar::builtin_client(),
+            // Gmail rides on the Agenda's Google client, with its own consent.
+            Provider::Google => self.google(ids, provider, google_calendar::oauth)?,
+            Provider::Gmail => self.google(ids, provider, gmail::oauth)?,
+            Provider::Outlook => match (
+                client_id(&ids.outlook_client_id, provider),
+                outlook::builtin_client(),
             ) {
-                (Ok(id), _) => google_calendar::oauth(id, self.store.get(GOOGLE_CLIENT_SECRET)?),
-                (Err(_), Some((id, secret))) => google_calendar::oauth(id, Some(secret.into())),
+                (Ok(id), _) | (Err(_), Some(id)) => outlook::oauth(id),
                 (Err(err), None) => return Err(err),
             },
         };
@@ -58,6 +62,25 @@ impl Integrations {
             self.store.clone(),
             self.http()?,
         ))
+    }
+}
+
+impl Integrations {
+    /// The user's own Google client wins; otherwise the one this build ships with.
+    fn google(
+        &self,
+        ids: &IntegrationsSettings,
+        provider: Provider,
+        oauth: fn(&str, Option<String>) -> OAuthClient,
+    ) -> Result<OAuthClient> {
+        match (
+            client_id(&ids.google_client_id, provider),
+            google_calendar::builtin_client(),
+        ) {
+            (Ok(id), _) => Ok(oauth(id, self.store.get(GOOGLE_CLIENT_SECRET)?)),
+            (Err(_), Some((id, secret))) => Ok(oauth(id, Some(secret.into()))),
+            (Err(err), None) => Err(err),
+        }
     }
 }
 
